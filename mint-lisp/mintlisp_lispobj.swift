@@ -14,6 +14,10 @@ class SExpr {
         return self
     }
     
+    func str(indent:String, level: Int) -> String {
+        return ""
+    }
+    
     func _debug_string() -> String {
         return "_null_"
     }
@@ -43,6 +47,49 @@ class Pair:SExpr {
         cdr = _cdr
     }
     
+    override func str(indent: String, level:Int) -> String {
+        
+        var leveledIndent : String = ""
+        for var i = 0; level > i; i++ {
+            leveledIndent += indent
+        }
+        
+        let res = str_list_of_exprs(self, indent: indent, level: level + 1 )
+        
+        var acc : String = ""
+        
+        for s in res {
+            if s[s.startIndex] == "(" {
+                acc += "\n" + leveledIndent + s
+            } else {
+                if acc == "" {
+                    acc += s
+                } else {
+                    acc += " " + s
+                }
+            }
+        }
+        
+        return "(" + acc + ")"
+    }
+    
+    private func str_list_of_exprs(_opds :SExpr, indent:String, level: Int) -> [String] {
+        if let atom = _opds as? Atom {
+            return [atom.str(indent, level: level)]
+        } else {
+            return tail_str_list_of_exprs(_opds, acc: [], indent: indent, level: level)
+        }
+    }
+    
+    private func tail_str_list_of_exprs(_opds :SExpr, var acc: [String], indent:String, level: Int) -> [String] {
+        if let pair = _opds as? Pair {
+            acc.append(pair.car.str(indent, level: level))
+            return tail_str_list_of_exprs(pair.cdr, acc: acc, indent: indent, level: level)
+        } else {
+            return acc
+        }
+    }
+    
     override func _debug_string() -> String {
         return "(\(car._debug_string()) . \(cdr._debug_string()))"
     }
@@ -56,6 +103,10 @@ class Form:SExpr {
 
 class MDefine:Form {
     
+    override func str(indent: String, level:Int) -> String {
+        return "define"
+    }
+    
     override func _debug_string() -> String {
         return "define"
     }
@@ -63,12 +114,20 @@ class MDefine:Form {
 
 class MQuote: Form {
     
+    override func str(indent: String, level:Int) -> String {
+        return "quote"
+    }
+    
     override func _debug_string() -> String {
         return "quote"
     }
 }
 
 class MBegin:Form {
+    
+    override func str(indent: String, level:Int) -> String {
+        return "begin"
+    }
     
     override func _debug_string() -> String {
         return "begin"
@@ -132,6 +191,10 @@ class Procedure:Form {
         }
     }
     
+    override func str(indent: String, level:Int) -> String {
+        return "proc: export error!"
+    }
+    
     override func _debug_string() -> String {
         return "procedure"
     }
@@ -143,6 +206,10 @@ class MLambda: Form {
         return Pair(car: self, cdr: Pair(car: params, cdr: Pair(car: body)))
     }
     
+    override func str(indent: String, level:Int) -> String {
+        return "lambda"
+    }
+    
     override func _debug_string() -> String {
         return "lambda"
     }
@@ -150,12 +217,20 @@ class MLambda: Form {
 
 class MIf: Form {
     
+    override func str(indent: String, level:Int) -> String {
+        return "if"
+    }
+    
     override func _debug_string() -> String {
         return "if"
     }
 }
 
 class MSet:Form {
+    
+    override func str(indent: String, level:Int) -> String {
+        return "set!"
+    }
     
     override func _debug_string() -> String {
         return "set!"
@@ -180,6 +255,10 @@ class MSymbol:Atom {
         return env.lookup(key)
     }
     
+    override func str(indent: String, level:Int) -> String {
+        return key
+    }
+    
     override func _debug_string() -> String {
         return "Symbol:" + key
     }
@@ -199,6 +278,10 @@ class MInt: Literal {
         value = _value
     }
     
+    override func str(indent: String, level:Int) -> String {
+        return "\(value)"
+    }
+    
     override func _debug_string() -> String {
         return "Int:\(value)"
     }
@@ -209,6 +292,10 @@ class MDouble: Literal {
     
     init(_value: Double) {
         value = _value
+    }
+    
+    override func str(indent: String, level:Int) -> String {
+        return "\(value)"
     }
     
     override func _debug_string() -> String {
@@ -223,6 +310,10 @@ class MStr: Literal {
         value = _value
     }
     
+    override func str(indent: String, level:Int) -> String {
+        return value
+    }
+    
     override func _debug_string() -> String {
         return "String:\"\(value)\""
     }
@@ -235,6 +326,10 @@ class MChar: Literal {
         value = _value
     }
     
+    override func str(indent: String, level:Int) -> String {
+        return "\(value)"
+    }
+    
     override func _debug_string() -> String {
         return "Char:\(value)"
     }
@@ -244,6 +339,10 @@ class MNull:Literal {
     
     override func eval(env: Env) -> SExpr {
         return self
+    }
+    
+    override func str(indent: String, level:Int) -> String {
+        return "null"
     }
     
     override func _debug_string() -> String {
@@ -262,6 +361,9 @@ class MBool:Literal {
         return self
     }
     
+    override func str(indent: String, level:Int) -> String {
+        return "\(value)"
+    }
     
     override func _debug_string() -> String {
         return "Bool:\(value)"

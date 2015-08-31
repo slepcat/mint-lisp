@@ -15,6 +15,7 @@
 		A626B83E1B80D56300BA8736 /* mintlisp_parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = A626B8381B80D56300BA8736 /* mintlisp_parser.swift */; };
 		A626B83F1B80D56300BA8736 /* mintlisp_primitive.swift in Sources */ = {isa = PBXBuildFile; fileRef = A626B8391B80D56300BA8736 /* mintlisp_primitive.swift */; };
 		A626B8401B80D56300BA8736 /* mintlisp_util.swift in Sources */ = {isa = PBXBuildFile; fileRef = A626B83A1B80D56300BA8736 /* mintlisp_util.swift */; };
+		A6C7D0811B948C86003E2961 /* Interpreter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6C7D0801B948C86003E2961 /* Interpreter.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -40,6 +41,7 @@
 		A626B8391B80D56300BA8736 /* mintlisp_primitive.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = mintlisp_primitive.swift; sourceTree = "<group>"; };
 		A626B83A1B80D56300BA8736 /* mintlisp_util.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = mintlisp_util.swift; sourceTree = "<group>"; };
 		A626B83B1B80D56300BA8736 /* mintlisp.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = mintlisp.playground; sourceTree = "<group>"; };
+		A6C7D0801B948C86003E2961 /* Interpreter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Interpreter.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,6 +77,7 @@
 				A626B82F1B80D51400BA8736 /* main.swift */,
 				A626B8381B80D56300BA8736 /* mintlisp_parser.swift */,
 				A6135A161B84CA8400E07973 /* mintlisp_evaluator.swift */,
+				A6C7D0801B948C86003E2961 /* Interpreter.swift */,
 				A626B8371B80D56300BA8736 /* mintlisp_lispobj.swift */,
 				A6135A011B82063A00E07973 /* mintlisp_listops.swift */,
 				A626B8361B80D56300BA8736 /* mintlisp_env.swift */,
@@ -141,6 +144,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A6C7D0811B948C86003E2961 /* Interpreter.swift in Sources */,
 				A626B83F1B80D56300BA8736 /* mintlisp_primitive.swift in Sources */,
 				A626B83E1B80D56300BA8736 /* mintlisp_parser.swift in Sources */,
 				A626B8301B80D51400BA8736 /* main.swift in Sources */,

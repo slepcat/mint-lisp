@@ -695,7 +695,7 @@ func parseLispExpr() -> Comb<LispToken, SExpr>.Parser {
     }
 }
 
-let test = [Character]("(set! \"Hi,\" \n \"hello\")")
+//let test = [Character]("(set! \"Hi,\" \n \"hello\")")
 
 //println(tokenLParentheses(test))
 
@@ -725,8 +725,19 @@ let test = [Character]("(set! \"Hi,\" \n \"hello\")")
 
 
 
+var b : [String] = ["hello"]
 
+b.append("\n    ")
 
+b.append("world")
+
+var acc = ""
+
+for s in b {
+    acc += s
+}
+
+println(acc)
 
 
 

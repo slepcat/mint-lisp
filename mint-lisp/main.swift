@@ -43,6 +43,7 @@ while isLoop {
                 println(r._debug_string())
                 println(e.eval(r, gl_env: global)._debug_string())
                 println("sec: \(-timewatch.timeIntervalSinceNow)")
+                println(r.str("  ", level: 1))
             }
         }
     }

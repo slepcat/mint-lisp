@@ -17,6 +17,7 @@ enum LispToken {
     case LispChr(Character)
     case LispInt(Int)
     case LispDouble(Double)
+    case LispNull
     case VectorParentheses      //#(
     case Quote                  //’
     case BackQuate              //`
@@ -48,6 +49,8 @@ extension LispToken : Printable {
             return "\(num)"
         case let .LispDouble(num):
             return "\(num)"
+        case let .LispNull:
+            return "null"
         case .VectorParentheses:
             return "#("
         case .Quote:
@@ -97,6 +100,8 @@ extension LispToken {
             return MStr(_value: str)
         case let .LispChr(chr):
             return MChar(_value: chr)
+        case let .LispNull:
+            return MNull()
         case let .Symbol(symbol):
             
             switch symbol {
@@ -377,6 +382,18 @@ let tokenChar : SingleTokenizer = bind(token("#")) { _ in
     }
 }
 
+let tokenNull : SingleTokenizer = bind(token("n")) { _ in
+    bind(token("u")) { _ in
+        bind(token("l")) { _ in
+            bind(token("l")) { _ in
+                bind(divider) { _ in
+                    return pure(LispToken.LispNull)
+                }
+            }
+        }
+    }
+}
+
 let identifier : SingleTokenizer = bind(alphabet <|> specialInitialLetter) { (a:Character) in
     bind(zeroOrMore(alphabet <|> number <|> specialInitialLetter <|> specialFollowingLetter)) { (b:[Character]) in
         bind(divider) { (_:Character) in
@@ -417,7 +434,7 @@ let tokenDot : SingleTokenizer = bind(token(".")) { _ in
 
 typealias LispTokenizer = Comb<Character, [LispToken]>.Parser
 
-let lispTokenizer : LispTokenizer = oneOrMore(ignoreWhitespace(tokenSymbol <|> tokenBool <|> tokenInt <|> tokenDouble <|> tokenChar <|> tokenString <|> tokenLParentheses <|> tokenRParentheses <|> tokenVector <|> tokenQuote <|> tokenComma <|> tokenDot))
+let lispTokenizer : LispTokenizer = oneOrMore(ignoreWhitespace(tokenSymbol <|> tokenBool <|> tokenInt <|> tokenDouble <|> tokenChar <|> tokenString <|> tokenLParentheses <|> tokenRParentheses <|> tokenVector <|> tokenQuote <|> tokenComma <|> tokenDot <|> tokenNull ))
 
 // parse s-expression
 
