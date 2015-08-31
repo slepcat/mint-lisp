@@ -10,10 +10,6 @@ import Foundation
 
 class Primitive:Form {
     
-    override func form_eval(env: Env, params: [SExpr], args: [SExpr]) -> (exp: SExpr, env: Env) {
-        return (apply(args), env)
-    }
-    
     func apply(var args: [SExpr]) -> SExpr {
         if args.count == 0 {
             return MNull()
