@@ -10,6 +10,22 @@ import Foundation
 
 class SExpr {
     
+    let uid : UInt
+    
+    init() {
+        uid = UID.get.newID
+    }
+    
+    func lookup_exp(uid:UInt) -> (conscell: SExpr, target: SExpr) {
+        if self.uid == uid {
+            return (MNull.staticNull, self)
+        } else {
+            return (MNull.staticNull, MNull.staticNull)
+        }
+    }
+    
+    func isNull() -> Bool { return false }
+    
     func eval(env: Env) -> SExpr {
         return self
     }
@@ -45,6 +61,29 @@ class Pair:SExpr {
     init(car _car:SExpr, cdr _cdr:SExpr) {
         car = _car
         cdr = _cdr
+    }
+    
+    override func lookup_exp(uid:UInt) -> (conscell: SExpr, target: SExpr) {
+        
+        if self.uid == uid {
+            return (MNull.staticNull, self)
+        } else  {
+            let resa = car.lookup_exp(uid)
+            if !resa.target.isNull() {
+                if resa.conscell.isNull() { return (self, resa.target) }
+                return resa
+            }
+            
+            let resd = cdr.lookup_exp(uid)
+            
+            if !resd.target.isNull() {
+                if resd.conscell.isNull() { return (self, resd.target) }
+                return resd
+            }
+            
+            return (MNull.staticNull, MNull.staticNull)
+            
+        }
     }
     
     override func str(indent: String, level:Int) -> String {
@@ -337,8 +376,17 @@ class MChar: Literal {
 
 class MNull:Literal {
     
-    override func eval(env: Env) -> SExpr {
-        return self
+    // avoid consume uid. do not use as a member of s-expression.
+    // cause identification problem for SExpr manipulation
+    class var staticNull:MNull {
+        struct Static {
+            static let singletonNull = MNull()
+        }
+        return Static.singletonNull
+    }
+    
+    override func isNull() -> Bool {
+        return true
     }
     
     override func str(indent: String, level:Int) -> String {
@@ -355,10 +403,6 @@ class MBool:Literal {
     
     init(_value: Bool) {
         value = _value
-    }
-    
-    override func eval(env: Env) -> SExpr {
-        return self
     }
     
     override func str(indent: String, level:Int) -> String {

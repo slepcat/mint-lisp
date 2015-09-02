@@ -60,3 +60,23 @@ func _and(a :Bool, b: Bool) -> Bool {
 func _or(a :Bool, b: Bool) -> Bool {
     return (a || b)
 }
+
+// unique id generator.
+// UID factory: we can request a unique ID through UID.get.newID
+// Singleton
+
+class UID {
+    private var count:UInt = 0
+    private init(){}
+    
+    var newID: UInt {
+        return count++
+    }
+    
+    class var get: UID {
+        struct Static{
+            static let idFactory = UID()
+        }
+        return Static.idFactory
+    }
+}
