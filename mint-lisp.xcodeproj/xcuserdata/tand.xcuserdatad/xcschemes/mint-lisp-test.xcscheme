@@ -9,14 +9,14 @@
          <BuildActionEntry
             buildForTesting = "YES"
             buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "A626B82B1B80D51400BA8736"
-               BuildableName = "mint-lisp"
-               BlueprintName = "mint-lisp"
+               BlueprintIdentifier = "A68D04F61B9C7610007575AC"
+               BuildableName = "mint-lisp-test.xctest"
+               BlueprintName = "mint-lisp-test"
                ReferencedContainer = "container:mint-lisp.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -42,9 +42,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "A626B82B1B80D51400BA8736"
-            BuildableName = "mint-lisp"
-            BlueprintName = "mint-lisp"
+            BlueprintIdentifier = "A68D04F61B9C7610007575AC"
+            BuildableName = "mint-lisp-test.xctest"
+            BlueprintName = "mint-lisp-test"
             ReferencedContainer = "container:mint-lisp.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -58,16 +58,15 @@
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       allowLocationSimulation = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "A626B82B1B80D51400BA8736"
-            BuildableName = "mint-lisp"
-            BlueprintName = "mint-lisp"
+            BlueprintIdentifier = "A68D04F61B9C7610007575AC"
+            BuildableName = "mint-lisp-test.xctest"
+            BlueprintName = "mint-lisp-test"
             ReferencedContainer = "container:mint-lisp.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
@@ -77,16 +76,15 @@
       useCustomWorkingDirectory = "NO"
       buildConfiguration = "Release"
       debugDocumentVersioning = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "A626B82B1B80D51400BA8736"
-            BuildableName = "mint-lisp"
-            BlueprintName = "mint-lisp"
+            BlueprintIdentifier = "A68D04F61B9C7610007575AC"
+            BuildableName = "mint-lisp-test.xctest"
+            BlueprintName = "mint-lisp-test"
             ReferencedContainer = "container:mint-lisp.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

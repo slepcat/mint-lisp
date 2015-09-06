@@ -25,11 +25,53 @@ class Interpreter {
     ///// Interpreter /////
     
     func readln(rawstr: String) -> SExpr {
+        
+        let tokens = lispTokenizer([Character](rawstr))
+        let parser = parseLispExpr()
+        
+        if let token = tokens.first {
+            
+            if token.1.count > 0 {
+                println("tokenize failed")
+                return MNull.staticNull
+            }
+            
+            if let result = parser(token.0).first {
+                if result.1.count > 0 {
+                    println("parse failed")
+                    return MNull.staticNull
+                }
+                
+                return result.0
+            }
+        }
+        
         return MNull.staticNull
     }
     
-    func readfile(fileContent: String) {
+    func readfile(fileContent: String) -> [SExpr] {
         
+        let tokens = lispTokenizer([Character](fileContent))
+        let parser = parseLispExpr()
+        
+        if let token = tokens.first {
+            
+            if token.1.count > 0 {
+                println("tokenize failed")
+                return []
+            }
+            
+            if let result = parser(token.0).first {
+                if result.1.count > 0 {
+                    println("parse failed")
+                    return []
+                }
+                
+                return [result.0]
+            }
+        }
+        
+        return []
     }
     
     func preprocess(uid: UInt) -> SExpr {
@@ -62,12 +104,12 @@ class Interpreter {
         return (MNull.staticNull, MNull.staticNull)
     }
     
-    func add(uid: UInt, rawstr: String) -> UInt? {
+    func add(rawstr: String) -> UInt? {
         
         return nil//failed to add arg
     }
     
-    func remove(uid: UInt) {
+    func remove(uid: UInt) -> SExpr {
         
         for var i = 0; trees.count > i; i++ {
             let res = trees[i].lookup_exp(uid)
@@ -101,9 +143,10 @@ class Interpreter {
                         println("fail to remove. bad conscell")
                     }
                 }
-                break
+                return res.target
             }
         }
+        return MNull()
     }
     
     func overwrite(uid: UInt, rawstr: String) {
@@ -113,8 +156,19 @@ class Interpreter {
         }
     }
     
-    func move(uid: UInt, toNextOfUid: UInt) {
+    func insert(uid: UInt, toNextOfUid: UInt) {
+        let nextTo = lookup(toNextOfUid)
         
+        if let pair = nextTo.conscell as? Pair {
+            
+            let subject = remove(uid)
+            
+            let newPair = Pair(car: subject, cdr: pair.cdr)
+            pair.cdr = newPair
+            
+        } else {
+            println("error: move element must move inside conscell.")
+        }
     }
     
     ///// Export /////
