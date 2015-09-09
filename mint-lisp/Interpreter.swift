@@ -112,11 +112,6 @@ class Interpreter {
         return (MNull.staticNull, MNull.staticNull)
     }
     
-    func add(rawstr: String) -> UInt? {
-        
-        return nil//failed to add arg
-    }
-    
     func remove(uid: UInt) -> SExpr {
         
         for var i = 0; trees.count > i; i++ {
