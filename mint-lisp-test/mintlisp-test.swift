@@ -250,3 +250,111 @@ class LispSpec: QuickSpec {
         }
     }
 }
+
+class InterpreterSpec : QuickSpec {
+    override func spec() {
+        
+        let interpreter = Interpreter()
+        
+        it("should read from line") {
+            
+            let expr = interpreter.readln("(+ 10 (- 10 5) (* 1 5))")
+            
+            expect(expr._debug_string()).to(equal("(Symbol:+ . (Int:10 . ((Symbol:- . (Int:10 . (Int:5 . _null_))) . ((Symbol:* . (Int:1 . (Int:5 . _null_))) . _null_))))"))
+        }
+        
+        it("should read from file") {
+            let expr = interpreter.readfile("(define (bit n) (if (= n 0) 1 (+ (bit (- n 1)) (bit (- n 1)))))\n(bit 8)\n(bit 10)")
+            
+            let num = expr.count
+            
+            expect(num).to(equal(3))
+            expect(expr[0]._debug_string()).to(equal("(define . ((Symbol:bit . (Symbol:n . _null_)) . ((if . ((Symbol:= . (Symbol:n . (Int:0 . _null_))) . (Int:1 . ((Symbol:+ . ((Symbol:bit . ((Symbol:- . (Symbol:n . (Int:1 . _null_))) . _null_)) . ((Symbol:bit . ((Symbol:- . (Symbol:n . (Int:1 . _null_))) . _null_)) . _null_))) . _null_)))) . _null_)))"))
+            expect(expr[1]._debug_string()).to(equal("(Symbol:bit . (Int:8 . _null_))"))
+            expect(expr[2]._debug_string()).to(equal("(Symbol:bit . (Int:10 . _null_))"))
+        }
+        
+        it("should remove uid designated element in the middle of binary tree") {
+            
+            var rmuid1 :UInt = 0
+            var rmuid2 :UInt = 0
+            
+            let test_exp1 = interpreter.readln("(+ 1 2 3)")
+            let test_exp2 = interpreter.readln("(+ 1 (+ 1 1) 3)")
+            
+            if let pair = test_exp1 as? Pair, let pair2 = test_exp2 as? Pair {
+                rmuid1 = pair.caddr.uid
+                rmuid2 = pair2.caddr.uid
+            }
+            
+            let res1 = interpreter.remove(rmuid1)
+            let res2 = interpreter.remove(rmuid2)
+            
+            expect(res1._debug_string()).to(equal("Int:2"))
+            expect(res2._debug_string()).to(equal("(Symbol:+ . (Int:1 . (Int:1 . _null_)))"))
+            expect(test_exp1._debug_string()).to(equal("(Symbol:+ . (Int:1 . (Int:3 . _null_)))"))
+            expect(test_exp2._debug_string()).to(equal("(Symbol:+ . (Int:1 . (Int:3 . _null_)))"))
+        }
+        
+        it("should remove uid designated element without removing pairs which it contain") {
+            var rmuid :UInt = 0
+            var notrm :UInt = 0
+            
+            let test_exp = interpreter.readln("(+ (+ (* 3 2) 2) 3 2)")
+            
+            if let pair = test_exp as? Pair {
+                rmuid = pair.cadr.uid
+                println(pair.cadr._debug_string())
+                if let pair2 = pair.cadr as? Pair {
+                    notrm = pair2.cadr.uid
+                    println(pair2.cadr._debug_string())
+                }
+            }
+            
+            let res = interpreter.remove(rmuid)
+            let remain = interpreter.lookup(notrm)
+            
+            expect(test_exp._debug_string()).to(equal("(Symbol:+ . (Int:3 . (Int:2 . _null_)))"))
+            expect(remain.target.isNull()).to(equal(false))
+        }
+        
+        it("should remove designated uid s-expression in the last of binary tree") {
+            
+            var rmid:UInt = 0
+            
+            if let head = interpreter.trees[0] as? Pair {
+                rmid = head.cadddr.uid
+                println(head.cadddr._debug_string())
+            }
+            
+            let str = interpreter.remove(rmid)._debug_string()
+            expect(str).to(equal("(Symbol:* . (Int:1 . (Int:5 . _null_)))"))
+            expect(interpreter.trees[0]._debug_string()).to(equal("(Symbol:+ . (Int:10 . ((Symbol:- . (Int:10 . (Int:5 . _null_))) . _null_)))"))
+
+            //println(interpreter.str())
+        }
+        
+        // add
+        
+        // overwrite
+        
+        it("should take one element and insert after another element") {
+            var uid :UInt = 0
+            var nextTo :UInt = 0
+            
+            let test_exp = interpreter.readln("(+ 1 2 3)")
+            
+            if let pair = test_exp as? Pair {
+                uid = pair.cadddr.uid
+                println(pair.cadddr._debug_string())
+                nextTo = pair.cadr.uid
+                println(pair.cadr._debug_string())
+            }
+            
+            interpreter.insert(uid, toNextOfUid: nextTo)
+            
+            expect(test_exp._debug_string()).to(equal("(Symbol:+ . (Int:1 . (Int:3 . (Int:2 . _null_))))"))
+        }
+        
+    }
+}

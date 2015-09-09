@@ -33,15 +33,14 @@ class Interpreter {
             
             if token.1.count > 0 {
                 println("tokenize failed")
-                return MNull.staticNull
             }
             
             if let result = parser(token.0).first {
                 if result.1.count > 0 {
                     println("parse failed")
-                    return MNull.staticNull
                 }
                 
+                trees.append(result.0)
                 return result.0
             }
         }
@@ -58,20 +57,29 @@ class Interpreter {
             
             if token.1.count > 0 {
                 println("tokenize failed")
-                return []
             }
             
-            if let result = parser(token.0).first {
-                if result.1.count > 0 {
-                    println("parse failed")
-                    return []
-                }
-                
-                return [result.0]
-            }
+            let result = read_recursive(token.0, parser: parser, acc: [])
+            trees += result
+            return result
         }
         
         return []
+    }
+    
+    private func read_recursive(tokens: [LispToken], parser: [LispToken] -> [(SExpr, [LispToken])], var acc:[SExpr]) -> [SExpr] {
+        if tokens.count == 0 {
+            return acc
+        } else {
+            
+            if let res = parser(tokens).first {
+                
+                acc.append(res.0)
+                return read_recursive(res.1, parser: parser, acc: acc)
+            }
+            
+            return [MNull()]
+        }
     }
     
     func preprocess(uid: UInt) -> SExpr {
@@ -116,33 +124,32 @@ class Interpreter {
             if !res.target.isNull() {
                 
                 let opds = delayed_list_of_values(res.target)
-                
+
                 if res.conscell.isNull() {
                     trees.removeAtIndex(i)
                     
-                    for exp in opds {
-                        if let pair = exp as? Pair {
-                            trees.append(pair)
-                        }
-                    }
-                    
-                } else {
-                    if let pair = res.conscell as? Pair {
-                        if pair.cdr.isNull() {
-                            remove(pair.uid)
-                        } else {
-                            if let nextPair = pair.cdr as? Pair {
-                                pair.car = nextPair.car
-                                pair.cdr = nextPair.cdr
-                            } else {
-                                pair.car = pair.cdr
-                                pair.cdr = MNull()
-                            }
+                } else if let pair = res.conscell as? Pair {
+                    if pair.cdr.isNull() {
+                        let prev = trees[i].lookup_exp(pair.uid)
+                        if let prev_pair = prev.conscell as? Pair {
+                            prev_pair.cdr = MNull()
+                        } else if prev.conscell.isNull() {
+                            trees.removeAtIndex(i)
                         }
                     } else {
-                        println("fail to remove. bad conscell")
+                        pair.car = pair.cadr
+                        pair.cdr = pair.cddr
+                    }
+                } else {
+                    println("fail to remove. bad conscell")
+                }
+                
+                for exp in opds {
+                    if let pair = exp as? Pair {
+                        trees.append(pair)
                     }
                 }
+                
                 return res.target
             }
         }
