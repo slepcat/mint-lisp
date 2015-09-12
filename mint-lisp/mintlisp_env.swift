@@ -117,15 +117,39 @@ func global_environment() -> [String : SExpr] {
     
     primitives["cast-double"] = CastDouble()
     
-    ///// 3D primitives /////
+    ///// 3D data objects /////
     
     primitives["vec"] = Vec()
+    primitives["vec.x"] = Vec_x()
+    primitives["vec.y"] = Vec_y()
+    primitives["vec.z"] = Vec_z()
+
     primitives["vex"] = Vex()
+    primitives["vex.pos"] = Vex_Pos()
+    primitives["vex.normal"] = Vex_Normal()
+    primitives["vex.color"] = Vex_Color()
+
     primitives["color"] = Color()
+    primitives["color.r"] = Color_r()
+    primitives["color.g"] = Color_g()
+    primitives["color.b"] = Color_b()
+    primitives["color.a"] = Color_a()
+    
+    primitives["plane"] = Pln()
+    primitives["plane.normal"] = Pln_normal()
+    
+    primitives["poly"] = Poly()
+    primitives["poly.vex-at-index"] = Poly_VexAtIndex()
+    primitives["poly.vex-count"] = Poly_VexCount()
+    
+    ///// 3d primitives /////
+    
+    primitives["cube"] = Cube()
     
     ///// IO /////
     
     primitives["println"] = Print()
+    primitives["display"] = Display()
     primitives["quit"] = Quit()
 
     return primitives

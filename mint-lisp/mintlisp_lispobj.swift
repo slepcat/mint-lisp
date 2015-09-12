@@ -483,10 +483,11 @@ class MColor : Literal {
         
         var color = "Color: ["
         for c in value {
-            color += " \(c),"
+            color += "\(c), "
         }
         
         var chr = [Character](color)
+        chr.removeLast()
         chr.removeLast()
         color = String(chr)
         color += "]"
@@ -504,13 +505,69 @@ class MPlane : Literal {
     
     override func str(indent: String, level: Int) -> String {
         
-        return "(vex (vec \(value.normal.x) \(value.normal.y) \(value.normal.z)) \(value.w))"
+        return "(plane (vec \(value.normal.x) \(value.normal.y) \(value.normal.z)) \(value.w))"
     }
     
     
     override func _debug_string() -> String {
         
         return "Plane: [\(value.normal.x), \(value.normal.y), \(value.normal.z)], \(value.w) "
+    }
+}
+
+class MPolygon : Literal {
+    var value : Polygon
+    
+    init(_value: Polygon) {
+        value = _value
+    }
+    
+    override func str(indent: String, level: Int) -> String {
+        
+        var acc = "(polygon "
+        
+        for vex in value.vertices {
+            let mvex = MVertex(_value: vex)
+            acc += mvex.description + " "
+        }
+        
+        let mpln = MPlane(_value: value.plane)
+        acc += mpln.description + ")"
+        
+        return acc
+    }
+    
+    override func _debug_string() -> String {
+        
+        var acc = "Polygon: "
+        
+        for vex in value.vertices {
+            acc += "[\(vex.pos.x), \(vex.pos.y), \(vex.pos.z)]" + " "
+        }
+        
+        acc += "normal \(value.plane.normal.x) \(value.plane.normal.y) \(value.plane.normal.z) w \(value.plane.w)"
+        
+        return acc
+    }
+}
+
+class IOMesh: Literal {
+    var mesh: [Double]
+    var normal: [Double]
+    var color: [Float]
+    
+    init(mesh:[Double], normal:[Double], color:[Float]) {
+        self.mesh = mesh
+        self.normal = normal
+        self.color = color
+    }
+    
+    override func str(indent: String, level: Int) -> String {
+        return "<<#IOMesh> \(mesh), \(normal), \(color)>"
+    }
+    
+    override func _debug_string() -> String {
+        return "<<#IOMesh> \(mesh), \(normal), \(color)>"
     }
 }
 
