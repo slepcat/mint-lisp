@@ -173,13 +173,15 @@ func - (left: Vector, right:Vector) -> Vector {
     return Vector(x: left.x - right.x, y: left.y - right.y, z: left.z - right.z)
 }
 
-// # struct Vector2D
-
 struct Vector2D {
     let x:Double
     let y:Double
+    
+    init(x: Double ,y: Double) {
+        self.x = x
+        self.y = y
+    }
 }
-
 
 // # struct Vertex
 // Represents a vertex of a polygon. Use your own vertex class instead of this

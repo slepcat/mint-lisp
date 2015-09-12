@@ -414,38 +414,108 @@ class MBool:Literal {
     }
 }
 
-extension MStr : Printable {
-    var description: String {
-        return value
+class MVector:Literal {
+    var value:Vector
+    
+    init(_value: Vector) {
+        value = _value
+    }
+    
+    override func str(indent: String, level: Int) -> String {
+        return "(vec \(value.x) \(value.y) \(value.z))"
+    }
+    
+    override func _debug_string() -> String {
+        return "Vector: [\(value.x), \(value.y), \(value.z)]"
     }
 }
 
-extension MChar : Printable {
-    var description: String {
-        return String(value)
+class MVertex:Literal {
+    var value:Vertex
+    
+    init(_value: Vertex) {
+        value = _value
+    }
+    
+    override func str(indent: String, level: Int) -> String {
+        
+        var color = "(color"
+        for c in value.color {
+            color += " \(c)"
+        }
+        color += ")"
+        
+        return "(vex (vec \(value.pos.x) \(value.pos.y) \(value.pos.z)) (vec \(value.normal.x) \(value.normal.y) \(value.normal.z))" + color + ")"
+    }
+    
+    override func _debug_string() -> String {
+        
+        var color = "["
+        for c in value.color {
+            color += " \(c)"
+        }
+        color += "]"
+        
+        return "Vertex: [\(value.pos.x), \(value.pos.y), \(value.pos.z)] [\(value.normal.x), \(value.normal.y), \(value.normal.z)] " + color
     }
 }
 
-extension MInt : Printable {
-    var description: String {
-        return "\(value)"
+class MColor : Literal {
+    var value = [Float](count: 3 ,repeatedValue: 0.5)
+    
+    init(_value: [Float]) {
+        value = _value
+    }
+    
+    override func str(indent: String, level: Int) -> String {
+        
+        var color = "(color"
+        for c in value {
+            color += " \(c)"
+        }
+        color += ")"
+        
+        return color
+    }
+    
+    
+    override func _debug_string() -> String {
+        
+        var color = "Color: ["
+        for c in value {
+            color += " \(c),"
+        }
+        
+        var chr = [Character](color)
+        chr.removeLast()
+        color = String(chr)
+        color += "]"
+        
+        return color
     }
 }
 
-extension MDouble : Printable {
-    var description: String {
-        return "\(value)"
+class MPlane : Literal {
+    var value:Plane
+    
+    init(_value: Plane) {
+        value = _value
+    }
+    
+    override func str(indent: String, level: Int) -> String {
+        
+        return "(vex (vec \(value.normal.x) \(value.normal.y) \(value.normal.z)) \(value.w))"
+    }
+    
+    
+    override func _debug_string() -> String {
+        
+        return "Plane: [\(value.normal.x), \(value.normal.y), \(value.normal.z)], \(value.w) "
     }
 }
 
-extension MBool : Printable {
+extension Literal : Printable {
     var description: String {
-        return "\(value)"
-    }
-}
-
-extension MNull : Printable {
-    var description: String {
-        return "null"
+        return self.str("", level: 0)
     }
 }

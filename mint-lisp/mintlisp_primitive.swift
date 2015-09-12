@@ -210,6 +210,97 @@ class isEqual:Primitive {
     }
 }
 
+class CastDouble : Primitive {
+    override func apply(args: [SExpr]) -> SExpr {
+        
+        if args.count == 1 {
+            switch args[0] {
+            case let num as MInt:
+                return MDouble(_value: Double(num.value))
+            case let num as MDouble:
+                return num
+            default:
+                println("cast-doulbe take only number literal")
+                return MNull()
+            }
+        }
+        println("cast-double take only 1 element")
+        return MNull()
+    }
+}
+
+///// 3D Primitives /////
+
+class Vec : Primitive {
+    override func apply(args: [SExpr]) -> SExpr {
+        if args.count == 2 {
+            if let arg1 = args[0] as? MDouble, let arg2 = args[1] as? MDouble {
+                return MVector(_value: Vector(x: arg1.value, y: arg2.value))
+            }
+        } else if args.count == 3 {
+            if let arg1 = args[0] as? MDouble, let arg2 = args[1] as? MDouble, let arg3 = args[2] as? MDouble {
+                return MVector(_value: Vector(x: arg1.value, y: arg2.value, z: arg3.value))
+            }
+        }
+        
+        return MNull()
+    }
+}
+
+class Vex : Primitive {
+    override func apply(args: [SExpr]) -> SExpr {
+        if args.count == 1 {
+            if let vec = args[0] as? MVector {
+                return MVertex(_value: Vertex(pos: vec.value))
+            }
+        } else if args.count == 3 {
+            if let vec = args[0] as? MVector, let normal = args[1] as? MVector, let color = args[2] as? MColor {
+                
+                var vex = Vertex(pos: vec.value)
+                vex.color = color.value
+                vex.normal = normal.value
+                
+                return MVertex(_value: vex)
+            }
+        }
+        
+        return MNull()
+    }
+}
+
+class Color : Primitive {
+    override func apply(args: [SExpr]) -> SExpr {
+        if args.count == 3 {
+            if let r = args[0] as? MDouble, let g = args[1] as? MDouble, let b = args[2] as? MDouble {
+                let color = [Float(r.value), Float(g.value), Float(b.value)]
+                return MColor(_value: color)
+            }
+        } else if args.count == 4 {
+            if let r = args[0] as? MDouble, let g = args[1] as? MDouble, let b = args[2] as? MDouble, let a = args[3] as? MDouble {
+                let color = [Float(r.value), Float(g.value), Float(b.value), Float(a.value)]
+                return MColor(_value: color)
+            }
+        }
+        
+        println("color take 3 or 4 double values")
+        return MNull()
+    }
+}
+
+///// conscell procedures /////
+
+class Cons : Primitive {
+    override func apply(args: [SExpr]) -> SExpr {
+        if args.count == 2 {
+            
+            return Pair(car: args[0], cdr: args[1])
+        }
+        
+        println("cons must take 2 element")
+        return MNull()
+    }
+}
+
 class Car : Primitive {
     override func apply(args: [SExpr]) -> SExpr {
         if args.count == 1 {
@@ -420,6 +511,8 @@ class Cddar : Primitive {
     }
 }
 
+///// IO /////
+
 class Print : Primitive {
     override func apply(args: [SExpr]) -> SExpr {
         if args.count == 1 {
@@ -429,4 +522,13 @@ class Print : Primitive {
         }
         return MNull()
     }
+}
+
+class Quit : Primitive {
+    // dummy, for real quit process, see main.swift
+    override func apply(args: [SExpr]) -> SExpr {
+        println("byby")
+        return MNull()
+    }
+    
 }

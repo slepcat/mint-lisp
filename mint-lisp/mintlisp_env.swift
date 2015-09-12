@@ -80,16 +80,20 @@ class Env {
 func global_environment() -> [String : SExpr] {
     var primitives = [String : SExpr]()
     
+    ///// basic operators /////
     primitives["+"] = Plus()
     primitives["-"] = Minus()
     primitives["*"] = Multiply()
     primitives["/"] = Divide()
     primitives["="] = isEqual()
-    //primitives[">"] = isEqual()
-    //primitives["<"] = isEqual()
-    //primitives["<="] = isEqual()
-    //primitives[">="] = isEqual()
-    //primitives["cons"] = isEqual()
+    //primitives[">"] = isBigger()
+    //primitives["<"] = isSmaller()
+    //primitives["<="] = isEqualOrBigger()
+    //primitives[">="] = isEqualOrSmaller()
+    
+    ///// conscell management /////
+    
+    primitives["cons"] = Cons()
     primitives["car"] = Car()
     primitives["cdr"] = Cdr()
     primitives["caar"] = Caar()
@@ -108,7 +112,21 @@ func global_environment() -> [String : SExpr] {
     //primitives["list"] = isEqual()
     //primitives["apply"] = isEqual()
     //primitives["map"] = isEqual()
+    
+    ///// Type Casting /////
+    
+    primitives["cast-double"] = CastDouble()
+    
+    ///// 3D primitives /////
+    
+    primitives["vec"] = Vec()
+    primitives["vex"] = Vex()
+    primitives["color"] = Color()
+    
+    ///// IO /////
+    
     primitives["println"] = Print()
+    primitives["quit"] = Quit()
 
     return primitives
 }
