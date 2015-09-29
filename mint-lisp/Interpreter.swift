@@ -24,6 +24,23 @@ public class Interpreter {
     
     ///// Interpreter /////
     
+    public func read(rawstr: String) -> SExpr {
+        
+        let tokens = lispTokenizer([Character](rawstr.characters))
+        
+        if let token = tokens.first {
+            
+            if token.0.count == 1{
+                let exp = token.0[0].expr
+                return exp
+            } else {
+                print("parse failed")
+            }
+        }
+        
+        return MNull.staticNull
+    }
+    
     public func readln(rawstr: String) -> SExpr {
         
         let tokens = lispTokenizer([Character](rawstr.characters))
@@ -91,22 +108,6 @@ public class Interpreter {
         return lookup(uid).target
     }
     
-    public func eval(uid: UInt) -> SExpr {
-        return evaluator.eval(preprocess(uid), gl_env:global)
-    }
-    
-    public func eval(exp: SExpr) -> SExpr {
-        return evaluator.eval(exp, gl_env: global)
-    }
-    
-    ///// Manipulating S-Expression /////
-    
-    public func new(rawstr: String) -> UInt? {
-        //let expr = readlin(rawstr)
-        
-        return nil//failed to add exp
-    }
-    
     public func lookup(uid: UInt) -> (conscell: SExpr, target: SExpr) {
         for exp in trees {
             let res = exp.lookup_exp(uid)
@@ -118,80 +119,12 @@ public class Interpreter {
         return (MNull.staticNull, MNull.staticNull)
     }
     
-    public func remove(uid: UInt) -> SExpr {
-        
-        for var i = 0; trees.count > i; i++ {
-            let res = trees[i].lookup_exp(uid)
-            if !res.target.isNull() {
-                
-                let opds = delayed_list_of_values(res.target)
-
-                if res.conscell.isNull() {
-                    trees.removeAtIndex(i)
-                    
-                } else if let pair = res.conscell as? Pair {
-                    if pair.cdr.isNull() {
-                        let prev = trees[i].lookup_exp(pair.uid)
-                        if let prev_pair = prev.conscell as? Pair {
-                            prev_pair.cdr = MNull()
-                        } else if prev.conscell.isNull() {
-                            trees.removeAtIndex(i)
-                        }
-                    } else {
-                        pair.car = pair.cadr
-                        pair.cdr = pair.cddr
-                    }
-                } else {
-                    print("fail to remove. bad conscell", terminator: "")
-                }
-                
-                for exp in opds {
-                    if let pair = exp as? Pair {
-                        trees.append(pair)
-                    }
-                }
-                
-                return res.target
-            }
-        }
-        return MNull()
+    public func eval(uid: UInt) -> SExpr {
+        return evaluator.eval(preprocess(uid), gl_env:global)
     }
     
-    public func overwrite(uid: UInt, rawstr: String) {
-        let res = lookup(uid)
-        if let pair = res.conscell as? Pair {
-            pair.car = readln(rawstr)
-        }
-    }
-    
-    public func insert(uid: UInt, toNextOfUid: UInt) {
-        let nextTo = lookup(toNextOfUid)
-        
-        if let pair = nextTo.conscell as? Pair {
-            
-            let subject = remove(uid)
-            
-            let newPair = Pair(car: subject, cdr: pair.cdr)
-            pair.cdr = newPair
-            
-        } else {
-            print("error: move element must move inside conscell.", terminator: "")
-        }
-    }
-    
-    ///// read Env /////
-    
-    public func defined_exps() -> [String : [String]] {
-        
-        var acc : [String : [String]] = [:]
-        
-        for defined in global.hash_table {
-            if let proc = defined.1 as? Procedure {
-                acc[proc.category]?.append(defined.0)
-            }
-        }
-        
-        return acc
+    public func eval(exp: SExpr) -> SExpr {
+        return evaluator.eval(exp, gl_env: global)
     }
     
     ///// Export /////
@@ -208,7 +141,7 @@ public class Interpreter {
     
     ///// Utilities /////
     
-    private func delayed_list_of_values(_opds :SExpr) -> [SExpr] {
+    func delayed_list_of_values(_opds :SExpr) -> [SExpr] {
         if let atom = _opds as? Atom {
             return [atom]
         } else {

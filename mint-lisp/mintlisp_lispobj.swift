@@ -138,9 +138,20 @@ public class Pair:SExpr {
 
 public class Form:SExpr {
     
+    var category : String {
+        get {return "special form"}
+    }
+    
+    public func params_str() -> [String] {
+        return []
+    }
 }
 
 public class MDefine:Form {
+    
+    override public func params_str() -> [String] {
+        return ["symbol", "value"]
+    }
     
     public override func str(indent: String, level:Int) -> String {
         return "define"
@@ -153,6 +164,10 @@ public class MDefine:Form {
 
 public class MQuote: Form {
     
+    override public func params_str() -> [String] {
+        return ["value"]
+    }
+    
     public override func str(indent: String, level:Int) -> String {
         return "quote"
     }
@@ -163,6 +178,10 @@ public class MQuote: Form {
 }
 
 public class MBegin:Form {
+    
+    override public func params_str() -> [String] {
+        return [".procs"]
+    }
     
     public override func str(indent: String, level:Int) -> String {
         return "begin"
@@ -179,7 +198,10 @@ public class Procedure:Form {
     var body:SExpr
     var initial_env:Env
     var rec_env: Env? = nil
-    public var category = "custom"
+    
+    override var category : String {
+        get {return "custom"}
+    }
     
     init(_params: SExpr, body _body: SExpr, env _env: Env) {
         initial_env = _env
@@ -231,6 +253,18 @@ public class Procedure:Form {
         }
     }
     
+    override public func params_str() -> [String] {
+        
+        let _params = delayed_list_of_args(self.params)
+        
+        var acc : [String] = []
+        
+        for p in _params {
+            acc += [p.str("", level: 0)]
+        }
+        return acc
+    }
+    
     public override func str(indent: String, level:Int) -> String {
         return "proc: export error!"
     }
@@ -246,6 +280,10 @@ public class MLambda: Form {
         return Pair(car: self, cdr: Pair(car: params, cdr: Pair(car: body)))
     }
     
+    public override func params_str() -> [String] {
+        return ["params", "body"]
+    }
+    
     public override func str(indent: String, level:Int) -> String {
         return "lambda"
     }
@@ -257,6 +295,10 @@ public class MLambda: Form {
 
 public class MIf: Form {
     
+    public override func params_str() -> [String] {
+        return ["predic", "then", "else"]
+    }
+    
     public override func str(indent: String, level:Int) -> String {
         return "if"
     }
@@ -267,6 +309,10 @@ public class MIf: Form {
 }
 
 public class MSet:Form {
+    
+    public override func params_str() -> [String] {
+        return ["symbol", "value"]
+    }
     
     public override func str(indent: String, level:Int) -> String {
         return "set!"

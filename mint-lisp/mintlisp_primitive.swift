@@ -10,6 +10,10 @@ import Foundation
 
 class Primitive:Form {
     
+    override var category : String {
+        get {return "lisp"}
+    }
+    
     func apply(var args: [SExpr]) -> SExpr {
         if args.count == 0 {
             return MNull()
@@ -22,9 +26,17 @@ class Primitive:Form {
     func proc(a: SExpr, b: SExpr) -> SExpr {
         return MNull()
     }
+    
+    override func params_str() -> [String] {
+        return [".a"]
+    }
 }
 
 class Plus:Primitive {
+    
+    override var category : String {
+        get {return "math"}
+    }
     
     override func proc(a: SExpr, b: SExpr) -> SExpr {
         switch a {
@@ -75,6 +87,10 @@ class Plus:Primitive {
 
 class Minus:Primitive {
     
+    override var category : String {
+        get {return "math"}
+    }
+    
     override func proc(a: SExpr, b: SExpr) -> SExpr {
         switch a {
         case let num as MInt:
@@ -104,6 +120,10 @@ class Minus:Primitive {
 }
 
 class Multiply:Primitive {
+    
+    override var category : String {
+        get {return "math"}
+    }
     
     override func proc(a: SExpr, b: SExpr) -> SExpr {
         switch a {
@@ -135,6 +155,10 @@ class Multiply:Primitive {
 
 class Divide:Primitive {
     
+    override var category : String {
+        get {return "math"}
+    }
+    
     override func proc(a: SExpr, b: SExpr) -> SExpr {
         switch a {
         case let num as MInt:
@@ -164,6 +188,10 @@ class Divide:Primitive {
 }
 
 class isEqual:Primitive {
+    
+    override var category : String {
+        get {return "math"}
+    }
     
     override func apply(var args: [SExpr]) -> SExpr {
         if args.count == 0 {
@@ -227,6 +255,10 @@ class CastDouble : Primitive {
         print("cast-double take only 1 element", terminator: "")
         return MNull()
     }
+    
+    override func params_str() -> [String] {
+        return ["a"]
+    }
 }
 
 ///// conscell procedures /////
@@ -240,6 +272,10 @@ class Cons : Primitive {
         
         print("cons must take 2 element", terminator: "")
         return MNull()
+    }
+    
+    override func params_str() -> [String] {
+        return ["elem", "list"]
     }
 }
 
@@ -256,6 +292,10 @@ class Car : Primitive {
         }
         return MNull()
     }
+    
+    override func params_str() -> [String] {
+        return ["list"]
+    }
 }
 
 class Cdr : Primitive {
@@ -270,6 +310,10 @@ class Cdr : Primitive {
             print("cdr take only 1 argument", terminator: "")
         }
         return MNull()
+    }
+    
+    override func params_str() -> [String] {
+        return ["list"]
     }
 }
 
@@ -286,6 +330,10 @@ class Caar : Primitive {
         }
         return MNull()
     }
+    
+    override func params_str() -> [String] {
+        return ["list"]
+    }
 }
 
 class Cadr : Primitive {
@@ -300,6 +348,10 @@ class Cadr : Primitive {
             print("cadr take only 1 argument", terminator: "")
         }
         return MNull()
+    }
+    
+    override func params_str() -> [String] {
+        return ["list"]
     }
 }
 
@@ -316,6 +368,10 @@ class Cddr : Primitive {
         }
         return MNull()
     }
+    
+    override func params_str() -> [String] {
+        return ["list"]
+    }
 }
 
 class Cdar : Primitive {
@@ -330,6 +386,10 @@ class Cdar : Primitive {
             print("cdar take only 1 argument", terminator: "")
         }
         return MNull()
+    }
+    
+    override func params_str() -> [String] {
+        return ["list"]
     }
 }
 
@@ -346,6 +406,10 @@ class Caaar : Primitive {
         }
         return MNull()
     }
+    
+    override func params_str() -> [String] {
+        return ["list"]
+    }
 }
 
 class Caadr : Primitive {
@@ -360,6 +424,10 @@ class Caadr : Primitive {
             print("caadr take only 1 argument", terminator: "")
         }
         return MNull()
+    }
+    
+    override func params_str() -> [String] {
+        return ["list"]
     }
 }
 
@@ -376,6 +444,10 @@ class Caddr : Primitive {
         }
         return MNull()
     }
+    
+    override func params_str() -> [String] {
+        return ["list"]
+    }
 }
 
 class Cdddr : Primitive {
@@ -390,6 +462,10 @@ class Cdddr : Primitive {
             print("cdddr take only 1 argument", terminator: "")
         }
         return MNull()
+    }
+    
+    override func params_str() -> [String] {
+        return ["list"]
     }
 }
 
@@ -406,6 +482,10 @@ class Cdaar : Primitive {
         }
         return MNull()
     }
+    
+    override func params_str() -> [String] {
+        return ["list"]
+    }
 }
 
 class Cadar : Primitive {
@@ -420,6 +500,10 @@ class Cadar : Primitive {
             print("cadar take only 1 argument", terminator: "")
         }
         return MNull()
+    }
+    
+    override func params_str() -> [String] {
+        return ["list"]
     }
 }
 
@@ -436,6 +520,10 @@ class Cdadr : Primitive {
         }
         return MNull()
     }
+    
+    override func params_str() -> [String] {
+        return ["list"]
+    }
 }
 
 class Cddar : Primitive {
@@ -451,6 +539,10 @@ class Cddar : Primitive {
         }
         return MNull()
     }
+    
+    override func params_str() -> [String] {
+        return ["list"]
+    }
 }
 
 ///// IO /////
@@ -464,6 +556,10 @@ class Print : Primitive {
         }
         return MNull()
     }
+    
+    override func params_str() -> [String] {
+        return ["a"]
+    }
 }
 
 class Quit : Primitive {
@@ -472,5 +568,4 @@ class Quit : Primitive {
         print("byby", terminator: "")
         return MNull()
     }
-    
 }
