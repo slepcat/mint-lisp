@@ -74,7 +74,7 @@ class PolygonTreeNode {
         if isRootNode() {// can only call this on the root node
             invertSub()
         } else {
-            println("Assertion failed")
+            print("Assertion failed")
         }
     }
     
@@ -82,7 +82,7 @@ class PolygonTreeNode {
         if let poly = polygon {
             return poly
         } else { // doesn't have a polygon, which means that it has been broken down
-            println("Assertion failed")
+            print("Assertion failed")
             return nil
         }
     }
@@ -153,7 +153,7 @@ class PolygonTreeNode {
                             backnodes.append(backnode)
                         }
                     default:
-                        println("unexpected err")
+                        print("unexpected err")
                         break
                     }
                 }
@@ -210,7 +210,7 @@ class PolygonTreeNode {
                             backnodes.append(backnode)
                         }
                     default:
-                        println("unexpected err")
+                        print("unexpected err")
                         break
                     }
                 }

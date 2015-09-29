@@ -11,6 +11,7 @@
 // n. bignum?
 
 import Foundation
+import mintlisp
 
 func input() -> NSString? {
     var keyboard = NSFileHandle.fileHandleWithStandardInput()
@@ -18,15 +19,13 @@ func input() -> NSString? {
     return NSString(data: inputData, encoding:NSUTF8StringEncoding)
 }
 
-var global = Env()
-global.hash_table = global_environment()
+var interpreter = Interpreter()
 var isLoop = true
 
 //REPL
 
 while isLoop {
     let a = input()
-    let e = Evaluator()
     
     let timewatch = NSDate()
     
@@ -35,17 +34,12 @@ while isLoop {
     }
     
     if let chr = a as? String {
-        let tokens = lispTokenizer([Character](chr))
-        if let (r, s) = tokens.first {
-            let parser = parseLispExpr()
-            //println(r)
-            for (r, s) in parser(r) {
-                println(r._debug_string())
-                println(e.eval(r, gl_env: global)._debug_string())
-                println("sec: \(-timewatch.timeIntervalSinceNow)")
-                println(r.str("  ", level: 1))
-            }
-        }
+        
+        let exp = interpreter.readln(chr)
+        let res = interpreter.eval(exp.uid)
+        println(exp._debug_string())
+        println("sec: \(-timewatch.timeIntervalSinceNow)")
+        println(res.str("  ", level: 1))
     }
 }
 

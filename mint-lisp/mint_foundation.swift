@@ -211,7 +211,7 @@ struct Vertex {
     // interpolating all properties using a parameter of `t`. Subclasses should
     // override this to interpolate additional properties.
     func interpolate(other: Vertex, t: Double) -> Vertex {
-        var newpos = self.pos.lerp(vector: other.pos, k: t)
+        let newpos = self.pos.lerp(vector: other.pos, k: t)
         return Vertex(pos: newpos)
     }
     
@@ -287,11 +287,12 @@ struct Plane {
     }
     
     func transform(matrix: Matrix4x4) -> Plane {
-        var ismirror = matrix.isMirroring()
+        let
+        ismirror = matrix.isMirroring()
         // get two vectors in the plane:
-        var r = normal.randomNonParallelVector()
-        var u = normal.cross(r)
-        var v = normal.cross(u)
+        let r = normal.randomNonParallelVector()
+        let u = normal.cross(r)
+        let v = normal.cross(u)
         // get 3 points in the plane:
         var point1 = normal.times(w)
         var point2 = point1 + u
@@ -328,7 +329,7 @@ struct Plane {
         
         for vertex in poly.vertices {
             let t = self.normal.dot(vertex.pos) - self.w;
-            var type : BSP = (t < -Plane.epsilon) ? BSP.Back : ((t > Plane.epsilon) ? BSP.Front : BSP.Coplanar)
+            let type : BSP = (t < -Plane.epsilon) ? BSP.Back : ((t > Plane.epsilon) ? BSP.Front : BSP.Coplanar)
             
             // Use bit operation to identify the polygon's relationship with Plane
             // 0 | 0 = 0 : coplanar
@@ -343,7 +344,7 @@ struct Plane {
         if let bspType = BSP(rawValue: polyType) {
             switch bspType {
             case BSP.Coplanar:
-                var t = (self.normal.dot(Plane(poly: poly).normal) > 0 ? BSP.Coplanar_front : BSP.Coplanar_back)
+                let t = (self.normal.dot(Plane(poly: poly).normal) > 0 ? BSP.Coplanar_front : BSP.Coplanar_back)
                 if t == BSP.Coplanar_front {
                     return (type: t, poly, nil)
                 } else {
@@ -358,11 +359,11 @@ struct Plane {
                 var b : [Vertex] = []
                 
                 for var i = 0; i < poly.vertices.count; i++ {
-                    var j = (i + 1) % poly.vertices.count
-                    var ti = types[i]
-                    var tj = types[j]
-                    var vi = poly.vertices[i]
-                    var vj = poly.vertices[j];
+                    let j = (i + 1) % poly.vertices.count
+                    let ti = types[i]
+                    let tj = types[j]
+                    let vi = poly.vertices[i]
+                    let vj = poly.vertices[j];
                     
                     if ti != BSP.Back {
                         f += [poly.vertices[i]]
@@ -373,8 +374,8 @@ struct Plane {
                     }
                     
                     if ((ti.rawValue | tj.rawValue) == BSP.Spanning.rawValue) {
-                        var t = (self.w - self.normal.dot(vi.pos)) / self.normal.dot(vj.pos - vi.pos)
-                        var v = vi.interpolate(vj, t: t)
+                        let t = (self.w - self.normal.dot(vi.pos)) / self.normal.dot(vj.pos - vi.pos)
+                        let v = vi.interpolate(vj, t: t)
                         f += [v]
                         b += [v]
                     }
@@ -392,7 +393,7 @@ struct Plane {
                 
                 return (type: BSP.Spanning, front: front, back: back)
             default:
-                println("Unexpected split polygon err")
+                print("Unexpected split polygon err")
             }
         }
         return (type: BSP.Coplanar, front: nil, back: nil)
@@ -443,8 +444,8 @@ struct Plane {
     }
     
     func mirrorPoint(point: Vector) -> Vector {
-        var distance = self.signedDistanceToPoint(point)
-        var mirrored = point - self.normal.times(distance * 2.0)
+        let distance = self.signedDistanceToPoint(point)
+        let mirrored = point - self.normal.times(distance * 2.0)
         return mirrored
     }
     
@@ -511,7 +512,7 @@ struct Polygon {
         
         if verticesConvex(self.vertices, normal: self.plane.normal) {
             verticesConvex(self.vertices, normal: self.plane.normal)
-            println("Not Convex polygon found!")
+            print("Not Convex polygon found!")
             //throw new Error("Not convex!")
         }
 
@@ -535,10 +536,10 @@ struct Polygon {
         if let ischached = sphereBound {
             return ischached
         } else {
-            var box = boundingBox()
-            var middle = (box.min + box.max).times(0.5)
-            var radius3 = box.max - middle
-            var radius = radius3.length()
+            let box = boundingBox()
+            let middle = (box.min + box.max).times(0.5)
+            let radius3 = box.max - middle
+            let radius = radius3.length()
             
             sphereBound = (middle: middle, radius: radius)
             
@@ -562,7 +563,7 @@ struct Polygon {
             maxpoint = minpoint
             
             for vex in vertices {
-                var point = vex.pos;
+                let point = vex.pos;
                 minpoint = minpoint.min(point)
                 maxpoint = maxpoint.max(point)
             }
@@ -572,7 +573,7 @@ struct Polygon {
     }
     
     func flipped() -> Polygon {
-        var newvertices : [Vertex] = vertices.reverse()
+        let newvertices : [Vertex] = vertices.reverse()
         var newPoly = Polygon(vertices: newvertices)
         newPoly.generateNormal()
         //var newplane = plane.flipped()
@@ -585,7 +586,7 @@ struct Polygon {
         {
             // STL requires triangular polygons. If our polygon has more vertices, create
             // multiple triangles:
-            var firstVertexStl = self.vertices[0].toStlString()
+            let firstVertexStl = self.vertices[0].toStlString()
             for var i = 0; i < self.vertices.count - 2; i++ {
                 result += "facet normal " + self.plane.normal.toStlString() + "\nouter loop\n"
                 result += firstVertexStl
@@ -754,7 +755,7 @@ class Mesh {
             var maxpoint = Vector(x: 0, y: 0, z: 0)
             
             for var i = 0; mesh.count > i; i++ {
-				var bounds = mesh[i].boundingBox()
+				let bounds = mesh[i].boundingBox()
                 
                 minpoint = minpoint.min(bounds.min)
                 maxpoint = maxpoint.max(bounds.max)
@@ -771,8 +772,8 @@ class Mesh {
         if (mesh.count == 0) || (other.mesh.count == 0) {
             return false
         } else {
-            var mybounds = getBounds()
-            var otherbounds = other.getBounds()
+            let mybounds = getBounds()
+            let otherbounds = other.getBounds()
             // [0].x/y
             //    +-----+
             //    |     |

@@ -14,9 +14,24 @@
 			<key>orderHint</key>
 			<integer>0</integer>
 		</dict>
+		<key>mintlisp.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>6</integer>
+		</dict>
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
+		<key>A618B3E81BA49A600076928D</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>A618B3F21BA49A600076928D</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>A626B82B1B80D51400BA8736</key>
 		<dict>
 			<key>primary</key>

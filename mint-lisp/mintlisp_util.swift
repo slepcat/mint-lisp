@@ -16,12 +16,12 @@ func foldl<T>(_func: (T, T) -> T, var acc: T, var operands: [T]) -> T{
         let head = operands.removeAtIndex(0)
         acc = _func(acc, head)
         
-        return foldl(_func, acc, operands)
+        return foldl(_func, acc: acc, operands: operands)
     }
 }
 
 func map<T, U>(_func: (T) -> U, var operands: [T]) -> [U] {
-    return tail_map(_func, [], operands)
+    return tail_map(_func, acc: [], operands: operands)
 }
 
 private func tail_map<T, U>(_func: (T) -> U, var acc: [U], var operands: [T]) -> [U] {
@@ -30,17 +30,17 @@ private func tail_map<T, U>(_func: (T) -> U, var acc: [U], var operands: [T]) ->
     } else {
         let head = operands.removeAtIndex(0)
         acc.append(_func(head))
-        return tail_map(_func,acc, operands)
+        return tail_map(_func,acc: acc, operands: operands)
     }
 }
 
 func flatMap<T, U>(var operands: [T],f: (T) -> [U]) -> [U] {
-    let nestedList = tail_map(f, [], operands)
+    let nestedList = tail_map(f, acc: [], operands: operands)
     return flatten(nestedList)
 }
 
 private func flatten<U>(nested:[[U]]) -> [U] {
-    return tail_flatten(nested, [])
+    return tail_flatten(nested, acc: [])
 }
 
 private func tail_flatten<U>(var nested:[[U]], acc:[U]) -> [U] {
@@ -49,7 +49,7 @@ private func tail_flatten<U>(var nested:[[U]], acc:[U]) -> [U] {
     } else {
         let head = nested.removeAtIndex(0)
         let newacc = head + acc
-        return tail_flatten(nested, newacc)
+        return tail_flatten(nested, acc: newacc)
     }
 }
 

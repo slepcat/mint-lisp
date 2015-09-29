@@ -84,7 +84,7 @@ class Cube: Primitive {
             }
         }
         
-        println("cube take 3 double and 1 vector")
+        print("cube take 3 double and 1 vector")
         return MNull()
     }
 

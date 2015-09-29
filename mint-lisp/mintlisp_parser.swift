@@ -26,7 +26,7 @@ enum LispToken {
     case Dot                    //.
 }
 
-extension LispToken : Printable {
+extension LispToken : CustomStringConvertible {
     var description: String {
         switch self {
         case .LParentheses:
@@ -49,7 +49,7 @@ extension LispToken : Printable {
             return "\(num)"
         case let .LispDouble(num):
             return "\(num)"
-        case let .LispNull:
+        case .LispNull:
             return "null"
         case .VectorParentheses:
             return "#("
@@ -100,7 +100,7 @@ extension LispToken {
             return MStr(_value: str)
         case let .LispChr(chr):
             return MChar(_value: chr)
-        case let .LispNull:
+        case .LispNull:
             return MNull()
         case let .Symbol(symbol):
             
@@ -123,7 +123,7 @@ extension LispToken {
         case let .Boolean(bool):
             return MBool(_value: bool)
         default:
-            println("Unsupported token type: \(self)")
+            print("Unsupported token type: \(self)")
             return MNull()
         }
     }
@@ -209,7 +209,7 @@ func notToken<Token :Equatable>(t :Token) -> Comb<Token, Token>.Parser {
 }
 
 func oneOrMore<Token, Result>(parser: Comb<Token, Result>.Parser) -> Comb<Token, [Result]>.Parser {
-    return oneOrMore(parser, [])
+    return oneOrMore(parser, buffer: [])
 }
 
 func zeroOrMore<Token, Result>(parser: Comb<Token, Result>.Parser) -> Comb<Token, [Result]>.Parser {
@@ -223,7 +223,7 @@ func zeroOrOne<Token, Result>(parser: Comb<Token, Result>.Parser) -> Comb<Token,
 private func oneOrMore<Token, Result>(parser: Comb<Token, Result>.Parser, buffer: [Result]) -> Comb<Token, [Result]>.Parser {
     return bind(parser) { r in
         let combine = buffer + [r]
-        return oneOrMore(parser, combine) <|> pure(combine)
+        return oneOrMore(parser, buffer: combine) <|> pure(combine)
     }
 }
 

@@ -8,9 +8,9 @@
 
 import Foundation
 
-class SExpr {
+public class SExpr {
     
-    let uid : UInt
+    public let uid : UInt
     
     init() {
         uid = UID.get.newID
@@ -30,16 +30,16 @@ class SExpr {
         return self
     }
     
-    func str(indent:String, level: Int) -> String {
+    public func str(indent:String, level: Int) -> String {
         return ""
     }
     
-    func _debug_string() -> String {
+    public func _debug_string() -> String {
         return "_null_"
     }
 }
 
-class Pair:SExpr {
+public class Pair:SExpr {
     var car:SExpr
     var cdr:SExpr
     
@@ -86,7 +86,7 @@ class Pair:SExpr {
         }
     }
     
-    override func str(indent: String, level:Int) -> String {
+    public override func str(indent: String, level:Int) -> String {
         
         var leveledIndent : String = ""
         for var i = 0; level > i; i++ {
@@ -129,56 +129,57 @@ class Pair:SExpr {
         }
     }
     
-    override func _debug_string() -> String {
+    public override func _debug_string() -> String {
         return "(\(car._debug_string()) . \(cdr._debug_string()))"
     }
 }
 
 // Primitive Form Syntax
 
-class Form:SExpr {
+public class Form:SExpr {
     
 }
 
-class MDefine:Form {
+public class MDefine:Form {
     
-    override func str(indent: String, level:Int) -> String {
+    public override func str(indent: String, level:Int) -> String {
         return "define"
     }
     
-    override func _debug_string() -> String {
+    public override func _debug_string() -> String {
         return "define"
     }
 }
 
-class MQuote: Form {
+public class MQuote: Form {
     
-    override func str(indent: String, level:Int) -> String {
+    public override func str(indent: String, level:Int) -> String {
         return "quote"
     }
     
-    override func _debug_string() -> String {
+    public override func _debug_string() -> String {
         return "quote"
     }
 }
 
-class MBegin:Form {
+public class MBegin:Form {
     
-    override func str(indent: String, level:Int) -> String {
+    public override func str(indent: String, level:Int) -> String {
         return "begin"
     }
     
-    override func _debug_string() -> String {
+    public override func _debug_string() -> String {
         return "begin"
     }
 }
 
-class Procedure:Form {
+public class Procedure:Form {
     
-    var params:SExpr
+    public var params:SExpr
     var body:SExpr
     var initial_env:Env
     var rec_env: Env? = nil
+    public var category = "custom"
     
     init(_params: SExpr, body _body: SExpr, env _env: Env) {
         initial_env = _env
@@ -197,7 +198,7 @@ class Procedure:Form {
                 if let sym = _params[i] as? MSymbol {
                     _env.set_variable(sym.key, val: seq[i])
                 } else {
-                    println("syntax error: procedure. not symbol in params")
+                    print("syntax error: procedure. not symbol in params")
                     return (body, env)
                 }
             }
@@ -230,48 +231,48 @@ class Procedure:Form {
         }
     }
     
-    override func str(indent: String, level:Int) -> String {
+    public override func str(indent: String, level:Int) -> String {
         return "proc: export error!"
     }
     
-    override func _debug_string() -> String {
+    public override func _debug_string() -> String {
         return "procedure"
     }
 }
 
-class MLambda: Form {
+public class MLambda: Form {
     
     func make_lambda(params: SExpr, body: SExpr) -> SExpr {
         return Pair(car: self, cdr: Pair(car: params, cdr: Pair(car: body)))
     }
     
-    override func str(indent: String, level:Int) -> String {
+    public override func str(indent: String, level:Int) -> String {
         return "lambda"
     }
     
-    override func _debug_string() -> String {
+    public override func _debug_string() -> String {
         return "lambda"
     }
 }
 
-class MIf: Form {
+public class MIf: Form {
     
-    override func str(indent: String, level:Int) -> String {
+    public override func str(indent: String, level:Int) -> String {
         return "if"
     }
     
-    override func _debug_string() -> String {
+    public override func _debug_string() -> String {
         return "if"
     }
 }
 
-class MSet:Form {
+public class MSet:Form {
     
-    override func str(indent: String, level:Int) -> String {
+    public override func str(indent: String, level:Int) -> String {
         return "set!"
     }
     
-    override func _debug_string() -> String {
+    public override func _debug_string() -> String {
         return "set!"
     }
 }
@@ -279,11 +280,11 @@ class MSet:Form {
 // Atoms
 // Symbol and Literals
 
-class Atom:SExpr {
+public class Atom:SExpr {
     
 }
 
-class MSymbol:Atom {
+public class MSymbol:Atom {
     var key : String
     
     init(_key: String) {
@@ -294,87 +295,87 @@ class MSymbol:Atom {
         return env.lookup(key)
     }
     
-    override func str(indent: String, level:Int) -> String {
+    public override func str(indent: String, level:Int) -> String {
         return key
     }
     
-    override func _debug_string() -> String {
+    public override func _debug_string() -> String {
         return "Symbol:" + key
     }
 }
 
-class Literal:Atom {
+public class Literal:Atom {
     
     override func eval(env: Env) -> SExpr {
         return self
     }
 }
 
-class MInt: Literal {
+public class MInt: Literal {
     var value:Int
     
     init(_value: Int) {
         value = _value
     }
     
-    override func str(indent: String, level:Int) -> String {
+    public override func str(indent: String, level:Int) -> String {
         return "\(value)"
     }
     
-    override func _debug_string() -> String {
+    public override func _debug_string() -> String {
         return "Int:\(value)"
     }
 }
 
-class MDouble: Literal {
+public class MDouble: Literal {
     var value:Double
     
     init(_value: Double) {
         value = _value
     }
     
-    override func str(indent: String, level:Int) -> String {
+    public override func str(indent: String, level:Int) -> String {
         return "\(value)"
     }
     
-    override func _debug_string() -> String {
+    public override func _debug_string() -> String {
         return "Double:\(value)"
     }
 }
 
-class MStr: Literal {
+public class MStr: Literal {
     var value:String
     
     init(_value: String) {
         value = _value
     }
     
-    override func str(indent: String, level:Int) -> String {
+    public override func str(indent: String, level:Int) -> String {
         return value
     }
     
-    override func _debug_string() -> String {
+    public override func _debug_string() -> String {
         return "String:\"\(value)\""
     }
 }
 
-class MChar: Literal {
+public class MChar: Literal {
     var value:Character
     
     init(_value: Character) {
         value = _value
     }
     
-    override func str(indent: String, level:Int) -> String {
+    public override func str(indent: String, level:Int) -> String {
         return "\(value)"
     }
     
-    override func _debug_string() -> String {
+    public override func _debug_string() -> String {
         return "Char:\(value)"
     }
 }
 
-class MNull:Literal {
+public class MNull:Literal {
     
     // avoid consume uid. do not use as a member of s-expression.
     // cause identification problem for SExpr manipulation
@@ -389,55 +390,55 @@ class MNull:Literal {
         return true
     }
     
-    override func str(indent: String, level:Int) -> String {
+    public override func str(indent: String, level:Int) -> String {
         return "null"
     }
     
-    override func _debug_string() -> String {
+    public override func _debug_string() -> String {
         return "_null_"
     }
 }
 
-class MBool:Literal {
+public class MBool:Literal {
     var value:Bool
     
     init(_value: Bool) {
         value = _value
     }
     
-    override func str(indent: String, level:Int) -> String {
+    public override func str(indent: String, level:Int) -> String {
         return "\(value)"
     }
     
-    override func _debug_string() -> String {
+    public override func _debug_string() -> String {
         return "Bool:\(value)"
     }
 }
 
-class MVector:Literal {
+public class MVector:Literal {
     var value:Vector
     
     init(_value: Vector) {
         value = _value
     }
     
-    override func str(indent: String, level: Int) -> String {
+    public override func str(indent: String, level: Int) -> String {
         return "(vec \(value.x) \(value.y) \(value.z))"
     }
     
-    override func _debug_string() -> String {
+    public override func _debug_string() -> String {
         return "Vector: [\(value.x), \(value.y), \(value.z)]"
     }
 }
 
-class MVertex:Literal {
+public class MVertex:Literal {
     var value:Vertex
     
     init(_value: Vertex) {
         value = _value
     }
     
-    override func str(indent: String, level: Int) -> String {
+    public override func str(indent: String, level: Int) -> String {
         
         var color = "(color"
         for c in value.color {
@@ -445,10 +446,10 @@ class MVertex:Literal {
         }
         color += ")"
         
-        return "(vex (vec \(value.pos.x) \(value.pos.y) \(value.pos.z)) (vec \(value.normal.x) \(value.normal.y) \(value.normal.z))" + color + ")"
+        return "(vex (vec \(value.pos.x) \(value.pos.y) \(value.pos.z)) (vec \(value.normal.x) \(value.normal.y) \(value.normal.z)) " + color + ")"
     }
     
-    override func _debug_string() -> String {
+    public override func _debug_string() -> String {
         
         var color = "["
         for c in value.color {
@@ -460,14 +461,14 @@ class MVertex:Literal {
     }
 }
 
-class MColor : Literal {
+public class MColor : Literal {
     var value = [Float](count: 3 ,repeatedValue: 0.5)
     
     init(_value: [Float]) {
         value = _value
     }
     
-    override func str(indent: String, level: Int) -> String {
+    public override func str(indent: String, level: Int) -> String {
         
         var color = "(color"
         for c in value {
@@ -479,14 +480,14 @@ class MColor : Literal {
     }
     
     
-    override func _debug_string() -> String {
+    public override func _debug_string() -> String {
         
         var color = "Color: ["
         for c in value {
             color += "\(c), "
         }
         
-        var chr = [Character](color)
+        var chr = color.characters
         chr.removeLast()
         chr.removeLast()
         color = String(chr)
@@ -496,33 +497,33 @@ class MColor : Literal {
     }
 }
 
-class MPlane : Literal {
+public class MPlane : Literal {
     var value:Plane
     
     init(_value: Plane) {
         value = _value
     }
     
-    override func str(indent: String, level: Int) -> String {
+    public override func str(indent: String, level: Int) -> String {
         
         return "(plane (vec \(value.normal.x) \(value.normal.y) \(value.normal.z)) \(value.w))"
     }
     
     
-    override func _debug_string() -> String {
+    public override func _debug_string() -> String {
         
         return "Plane: [\(value.normal.x), \(value.normal.y), \(value.normal.z)], \(value.w) "
     }
 }
 
-class MPolygon : Literal {
+public class MPolygon : Literal {
     var value : Polygon
     
     init(_value: Polygon) {
         value = _value
     }
     
-    override func str(indent: String, level: Int) -> String {
+    public override func str(indent: String, level: Int) -> String {
         
         var acc = "(polygon "
         
@@ -537,7 +538,7 @@ class MPolygon : Literal {
         return acc
     }
     
-    override func _debug_string() -> String {
+    public override func _debug_string() -> String {
         
         var acc = "Polygon: "
         
@@ -551,10 +552,10 @@ class MPolygon : Literal {
     }
 }
 
-class IOMesh: Literal {
-    var mesh: [Double]
-    var normal: [Double]
-    var color: [Float]
+public class IOMesh: Literal {
+    public var mesh: [Double]
+    public var normal: [Double]
+    public var color: [Float]
     
     init(mesh:[Double], normal:[Double], color:[Float]) {
         self.mesh = mesh
@@ -562,17 +563,17 @@ class IOMesh: Literal {
         self.color = color
     }
     
-    override func str(indent: String, level: Int) -> String {
+    public override func str(indent: String, level: Int) -> String {
         return "<<#IOMesh> \(mesh), \(normal), \(color)>"
     }
     
-    override func _debug_string() -> String {
+    public override func _debug_string() -> String {
         return "<<#IOMesh> \(mesh), \(normal), \(color)>"
     }
 }
 
-extension Literal : Printable {
-    var description: String {
+extension Literal : CustomStringConvertible {
+    public var description: String {
         return self.str("", level: 0)
     }
 }

@@ -59,7 +59,7 @@ func * (left: Matrix4x4, right: Vector) -> Vector {
     var x = right.x * left.elements[0] + right.y * left.elements[1] + right.z * left.elements[2] + v3 * left.elements[3]
     var y = right.x * left.elements[4] + right.y * left.elements[5] + right.z * left.elements[6] + v3 * left.elements[7]
     var z = right.x * left.elements[8] + right.y * left.elements[9] + right.z * left.elements[10] + v3 * left.elements[11]
-    var w = right.x * left.elements[12] + right.y * left.elements[13] + right.z * left.elements[14] + v3 * left.elements[15]
+    let w = right.x * left.elements[12] + right.y * left.elements[13] + right.z * left.elements[14] + v3 * left.elements[15]
     // scale such that fourth element becomes 1:
     if w != 1.0 {
         let invw = 1.0 / w
@@ -79,7 +79,7 @@ func * (left: Vector, right: Matrix4x4) -> Vector {
     var x = left.x * right.elements[0] + left.y * right.elements[4] + left.z * right.elements[8] + v3 * right.elements[12]
     var y = left.x * right.elements[1] + left.y * right.elements[5] + left.z * right.elements[9] + v3 * right.elements[13]
     var z = left.x * right.elements[2] + left.y * right.elements[6] + left.z * right.elements[10] + v3 * right.elements[14]
-    var w = left.x * right.elements[3] + left.y * right.elements[7] + left.z * right.elements[11] + v3 * right.elements[15]
+    let w = left.x * right.elements[3] + left.y * right.elements[7] + left.z * right.elements[11] + v3 * right.elements[15]
     // scale such that fourth element becomes 1:
     if w != 1 {
         let invw = 1.0 / w
@@ -199,8 +199,8 @@ struct Matrix4x4 {
     // Matrix for rotation about arbitrary point and axis
     static func rotation(rotationCenter: Vector, rotationAxis: Vector, degrees: Double) -> Matrix4x4 {
         
-        var rotationPlane = Plane(normal: rotationAxis, point: rotationCenter)
-        var orthobasis = OrthoNormalBasis(plane: rotationPlane, rightvector: nil)
+        let rotationPlane = Plane(normal: rotationAxis, point: rotationCenter)
+        let orthobasis = OrthoNormalBasis(plane: rotationPlane, rightvector: nil)
         var transformation = translation(rotationCenter.negated())
         
         transformation = transformation * orthobasis.getProjectionMatrix()
@@ -271,7 +271,7 @@ class OrthoNormalBasis {
 
     // The z=0 plane, with the 3D x and y vectors mapped to the 2D x and y vector
     static func Z0Plane() -> OrthoNormalBasis {
-        var plane = Plane(normal: Vector(x: 0, y: 0, z: 1), w: 0)
+        let plane = Plane(normal: Vector(x: 0, y: 0, z: 1), w: 0)
         return OrthoNormalBasis(plane: plane, rightvector: Vector(x: 1, y: 0, z: 0))
     }
 
@@ -284,7 +284,7 @@ class OrthoNormalBasis {
     }
     
     func getInverseProjectionMatrix() -> Matrix4x4 {
-        var p = plane.normal.times(plane.w)
+        let p = plane.normal.times(plane.w)
         return Matrix4x4(matrix: [
             u.x, u.y, u.z, 0,
             v.x, v.y, v.z, 0,
@@ -319,10 +319,10 @@ class OrthoNormalBasis {
     
     func transform(matrix: Matrix4x4) -> OrthoNormalBasis {
         // todo: this may not work properly in case of mirroring
-        var newplane = plane.transform(matrix)
-        var rightpoint_transformed = u.transform(matrix)
-        var origin_transformed = Vector(x: 0, y: 0, z: 0).transform(matrix)
-        var newrighthandvector = rightpoint_transformed - origin_transformed
+        let newplane = plane.transform(matrix)
+        let rightpoint_transformed = u.transform(matrix)
+        let origin_transformed = Vector(x: 0, y: 0, z: 0).transform(matrix)
+        let newrighthandvector = rightpoint_transformed - origin_transformed
         return OrthoNormalBasis(plane: newplane, rightvector: newrighthandvector)
     }
 }

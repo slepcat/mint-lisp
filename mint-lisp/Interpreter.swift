@@ -8,14 +8,14 @@
 
 import Foundation
 
-class Interpreter {
+public class Interpreter {
     
     var trees:[SExpr] = []
     let global: Env
     
-    var indent: String = "  "
+    public var indent: String = "  "
     
-    init() {
+    public init() {
         global = Env()
         global.hash_table = global_environment()
     }
@@ -24,20 +24,22 @@ class Interpreter {
     
     ///// Interpreter /////
     
-    func readln(rawstr: String) -> SExpr {
+    public func readln(rawstr: String) -> SExpr {
         
-        let tokens = lispTokenizer([Character](rawstr))
+        let tokens = lispTokenizer([Character](rawstr.characters))
         let parser = parseLispExpr()
         
         if let token = tokens.first {
             
+            /*
             if token.1.count > 0 {
-                println("tokenize failed")
+                print(token.1)
+                print("tokenize failed")
             }
-            
+            */
             if let result = parser(token.0).first {
                 if result.1.count > 0 {
-                    println("parse failed")
+                    print("parse failed")
                 }
                 
                 trees.append(result.0)
@@ -48,17 +50,17 @@ class Interpreter {
         return MNull.staticNull
     }
     
-    func readfile(fileContent: String) -> [SExpr] {
+    public func readfile(fileContent: String) -> [SExpr] {
         
-        let tokens = lispTokenizer([Character](fileContent))
+        let tokens = lispTokenizer([Character](fileContent.characters))
         let parser = parseLispExpr()
         
         if let token = tokens.first {
-            
+            /*
             if token.1.count > 0 {
-                println("tokenize failed")
+                print("tokenize failed")
             }
-            
+            */
             let result = read_recursive(token.0, parser: parser, acc: [])
             trees += result
             return result
@@ -82,26 +84,30 @@ class Interpreter {
         }
     }
     
-    func preprocess(uid: UInt) -> SExpr {
+    public func preprocess(uid: UInt) -> SExpr {
         
         // todo
         
         return lookup(uid).target
     }
     
-    func eval(uid: UInt) -> SExpr {
+    public func eval(uid: UInt) -> SExpr {
         return evaluator.eval(preprocess(uid), gl_env:global)
+    }
+    
+    public func eval(exp: SExpr) -> SExpr {
+        return evaluator.eval(exp, gl_env: global)
     }
     
     ///// Manipulating S-Expression /////
     
-    func new(rawstr: String) -> UInt? {
+    public func new(rawstr: String) -> UInt? {
         //let expr = readlin(rawstr)
         
         return nil//failed to add exp
     }
     
-    func lookup(uid: UInt) -> (conscell: SExpr, target: SExpr) {
+    public func lookup(uid: UInt) -> (conscell: SExpr, target: SExpr) {
         for exp in trees {
             let res = exp.lookup_exp(uid)
             if !res.target.isNull() {
@@ -112,7 +118,7 @@ class Interpreter {
         return (MNull.staticNull, MNull.staticNull)
     }
     
-    func remove(uid: UInt) -> SExpr {
+    public func remove(uid: UInt) -> SExpr {
         
         for var i = 0; trees.count > i; i++ {
             let res = trees[i].lookup_exp(uid)
@@ -136,7 +142,7 @@ class Interpreter {
                         pair.cdr = pair.cddr
                     }
                 } else {
-                    println("fail to remove. bad conscell")
+                    print("fail to remove. bad conscell")
                 }
                 
                 for exp in opds {
@@ -151,14 +157,14 @@ class Interpreter {
         return MNull()
     }
     
-    func overwrite(uid: UInt, rawstr: String) {
+    public func overwrite(uid: UInt, rawstr: String) {
         let res = lookup(uid)
         if let pair = res.conscell as? Pair {
             pair.car = readln(rawstr)
         }
     }
     
-    func insert(uid: UInt, toNextOfUid: UInt) {
+    public func insert(uid: UInt, toNextOfUid: UInt) {
         let nextTo = lookup(toNextOfUid)
         
         if let pair = nextTo.conscell as? Pair {
@@ -169,13 +175,28 @@ class Interpreter {
             pair.cdr = newPair
             
         } else {
-            println("error: move element must move inside conscell.")
+            print("error: move element must move inside conscell.")
         }
+    }
+    
+    ///// read Env /////
+    
+    public func defined_exps() -> [String : [String]] {
+        
+        var acc : [String : [String]] = [:]
+        
+        for defined in global.hash_table {
+            if let proc = defined.1 as? Procedure {
+                acc[proc.category]?.append(defined.0)
+            }
+        }
+        
+        return acc
     }
     
     ///// Export /////
     
-    func str() -> String {
+    public func str() -> String {
         var acc : String = ""
         
         for expr in trees {

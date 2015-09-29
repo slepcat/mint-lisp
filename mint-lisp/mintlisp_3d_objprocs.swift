@@ -65,7 +65,7 @@ class Color : Primitive {
             }
         }
         
-        println("color take 3 or 4 double values")
+        print("color take 3 or 4 double values")
         return MNull()
     }
 }
@@ -96,7 +96,7 @@ class Pln : Primitive {
             }
         }
         
-        println("plane take 1 polygon, 1 vector & 1 double, 2 vector, 3 vector, or 3 vertex")
+        print("plane take 1 polygon, 1 vector & 1 double, 2 vector, 3 vector, or 3 vertex")
         return MNull()
     }
 }
@@ -105,7 +105,7 @@ class Poly : Primitive {
     override func apply(args: [SExpr]) -> SExpr {
         
         if args.count < 3 {
-            println("polygon take more than 3 vertices")
+            print("polygon take more than 3 vertices")
             return MNull()
         }
         
@@ -115,7 +115,7 @@ class Poly : Primitive {
             if let vex = a as? MVertex {
                 acc.append(vex.value)
             } else {
-                println("polygon take only vertex values")
+                print("polygon take only vertex values")
                 return MNull()
             }
         }
@@ -135,12 +135,12 @@ class Poly_VexAtIndex : Primitive {
                 if vertices.count > i.value {
                     return MVertex(_value: vertices[i.value])
                 } else {
-                    println("poly.vex-at-index: the index is out of range")
+                    print("poly.vex-at-index: the index is out of range")
                     return MNull()
                 }
             }
         }
-        println("poly.vex-at-index take 1 polygon and 1 int")
+        print("poly.vex-at-index take 1 polygon and 1 int")
         return MNull()
     }
 }
@@ -153,7 +153,7 @@ class Poly_VexCount : Primitive {
             }
         }
         
-        println("poly.vex-count take 1 polygon")
+        print("poly.vex-count take 1 polygon")
         return MNull()
     }
 }
@@ -166,7 +166,7 @@ class Pln_normal: Primitive {
             }
         }
         
-        println("plane.normal take 1 vector")
+        print("plane.normal take 1 vector")
         return MNull()
     }
 }
@@ -179,7 +179,7 @@ class Vex_Pos : Primitive {
             }
         }
         
-        println("vex.pos take 1 vertex")
+        print("vex.pos take 1 vertex")
         return MNull()
     }
 }
@@ -192,7 +192,7 @@ class Vex_Normal : Primitive {
             }
         }
         
-        println("vex.normal take 1 vertex")
+        print("vex.normal take 1 vertex")
         return MNull()
     }
 }
@@ -205,7 +205,7 @@ class Vex_Color : Primitive {
             }
         }
         
-        println("vex.color take 1 vertex")
+        print("vex.color take 1 vertex")
         return MNull()
     }
 }
@@ -218,7 +218,7 @@ class Color_r : Primitive {
             }
         }
         
-        println("color.r take 1 color")
+        print("color.r take 1 color")
         return MNull()
     }
 }
@@ -231,7 +231,7 @@ class Color_g : Primitive {
             }
         }
         
-        println("color.r take 1 color")
+        print("color.r take 1 color")
         return MNull()
     }
 }
@@ -244,7 +244,7 @@ class Color_b : Primitive {
             }
         }
         
-        println("color.r take 1 color")
+        print("color.r take 1 color")
         return MNull()
     }
 }
@@ -255,7 +255,7 @@ class Color_a : Primitive {
             if let c = args[0] as? MColor {
                 
                 if c.value.count < 4 {
-                    println("color don't have alpha value")
+                    print("color don't have alpha value")
                     return MNull()
                 }
                 
@@ -263,7 +263,7 @@ class Color_a : Primitive {
             }
         }
         
-        println("color.r take 1 color")
+        print("color.r take 1 color")
         return MNull()
     }
 }
@@ -276,7 +276,7 @@ class Vec_x: Primitive {
             }
         }
         
-        println("vec.x take 1 vector")
+        print("vec.x take 1 vector")
         return MNull()
     }
 }
@@ -289,7 +289,7 @@ class Vec_y: Primitive {
             }
         }
         
-        println("vec.y take 1 vector")
+        print("vec.y take 1 vector")
         return MNull()
     }
 }
@@ -302,7 +302,7 @@ class Vec_z: Primitive {
             }
         }
         
-        println("vec.z take 1 vector")
+        print("vec.z take 1 vector")
         return MNull()
     }
 }
