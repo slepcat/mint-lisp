@@ -23,7 +23,7 @@ class Env {
             if let eenv = ext_env {
                 return eenv.lookup(key)
             } else {
-                print("Unbouded symbol")
+                print("Unbouded symbol", terminator: "")
                 return MNull()
             }
         }
@@ -39,12 +39,12 @@ class Env {
                 if let symbol = symbols[i] as? MSymbol {
                     _env.define_variable(symbol.key, val: values[i])
                 } else {
-                    print("Unproper parameter values")
+                    print("Unproper parameter values", terminator: "")
                     return nil
                 }
             }
         } else {
-            print("Err. Number of Symbol and Value is unmatch.")
+            print("Err. Number of Symbol and Value is unmatch.", terminator: "")
             return nil
         }
         

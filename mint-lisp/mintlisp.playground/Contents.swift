@@ -19,7 +19,7 @@ enum LispToken {
     case Dot                    //.
 }
 
-extension LispToken : Printable {
+extension LispToken : CustomStringConvertible {
     var description: String {
         switch self {
         case .LParentheses:
@@ -99,7 +99,7 @@ extension LispToken {
         case let .Boolean(bool):
             return MBool(_value: bool)
         default:
-            println("Unsupported token type: \(self)")
+            print("Unsupported token type: \(self)")
             return MNull()
         }
     }
@@ -364,7 +364,7 @@ func consumer<Token>() -> Comb<Token, Token>.Parser {
 }
 
 func unconsume<Token>() -> Comb<Token, Token>.Parser {
-    return { (var input:[Token]) in
+    return { (input:[Token]) in
         if let head = input.first {
             return [(head, input)]
         }
@@ -383,7 +383,7 @@ func bind<Token, T, U>(parser: Comb<Token, T>.Parser, factory: T -> Comb<Token, 
 }
 
 func flatMap<T, U>(var operands: [T],f: (T) -> [U]) -> [U] {
-    let nestedList = tail_map(f, [], operands)
+    let nestedList = tail_map(f, acc: [], operands: operands)
     return flatten(nestedList)
 }
 
@@ -393,12 +393,12 @@ private func tail_map<T, U>(_func: (T) -> U, var acc: [U], var operands: [T]) ->
     } else {
         let head = operands.removeAtIndex(0)
         acc.append(_func(head))
-        return tail_map(_func,acc, operands)
+        return tail_map(_func,acc: acc, operands: operands)
     }
 }
 
 private func flatten<U>(nested:[[U]]) -> [U] {
-    return tail_flatten(nested, [])
+    return tail_flatten(nested, acc: [])
 }
 
 private func tail_flatten<U>(var nested:[[U]], acc:[U]) -> [U] {
@@ -407,7 +407,7 @@ private func tail_flatten<U>(var nested:[[U]], acc:[U]) -> [U] {
     } else {
         let head = nested.removeAtIndex(0)
         let newacc = head + acc
-        return tail_flatten(nested, newacc)
+        return tail_flatten(nested, acc: newacc)
     }
 }
 
@@ -442,7 +442,7 @@ func notToken<Token :Equatable>(t :Token) -> Comb<Token, Token>.Parser {
 }
 
 func oneOrMore<Token, Result>(parser: Comb<Token, Result>.Parser) -> Comb<Token, [Result]>.Parser {
-    return oneOrMore(parser, [])
+    return oneOrMore(parser, buffer: [])
 }
 
 func zeroOrMore<Token, Result>(parser: Comb<Token, Result>.Parser) -> Comb<Token, [Result]>.Parser {
@@ -456,7 +456,7 @@ func zeroOrOne<Token, Result>(parser: Comb<Token, Result>.Parser) -> Comb<Token,
 private func oneOrMore<Token, Result>(parser: Comb<Token, Result>.Parser, buffer: [Result]) -> Comb<Token, [Result]>.Parser {
     return bind(parser) { r in
         let combine = buffer + [r]
-        return oneOrMore(parser, combine) <|> pure(combine)
+        return oneOrMore(parser, buffer: combine) <|> pure(combine)
     }
 }
 
@@ -678,7 +678,7 @@ func parseLispExpr() -> Comb<LispToken, SExpr>.Parser {
         }
     }
     
-    return bind(parenthesesParser { zeroOrMore(parseLispExpr() <|> atom) }){ (var exprs: [SExpr]) in
+    return bind(parenthesesParser { zeroOrMore(parseLispExpr() <|> atom) }){ (exprs: [SExpr]) in
         if exprs.count > 0 {
             //let head = exprs.removeAtIndex(0)
             let head = Pair()
@@ -730,14 +730,3 @@ var b : [String] = ["hello"]
 b.append("\n    ")
 
 b.append("world")
-
-var acc = ""
-
-for s in b {
-    acc += s
-}
-
-println(acc)
-
-
-

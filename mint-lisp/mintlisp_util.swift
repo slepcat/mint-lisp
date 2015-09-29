@@ -20,7 +20,7 @@ func foldl<T>(_func: (T, T) -> T, var acc: T, var operands: [T]) -> T{
     }
 }
 
-func map<T, U>(_func: (T) -> U, var operands: [T]) -> [U] {
+func map<T, U>(_func: (T) -> U, operands: [T]) -> [U] {
     return tail_map(_func, acc: [], operands: operands)
 }
 
@@ -34,7 +34,7 @@ private func tail_map<T, U>(_func: (T) -> U, var acc: [U], var operands: [T]) ->
     }
 }
 
-func flatMap<T, U>(var operands: [T],f: (T) -> [U]) -> [U] {
+func flatMap<T, U>(operands: [T],f: (T) -> [U]) -> [U] {
     let nestedList = tail_map(f, acc: [], operands: operands)
     return flatten(nestedList)
 }

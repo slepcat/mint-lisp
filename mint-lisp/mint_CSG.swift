@@ -74,7 +74,7 @@ class PolygonTreeNode {
         if isRootNode() {// can only call this on the root node
             invertSub()
         } else {
-            print("Assertion failed")
+            print("Assertion failed", terminator: "")
         }
     }
     
@@ -82,7 +82,7 @@ class PolygonTreeNode {
         if let poly = polygon {
             return poly
         } else { // doesn't have a polygon, which means that it has been broken down
-            print("Assertion failed")
+            print("Assertion failed", terminator: "")
             return nil
         }
     }
@@ -175,10 +175,10 @@ class PolygonTreeNode {
             // no children. Split the polygon:
             if polygon != nil {
                 let bound = polygon!.boundingSphere()
-                var sphereradius = bound.radius + 1e-4
-                var planenormal = plane.normal
-                var spherecenter = bound.middle
-                var d = planenormal.dot(spherecenter) - plane.w
+                let sphereradius = bound.radius + 1e-4
+                let planenormal = plane.normal
+                let spherecenter = bound.middle
+                let d = planenormal.dot(spherecenter) - plane.w
                 
                 if d > sphereradius {
                     frontnodes.append(self)
@@ -202,15 +202,15 @@ class PolygonTreeNode {
                     case .Spanning:
                         // spanning:
                         if let front = splitresult.front {
-                            var frontnode = addChild(front)
+                            let frontnode = addChild(front)
                             frontnodes.append(frontnode)
                         }
                         if let back = splitresult.back {
-                            var backnode = addChild(back)
+                            let backnode = addChild(back)
                             backnodes.append(backnode)
                         }
                     default:
-                        print("unexpected err")
+                        print("unexpected err", terminator: "")
                         break
                     }
                 }
@@ -224,7 +224,7 @@ class PolygonTreeNode {
     // a child should be created for every fragment of the split polygon
     // returns the newly created child
     private func addChild(poly: Polygon) -> PolygonTreeNode {
-        var newchild = PolygonTreeNode()
+        let newchild = PolygonTreeNode()
         newchild.parent = self
         newchild.polygon = poly
         self.children.append(newchild)
@@ -326,7 +326,7 @@ class Node {
         if let b = back {
             b.invert()
         }
-        var temp = front
+        let temp = front
         front = back
         back = temp
     }
@@ -381,7 +381,7 @@ class Node {
     func addPolygonTreeNodes(polygontreenodes: [PolygonTreeNode]) {
         if polygontreenodes.count > 0 {
             if plane == nil {
-                var bestplane = polygontreenodes[0].getPolygon()?.plane
+                let bestplane = polygontreenodes[0].getPolygon()?.plane
                 plane = bestplane;
             }
             var frontnodes : [PolygonTreeNode] = []

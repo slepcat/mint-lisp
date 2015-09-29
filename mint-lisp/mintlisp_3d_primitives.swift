@@ -67,7 +67,7 @@ class Cube: Primitive {
                 vertices += [Vertex(pos: Vector(x: left, y: back, z: top))]
                 vertices += [Vertex(pos: Vector(x: left, y: front, z: top))]
                 
-                var poly = Pair()
+                let poly = Pair()
                 var pointer = poly
                 
                 for var i = 0; (i + 3) < vertices.count; i += 3 {
@@ -84,7 +84,7 @@ class Cube: Primitive {
             }
         }
         
-        print("cube take 3 double and 1 vector")
+        print("cube take 3 double and 1 vector", terminator: "")
         return MNull()
     }
 

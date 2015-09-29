@@ -15,7 +15,7 @@ class ParserSpec: QuickSpec {
         it("should parse raw string to tokens") {
             let rawstr = "(define (test-func a b) (+ a b))"
             
-            let tokens = lispTokenizer([Character](rawstr))
+            let tokens = lispTokenizer([Character](rawstr.characters))
             var nums_parsed = 0
             var nums_unparsed = 0
             
@@ -31,7 +31,7 @@ class ParserSpec: QuickSpec {
         it("should parse tokens to S-expression") {
             let rawstr = "(define (test-func a b) (+ a b))"
             
-            let tokens = lispTokenizer([Character](rawstr))
+            let tokens = lispTokenizer([Character](rawstr.characters))
             
             var debug_str = ""
             var nums_unparsed = 0
@@ -65,7 +65,7 @@ class LispSpec: QuickSpec {
         it("should 'define' variable") {
             let rawstr_var = "(define test_var 100)"
             
-            let tokens = lispTokenizer([Character](rawstr_var))
+            let tokens = lispTokenizer([Character](rawstr_var.characters))
             
             if let parsedTokens = tokens.first {
                 let parsedExpr = parser(parsedTokens.0)
@@ -89,7 +89,7 @@ class LispSpec: QuickSpec {
         it("should 'define' procedure") {
             let rawstr_func = "(define (fact n acc) (if (= n 0) acc (fact (- n 1) (* acc n))))"
             
-            let tokens = lispTokenizer([Character](rawstr_func))
+            let tokens = lispTokenizer([Character](rawstr_func.characters))
             
             if let parsedTokens = tokens.first {
                 let parsedExpr = parser(parsedTokens.0)
@@ -113,7 +113,7 @@ class LispSpec: QuickSpec {
         it("should 'set' variable") {
             let rawstr_var = "(set! test_var 10)"
             
-            let tokens = lispTokenizer([Character](rawstr_var))
+            let tokens = lispTokenizer([Character](rawstr_var.characters))
             
             if let parsedTokens = tokens.first {
                 let parsedExpr = parser(parsedTokens.0)
@@ -137,7 +137,7 @@ class LispSpec: QuickSpec {
         it("should eval s-expression") {
             let rawstr = "(+ 10 (- 10 5) (* 1 5))"
             
-            let tokens = lispTokenizer([Character](rawstr))
+            let tokens = lispTokenizer([Character](rawstr.characters))
             var eval_res:SExpr = MNull()
             
             if let parsedTokens = tokens.first {
@@ -160,7 +160,7 @@ class LispSpec: QuickSpec {
         it("should 'quote' without eval") {
             let rawstr = "(car (quote (1 2 3)))"
             
-            let tokens = lispTokenizer([Character](rawstr))
+            let tokens = lispTokenizer([Character](rawstr.characters))
             var eval_res:SExpr = MNull()
             
             if let parsedTokens = tokens.first {
@@ -183,7 +183,7 @@ class LispSpec: QuickSpec {
         it("should process recursive function") {
             let rawstr = "(fact 10 1)"
             
-            let tokens = lispTokenizer([Character](rawstr))
+            let tokens = lispTokenizer([Character](rawstr.characters))
             var eval_res:SExpr = MNull()
             
             if let parsedTokens = tokens.first {
@@ -206,7 +206,7 @@ class LispSpec: QuickSpec {
         it("should eval 'lambda'") {
             let rawstr = "((lambda (a b) (* a b)) 4 1.5)"
             
-            let tokens = lispTokenizer([Character](rawstr))
+            let tokens = lispTokenizer([Character](rawstr.characters))
             var eval_res:SExpr = MNull()
             
             if let parsedTokens = tokens.first {
@@ -229,7 +229,7 @@ class LispSpec: QuickSpec {
         it("should eval multi recursive function") {
             let rawstr = "(begin (define (bit n) (if (= n 0) 1 (+ (bit (- n 1)) (bit (- n 1))))) (bit 8))"
             
-            let tokens = lispTokenizer([Character](rawstr))
+            let tokens = lispTokenizer([Character](rawstr.characters))
             var eval_res:SExpr = MNull()
             
             if let parsedTokens = tokens.first {
@@ -304,10 +304,10 @@ class InterpreterSpec : QuickSpec {
             
             if let pair = test_exp as? Pair {
                 rmuid = pair.cadr.uid
-                println(pair.cadr._debug_string())
+                print(pair.cadr._debug_string())
                 if let pair2 = pair.cadr as? Pair {
                     notrm = pair2.cadr.uid
-                    println(pair2.cadr._debug_string())
+                    print(pair2.cadr._debug_string())
                 }
             }
             
@@ -324,7 +324,7 @@ class InterpreterSpec : QuickSpec {
             
             if let head = interpreter.trees[0] as? Pair {
                 rmid = head.cadddr.uid
-                println(head.cadddr._debug_string())
+                print(head.cadddr._debug_string())
             }
             
             let str = interpreter.remove(rmid)._debug_string()
@@ -346,9 +346,9 @@ class InterpreterSpec : QuickSpec {
             
             if let pair = test_exp as? Pair {
                 uid = pair.cadddr.uid
-                println(pair.cadddr._debug_string())
+                print(pair.cadddr._debug_string())
                 nextTo = pair.cadr.uid
-                println(pair.cadr._debug_string())
+                print(pair.cadr._debug_string())
             }
             
             interpreter.insert(uid, toNextOfUid: nextTo)

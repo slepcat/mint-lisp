@@ -11,11 +11,10 @@
 // n. bignum?
 
 import Foundation
-import mintlisp
 
 func input() -> NSString? {
-    var keyboard = NSFileHandle.fileHandleWithStandardInput()
-    var inputData = keyboard.availableData
+    let keyboard = NSFileHandle.fileHandleWithStandardInput()
+    let inputData = keyboard.availableData
     return NSString(data: inputData, encoding:NSUTF8StringEncoding)
 }
 
@@ -37,9 +36,9 @@ while isLoop {
         
         let exp = interpreter.readln(chr)
         let res = interpreter.eval(exp.uid)
-        println(exp._debug_string())
-        println("sec: \(-timewatch.timeIntervalSinceNow)")
-        println(res.str("  ", level: 1))
+        print(exp._debug_string())
+        print("sec: \(-timewatch.timeIntervalSinceNow)")
+        print(res.str("  ", level: 1))
     }
 }
 

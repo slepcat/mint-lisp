@@ -142,7 +142,7 @@ public class Interpreter {
                         pair.cdr = pair.cddr
                     }
                 } else {
-                    print("fail to remove. bad conscell")
+                    print("fail to remove. bad conscell", terminator: "")
                 }
                 
                 for exp in opds {
@@ -175,7 +175,7 @@ public class Interpreter {
             pair.cdr = newPair
             
         } else {
-            print("error: move element must move inside conscell.")
+            print("error: move element must move inside conscell.", terminator: "")
         }
     }
     

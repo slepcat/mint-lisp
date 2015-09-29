@@ -393,7 +393,7 @@ struct Plane {
                 
                 return (type: BSP.Spanning, front: front, back: back)
             default:
-                print("Unexpected split polygon err")
+                print("Unexpected split polygon err", terminator: "")
             }
         }
         return (type: BSP.Coplanar, front: nil, back: nil)
@@ -573,7 +573,7 @@ struct Polygon {
     }
     
     func flipped() -> Polygon {
-        let newvertices : [Vertex] = vertices.reverse()
+        let newvertices : [Vertex] = Array(vertices.reverse())
         var newPoly = Polygon(vertices: newvertices)
         newPoly.generateNormal()
         //var newplane = plane.flipped()

@@ -16,7 +16,7 @@ class Display: Primitive {
         var acc_color: [Float] = []
         
         if args.count != 1 {
-            print("display take 1 arg")
+            print("display take 1 arg", terminator: "")
             return MNull()
         }
         
@@ -53,7 +53,7 @@ class Display: Primitive {
                 }
                 
             } else {
-                print("display take only polygons")
+                print("display take only polygons", terminator: "")
                 return MNull()
             }
         }

@@ -160,7 +160,7 @@ func consumer<Token>() -> Comb<Token, Token>.Parser {
 }
 
 func unconsume<Token>() -> Comb<Token, Token>.Parser {
-    return { (var input:[Token]) in
+    return { (input:[Token]) in
         if let head = input.first {
             return [(head, input)]
         }
