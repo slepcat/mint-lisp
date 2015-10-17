@@ -8,6 +8,14 @@
 
 import Foundation
 
+protocol MintPort:class {
+    func write(data: MintIO, uid: UInt)
+}
+
+protocol MintReadPort:class {
+    func read(path: String, uid: UInt) -> MintIO
+}
+
 class Primitive:Form {
     
     override var category : String {

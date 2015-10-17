@@ -598,7 +598,11 @@ public class MPolygon : Literal {
     }
 }
 
-public class IOMesh: Literal {
+public class MintIO {
+    
+}
+
+public class IOMesh: MintIO {
     public var mesh: [Double]
     public var normal: [Double]
     public var color: [Float]
@@ -609,12 +613,30 @@ public class IOMesh: Literal {
         self.color = color
     }
     
-    public override func str(indent: String, level: Int) -> String {
+    public func str(indent: String, level: Int) -> String {
         return "<<#IOMesh> \(mesh), \(normal), \(color)>"
     }
     
-    public override func _debug_string() -> String {
+    public func _debug_string() -> String {
         return "<<#IOMesh> \(mesh), \(normal), \(color)>"
+    }
+}
+
+public class IOErr: MintIO {
+    public var err : String
+    public var uid_err : UInt
+    
+    init(err: String, uid: UInt) {
+        self.err = err
+        uid_err = uid
+    }
+    
+    public func str(indent: String, level: Int) -> String {
+        return "<<#IOErr> \(err), uid: \(uid_err)>"
+    }
+    
+    public func _debug_string() -> String {
+        return "<<#IOErr> \(err), uid: \(uid_err)>"
     }
 }
 
