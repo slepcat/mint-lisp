@@ -149,7 +149,7 @@ func global_environment() -> [String : SExpr] {
     ///// IO /////
     
     primitives["print"] = Print()
-    primitives["display"] = Display()
+    //primitives["display"] = Display()
     primitives["quit"] = Quit()
 
     return primitives
