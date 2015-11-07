@@ -18,9 +18,9 @@ public class SExpr {
     
     func lookup_exp(uid:UInt) -> (conscell: SExpr, target: SExpr) {
         if self.uid == uid {
-            return (MNull.staticNull, self)
+            return (MNull.errNull, self)
         } else {
-            return (MNull.staticNull, MNull.staticNull)
+            return (MNull.errNull, MNull.errNull)
         }
     }
     
@@ -66,22 +66,22 @@ public class Pair:SExpr {
     override func lookup_exp(uid:UInt) -> (conscell: SExpr, target: SExpr) {
         
         if self.uid == uid {
-            return (MNull.staticNull, self)
+            return (MNull.errNull, self)
         } else  {
             let resa = car.lookup_exp(uid)
-            if !resa.target.isNull() {
+            if resa.target.uid != MNull.errNull.uid {
                 if resa.conscell.isNull() { return (self, resa.target) }
                 return resa
             }
             
             let resd = cdr.lookup_exp(uid)
             
-            if !resd.target.isNull() {
+            if resd.target.uid != MNull.errNull.uid {
                 if resd.conscell.isNull() { return (self, resd.target) }
                 return resd
             }
             
-            return (MNull.staticNull, MNull.staticNull)
+            return (MNull.errNull, MNull.errNull)
             
         }
     }
@@ -220,8 +220,10 @@ public class Procedure:Form {
                 if let sym = _params[i] as? MSymbol {
                     _env.set_variable(sym.key, val: seq[i])
                 } else {
-                    print("syntax error: procedure. not symbol in params")
-                    return (body, env)
+                    if !_params[i].isNull() || i != 0 {
+                        print("syntax error: procedure. not symbol in params")
+                        return (body, env)
+                    }
                 }
             }
         } else {
@@ -397,7 +399,7 @@ public class MStr: Literal {
     }
     
     public override func str(indent: String, level:Int) -> String {
-        return value
+        return "\"" + value + "\""
     }
     
     public override func _debug_string() -> String {
@@ -425,7 +427,7 @@ public class MNull:Literal {
     
     // avoid consume uid. do not use as a member of s-expression.
     // cause identification problem for SExpr manipulation
-    class var staticNull:MNull {
+    class var errNull:MNull {
         struct Static {
             static let singletonNull = MNull()
         }

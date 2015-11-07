@@ -38,7 +38,8 @@ public class Interpreter {
             }
         }
         
-        return MNull.staticNull
+        // return value of 'read()' is used as member of lisp binary tree. it must be unique.
+        return MNull()
     }
     
     public func readln(rawstr: String) -> SExpr {
@@ -64,7 +65,7 @@ public class Interpreter {
             }
         }
         
-        return MNull.staticNull
+        return MNull.errNull
     }
     
     public func readfile(fileContent: String) -> [SExpr] {
@@ -111,12 +112,12 @@ public class Interpreter {
     public func lookup(uid: UInt) -> (conscell: SExpr, target: SExpr) {
         for exp in trees {
             let res = exp.lookup_exp(uid)
-            if !res.target.isNull() {
+            if res.target.uid != MNull.errNull.uid {
                 return res
             }
         }
         
-        return (MNull.staticNull, MNull.staticNull)
+        return (MNull.errNull, MNull.errNull)
     }
     
     public func eval(uid: UInt) -> SExpr {

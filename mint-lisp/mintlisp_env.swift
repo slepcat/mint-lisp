@@ -43,12 +43,17 @@ class Env {
                     return nil
                 }
             }
-        } else {
-            print("Err. Number of Symbol and Value is unmatch.", terminator: "")
-            return nil
+            
+            return _env
+            
+        } else if symbols.count == 1 {
+            if let _ = symbols.last as? MNull {
+                return _env
+            }
         }
         
-        return _env
+        print("Err. Number of Symbol and Value is unmatch.", terminator: "")
+        return nil
     }
     
     func clone() -> Env {
@@ -74,6 +79,11 @@ class Env {
             hash_table[key] = val
             return true
         }
+    }
+    
+    func define_variable_force(key: String, val: SExpr) -> Bool {
+        hash_table[key] = val
+        return true
     }
 }
 

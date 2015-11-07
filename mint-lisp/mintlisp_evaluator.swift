@@ -31,7 +31,7 @@ class Evaluator {
             var isRet = false
             var res : SExpr = MNull()
             
-            if let atom = cf.exp as? Atom {
+            if let _ = cf.exp as? Atom {
                 if let literal = cf.exp as? Literal {
                     res = literal
                     isRet = true
@@ -41,7 +41,7 @@ class Evaluator {
                 }
             } else if let pair = cf.exp as? Pair {
                 
-                if let quote = pair.car as? MQuote {
+                if let _ = pair.car as? MQuote {
                     if cf.seq.count == 2 {
                         res = cf.seq[1]
                         isRet = true
@@ -50,9 +50,24 @@ class Evaluator {
                         isRet = true
                     }
                     
-                } else if let set = pair.car as? MSet {
+                } else if let _ = pair.car as? MSet {
                     
-                    if cf.seq.count == 3 {
+                    if cf.pc == 0 {
+                        
+                        if cf.seq.count == 3 {
+                            // eval definition value
+                            cf.pc = 2
+                            push(cf)
+                            cf = (cf.seq[2], delayed_list_of_values(cf.seq[2]), 0, cf.env)
+                            continue
+                            
+                        } else {
+                            print("syntax error: define take 2 args > " + cf.exp._debug_string(), terminator: "")
+                            isRet = true
+                        }
+                        
+                    } else {
+                    
                         if let symbol = cf.seq[1] as? MSymbol {
                             if !cf.env.set_variable(symbol.key, val: cf.seq[2]) {
                                 print("failed to bind: undefined varialble identifier > " + symbol._debug_string(), terminator: "")
@@ -62,12 +77,10 @@ class Evaluator {
                         } else {
                             print("failed to bind: not symbol > " + cf.seq[1]._debug_string(), terminator: "")
                         }
-                    } else {
-                        print("syntax error: set! take 2 args > " + cf.exp._debug_string(), terminator: "")
+                        isRet = true
                     }
-                    isRet = true
                     
-                } else if let define = pair.car as? MDefine {
+                } else if let _ = pair.car as? MDefine {
                     
                     if cf.pc == 0 {
                         
@@ -95,7 +108,7 @@ class Evaluator {
                         
                     } else {
                         if let symbol = cf.seq[1] as? MSymbol {
-                            if !cf.env.define_variable(symbol.key, val: cf.seq[2]) {
+                            if !cf.env.define_variable_force(symbol.key, val: cf.seq[2]) {// overwrite allowed
                                 print("failed to bind: used varialble identifier > " + symbol._debug_string(), terminator: "")
                             } else {
                                 print(cf.seq[2]._debug_string() + " is defined as " + symbol._debug_string(), terminator: "")
@@ -106,7 +119,7 @@ class Evaluator {
                         isRet = true
                     }
                     
-                } else if let _if = pair.car as? MIf {
+                } else if let _ = pair.car as? MIf {
                     
                     if cf.pc == 0 {
                         if (cf.seq.count == 4) || (cf.seq.count == 3) {
@@ -131,7 +144,7 @@ class Evaluator {
                         continue
                     }
                     
-                } else if let lambda = pair.car as? MLambda {
+                } else if let _ = pair.car as? MLambda {
                     if cf.seq.count == 3 {
                         res = Procedure(_params: cf.seq[1], body: cf.seq[2], env: cf.env)
                     } else {
@@ -139,7 +152,7 @@ class Evaluator {
                     }
                     isRet = true
                     
-                } else if let begin = pair.car as? MBegin {
+                } else if let _ = pair.car as? MBegin {
                     
                     if cf.seq.count > cf.pc {
                         
