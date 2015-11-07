@@ -65,7 +65,7 @@ class Color : Primitive {
             }
         }
         
-        print("color take 3 or 4 double values", terminator: "")
+        print("color take 3 or 4 double values", terminator: "\n")
         return MNull()
     }
 }
@@ -96,7 +96,7 @@ class Pln : Primitive {
             }
         }
         
-        print("plane take 1 polygon, 1 vector & 1 double, 2 vector, 3 vector, or 3 vertex", terminator: "")
+        print("plane take 1 polygon, 1 vector & 1 double, 2 vector, 3 vector, or 3 vertex", terminator: "\n")
         return MNull()
     }
 }
@@ -105,7 +105,7 @@ class Poly : Primitive {
     override func apply(args: [SExpr]) -> SExpr {
         
         if args.count < 3 {
-            print("polygon take more than 3 vertices", terminator: "")
+            print("polygon take more than 3 vertices", terminator: "\n")
             return MNull()
         }
         
@@ -115,7 +115,7 @@ class Poly : Primitive {
             if let vex = a as? MVertex {
                 acc.append(vex.value)
             } else {
-                print("polygon take only vertex values", terminator: "")
+                print("polygon take only vertex values", terminator: "\n")
                 return MNull()
             }
         }
@@ -135,12 +135,12 @@ class Poly_VexAtIndex : Primitive {
                 if vertices.count > i.value {
                     return MVertex(_value: vertices[i.value])
                 } else {
-                    print("poly.vex-at-index: the index is out of range", terminator: "")
+                    print("poly.vex-at-index: the index is out of range", terminator: "\n")
                     return MNull()
                 }
             }
         }
-        print("poly.vex-at-index take 1 polygon and 1 int", terminator: "")
+        print("poly.vex-at-index take 1 polygon and 1 int", terminator: "\n")
         return MNull()
     }
 }
@@ -153,7 +153,7 @@ class Poly_VexCount : Primitive {
             }
         }
         
-        print("poly.vex-count take 1 polygon", terminator: "")
+        print("poly.vex-count take 1 polygon", terminator: "\n")
         return MNull()
     }
 }
@@ -166,7 +166,7 @@ class Pln_normal: Primitive {
             }
         }
         
-        print("plane.normal take 1 vector", terminator: "")
+        print("plane.normal take 1 vector", terminator: "\n")
         return MNull()
     }
 }
@@ -179,7 +179,7 @@ class Vex_Pos : Primitive {
             }
         }
         
-        print("vex.pos take 1 vertex", terminator: "")
+        print("vex.pos take 1 vertex", terminator: "\n")
         return MNull()
     }
 }
@@ -192,7 +192,7 @@ class Vex_Normal : Primitive {
             }
         }
         
-        print("vex.normal take 1 vertex", terminator: "")
+        print("vex.normal take 1 vertex", terminator: "\n")
         return MNull()
     }
 }
@@ -205,7 +205,7 @@ class Vex_Color : Primitive {
             }
         }
         
-        print("vex.color take 1 vertex", terminator: "")
+        print("vex.color take 1 vertex", terminator: "\n")
         return MNull()
     }
 }
@@ -218,7 +218,7 @@ class Color_r : Primitive {
             }
         }
         
-        print("color.r take 1 color", terminator: "")
+        print("color.r take 1 color", terminator: "\n")
         return MNull()
     }
 }
@@ -231,7 +231,7 @@ class Color_g : Primitive {
             }
         }
         
-        print("color.r take 1 color", terminator: "")
+        print("color.r take 1 color", terminator: "\n")
         return MNull()
     }
 }
@@ -244,7 +244,7 @@ class Color_b : Primitive {
             }
         }
         
-        print("color.r take 1 color", terminator: "")
+        print("color.r take 1 color", terminator: "\n")
         return MNull()
     }
 }
@@ -255,7 +255,7 @@ class Color_a : Primitive {
             if let c = args[0] as? MColor {
                 
                 if c.value.count < 4 {
-                    print("color don't have alpha value", terminator: "")
+                    print("color don't have alpha value", terminator: "\n")
                     return MNull()
                 }
                 
@@ -263,7 +263,7 @@ class Color_a : Primitive {
             }
         }
         
-        print("color.r take 1 color", terminator: "")
+        print("color.r take 1 color", terminator: "\n")
         return MNull()
     }
 }
@@ -276,7 +276,7 @@ class Vec_x: Primitive {
             }
         }
         
-        print("vec.x take 1 vector", terminator: "")
+        print("vec.x take 1 vector", terminator: "\n")
         return MNull()
     }
 }
@@ -289,7 +289,7 @@ class Vec_y: Primitive {
             }
         }
         
-        print("vec.y take 1 vector", terminator: "")
+        print("vec.y take 1 vector", terminator: "\n")
         return MNull()
     }
 }
@@ -302,7 +302,7 @@ class Vec_z: Primitive {
             }
         }
         
-        print("vec.z take 1 vector", terminator: "")
+        print("vec.z take 1 vector", terminator: "\n")
         return MNull()
     }
 }

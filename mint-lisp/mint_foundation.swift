@@ -393,7 +393,7 @@ struct Plane {
                 
                 return (type: BSP.Spanning, front: front, back: back)
             default:
-                print("Unexpected split polygon err", terminator: "")
+                print("Unexpected split polygon err", terminator: "\n")
             }
         }
         return (type: BSP.Coplanar, front: nil, back: nil)

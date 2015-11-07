@@ -9,11 +9,11 @@
 import Foundation
 
 protocol MintPort:class {
-    func write(data: MintIO, uid: UInt)
+    func write(data: MintIO, port: Int)
 }
 
 protocol MintReadPort:class {
-    func read(path: String, uid: UInt) -> MintIO
+    func read(path: String, port: Int) -> MintIO
 }
 
 class Primitive:Form {
@@ -256,11 +256,11 @@ class CastDouble : Primitive {
             case let num as MDouble:
                 return num
             default:
-                print("cast-doulbe take only number literal", terminator: "")
+                print("cast-doulbe take only number literal", terminator: "\n")
                 return MNull()
             }
         }
-        print("cast-double take only 1 element", terminator: "")
+        print("cast-double take only 1 element", terminator: "\n")
         return MNull()
     }
     
@@ -278,7 +278,7 @@ class Cons : Primitive {
             return Pair(car: args[0], cdr: args[1])
         }
         
-        print("cons must take 2 element", terminator: "")
+        print("cons must take 2 element", terminator: "\n")
         return MNull()
     }
     
@@ -293,10 +293,10 @@ class Car : Primitive {
             if let pair = args.first as? Pair {
                 return pair.car
             } else {
-                print("car take only Pair", terminator: "")
+                print("car take only Pair", terminator: "\n")
             }
         } else {
-            print("car take only 1 argument", terminator: "")
+            print("car take only 1 argument", terminator: "\n")
         }
         return MNull()
     }
@@ -312,10 +312,10 @@ class Cdr : Primitive {
             if let pair = args.first as? Pair {
                 return pair.cdr
             } else {
-                print("cdr take only Pair", terminator: "")
+                print("cdr take only Pair", terminator: "\n")
             }
         } else {
-            print("cdr take only 1 argument", terminator: "")
+            print("cdr take only 1 argument", terminator: "\n")
         }
         return MNull()
     }
@@ -331,10 +331,10 @@ class Caar : Primitive {
             if let pair = args.first as? Pair {
                 return pair.caar
             } else {
-                print("caar take only Pair", terminator: "")
+                print("caar take only Pair", terminator: "\n")
             }
         } else {
-            print("caar take only 1 argument", terminator: "")
+            print("caar take only 1 argument", terminator: "\n")
         }
         return MNull()
     }
@@ -350,10 +350,10 @@ class Cadr : Primitive {
             if let pair = args.first as? Pair {
                 return pair.cadr
             } else {
-                print("cadr take only Pair", terminator: "")
+                print("cadr take only Pair", terminator: "\n")
             }
         } else {
-            print("cadr take only 1 argument", terminator: "")
+            print("cadr take only 1 argument", terminator: "\n")
         }
         return MNull()
     }
@@ -369,10 +369,10 @@ class Cddr : Primitive {
             if let pair = args.first as? Pair {
                 return pair.cddr
             } else {
-                print("cddr take only Pair", terminator: "")
+                print("cddr take only Pair", terminator: "\n")
             }
         } else {
-            print("cddr take only 1 argument", terminator: "")
+            print("cddr take only 1 argument", terminator: "\n")
         }
         return MNull()
     }
@@ -388,10 +388,10 @@ class Cdar : Primitive {
             if let pair = args.first as? Pair {
                 return pair.cdar
             } else {
-                print("cdar take only Pair", terminator: "")
+                print("cdar take only Pair", terminator: "\n")
             }
         } else {
-            print("cdar take only 1 argument", terminator: "")
+            print("cdar take only 1 argument", terminator: "\n")
         }
         return MNull()
     }
@@ -407,10 +407,10 @@ class Caaar : Primitive {
             if let pair = args.first as? Pair {
                 return pair.caaar
             } else {
-                print("caaar take only Pair", terminator: "")
+                print("caaar take only Pair", terminator: "\n")
             }
         } else {
-            print("caaar take only 1 argument", terminator: "")
+            print("caaar take only 1 argument", terminator: "\n")
         }
         return MNull()
     }
@@ -426,10 +426,10 @@ class Caadr : Primitive {
             if let pair = args.first as? Pair {
                 return pair.caadr
             } else {
-                print("caadr take only Pair", terminator: "")
+                print("caadr take only Pair", terminator: "\n")
             }
         } else {
-            print("caadr take only 1 argument", terminator: "")
+            print("caadr take only 1 argument", terminator: "\n")
         }
         return MNull()
     }
@@ -445,10 +445,10 @@ class Caddr : Primitive {
             if let pair = args.first as? Pair {
                 return pair.caddr
             } else {
-                print("caddr take only Pair", terminator: "")
+                print("caddr take only Pair", terminator: "\n")
             }
         } else {
-            print("caddr take only 1 argument", terminator: "")
+            print("caddr take only 1 argument", terminator: "\n")
         }
         return MNull()
     }
@@ -464,10 +464,10 @@ class Cdddr : Primitive {
             if let pair = args.first as? Pair {
                 return pair.cdddr
             } else {
-                print("cdddr take only Pair", terminator: "")
+                print("cdddr take only Pair", terminator: "\n")
             }
         } else {
-            print("cdddr take only 1 argument", terminator: "")
+            print("cdddr take only 1 argument", terminator: "\n")
         }
         return MNull()
     }
@@ -483,10 +483,10 @@ class Cdaar : Primitive {
             if let pair = args.first as? Pair {
                 return pair.cdaar
             } else {
-                print("cdaar take only Pair", terminator: "")
+                print("cdaar take only Pair", terminator: "\n")
             }
         } else {
-            print("cdaar take only 1 argument", terminator: "")
+            print("cdaar take only 1 argument", terminator: "\n")
         }
         return MNull()
     }
@@ -502,10 +502,10 @@ class Cadar : Primitive {
             if let pair = args.first as? Pair {
                 return pair.cadar
             } else {
-                print("cadar take only Pair", terminator: "")
+                print("cadar take only Pair", terminator: "\n")
             }
         } else {
-            print("cadar take only 1 argument", terminator: "")
+            print("cadar take only 1 argument", terminator: "\n")
         }
         return MNull()
     }
@@ -521,10 +521,10 @@ class Cdadr : Primitive {
             if let pair = args.first as? Pair {
                 return pair.cdadr
             } else {
-                print("cdadr take only Pair", terminator: "")
+                print("cdadr take only Pair", terminator: "\n")
             }
         } else {
-            print("cdadr take only 1 argument", terminator: "")
+            print("cdadr take only 1 argument", terminator: "\n")
         }
         return MNull()
     }
@@ -540,10 +540,10 @@ class Cddar : Primitive {
             if let pair = args.first as? Pair {
                 return pair.cddar
             } else {
-                print("cddar take only Pair", terminator: "")
+                print("cddar take only Pair", terminator: "\n")
             }
         } else {
-            print("cddar take only 1 argument", terminator: "")
+            print("cddar take only 1 argument", terminator: "\n")
         }
         return MNull()
     }
@@ -558,9 +558,9 @@ class Cddar : Primitive {
 class Print : Primitive {
     override func apply(args: [SExpr]) -> SExpr {
         if args.count == 1 {
-            print(args[0], terminator: "")
+            print(args[0], terminator: "\n")
         } else {
-            print("print take only 1 argument", terminator: "")
+            print("print take only 1 argument", terminator: "\n")
         }
         return MNull()
     }
@@ -573,7 +573,7 @@ class Print : Primitive {
 class Quit : Primitive {
     // dummy, for real quit process, see main.swift
     override func apply(args: [SExpr]) -> SExpr {
-        print("byby", terminator: "")
+        print("byby", terminator: "\n")
         return MNull()
     }
 }

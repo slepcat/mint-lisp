@@ -46,7 +46,7 @@ class Evaluator {
                         res = cf.seq[1]
                         isRet = true
                     } else {
-                        print("syntax error: quote take 1 arg > " + cf.exp._debug_string(), terminator: "")
+                        print("syntax error: quote take 1 arg > " + cf.exp._debug_string(), terminator: "\n")
                         isRet = true
                     }
                     
@@ -62,7 +62,7 @@ class Evaluator {
                             continue
                             
                         } else {
-                            print("syntax error: define take 2 args > " + cf.exp._debug_string(), terminator: "")
+                            print("syntax error: define take 2 args > " + cf.exp._debug_string(), terminator: "\n")
                             isRet = true
                         }
                         
@@ -70,12 +70,12 @@ class Evaluator {
                     
                         if let symbol = cf.seq[1] as? MSymbol {
                             if !cf.env.set_variable(symbol.key, val: cf.seq[2]) {
-                                print("failed to bind: undefined varialble identifier > " + symbol._debug_string(), terminator: "")
+                                print("failed to bind: undefined varialble identifier > " + symbol._debug_string(), terminator: "\n")
                             } else {
-                                print(cf.seq[2]._debug_string() + " is set to " + symbol._debug_string(), terminator: "")
+                                print(cf.seq[2]._debug_string() + " is set to " + symbol._debug_string(), terminator: "\n")
                             }
                         } else {
-                            print("failed to bind: not symbol > " + cf.seq[1]._debug_string(), terminator: "")
+                            print("failed to bind: not symbol > " + cf.seq[1]._debug_string(), terminator: "\n")
                         }
                         isRet = true
                     }
@@ -102,19 +102,19 @@ class Evaluator {
                             continue
                             
                         } else {
-                            print("syntax error: define take 2 args > " + cf.exp._debug_string(), terminator: "")
+                            print("syntax error: define take 2 args > " + cf.exp._debug_string(), terminator: "\n")
                             isRet = true
                         }
                         
                     } else {
                         if let symbol = cf.seq[1] as? MSymbol {
                             if !cf.env.define_variable_force(symbol.key, val: cf.seq[2]) {// overwrite allowed
-                                print("failed to bind: used varialble identifier > " + symbol._debug_string(), terminator: "")
+                                print("failed to bind: used varialble identifier > " + symbol._debug_string(), terminator: "\n")
                             } else {
-                                print(cf.seq[2]._debug_string() + " is defined as " + symbol._debug_string(), terminator: "")
+                                print(cf.seq[2]._debug_string() + " is defined as " + symbol._debug_string(), terminator: "\n")
                             }
                         } else {
-                            print("failed to bind: not symbol > " + cf.seq[1]._debug_string(), terminator: "")
+                            print("failed to bind: not symbol > " + cf.seq[1]._debug_string(), terminator: "\n")
                         }
                         isRet = true
                     }
@@ -129,7 +129,7 @@ class Evaluator {
                             cf = (cf.seq[1], delayed_list_of_values(cf.seq[1]), 0, cf.env)
                             continue
                         } else {
-                            print("syntax error: if take 2 or 3 exps > " + cf.exp._debug_string(), terminator: "")
+                            print("syntax error: if take 2 or 3 exps > " + cf.exp._debug_string(), terminator: "\n")
                             isRet = true
                         }
                     } else {
@@ -148,7 +148,7 @@ class Evaluator {
                     if cf.seq.count == 3 {
                         res = Procedure(_params: cf.seq[1], body: cf.seq[2], env: cf.env)
                     } else {
-                        print("syntax error: lambda take 2 args > " + cf.exp._debug_string(), terminator: "")
+                        print("syntax error: lambda take 2 args > " + cf.exp._debug_string(), terminator: "\n")
                     }
                     isRet = true
                     
@@ -168,7 +168,7 @@ class Evaluator {
                         if let result = cf.seq.last {
                             res = result
                         } else {
-                            print("syntax error: begins > " + cf.exp._debug_string(), terminator: "")
+                            print("syntax error: begins > " + cf.exp._debug_string(), terminator: "\n")
                         }
                         isRet = true
                     }
@@ -193,7 +193,7 @@ class Evaluator {
                             cf = (result.exp, delayed_list_of_values(result.exp), 0, result.env)
                             
                         } else {
-                            print("syntax error: not a procedure > " + cf.exp._debug_string(), terminator: "")
+                            print("syntax error: not a procedure > " + cf.exp._debug_string(), terminator: "\n")
                             isRet = true
                         }
                     }

@@ -9,7 +9,11 @@
 import Foundation
 
 class Cube: Primitive {
-
+    
+    override var category : String {
+        get {return "3D Primitives"}
+    }
+    
     override func apply(args: [SExpr]) -> SExpr {
         
         if args.count == 4 {
@@ -84,8 +88,11 @@ class Cube: Primitive {
             }
         }
         
-        print("cube take 3 double and 1 vector", terminator: "")
+        print("cube take 3 double and 1 vector", terminator: "\n")
         return MNull()
     }
-
+    
+    override func params_str() -> [String] {
+        return ["width", "height", "depth", "center"]
+    }
 }
