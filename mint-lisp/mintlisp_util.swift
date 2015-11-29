@@ -61,6 +61,40 @@ func _or(a :Bool, b: Bool) -> Bool {
     return (a || b)
 }
 
+
+///// Utilities /////
+
+public func delayed_list_of_values(_opds :SExpr) -> [SExpr] {
+    if let atom = _opds as? Atom {
+        return [atom]
+    } else {
+        return tail_delayed_list_of_values(_opds, acc: [])
+    }
+}
+
+private func tail_delayed_list_of_values(_opds :SExpr, var acc: [SExpr]) -> [SExpr] {
+    if let pair = _opds as? Pair {
+        acc.append(pair.car)
+        return tail_delayed_list_of_values(pair.cdr, acc: acc)
+    } else {
+        return acc
+    }
+}
+
+///// numeric //////
+
+func cast2double(exp: SExpr) -> Double? {
+    switch exp {
+    case let num as MInt:
+        return Double(num.value)
+    case let num as MDouble:
+        return num.value
+    default:
+        print("cast-doulbe take only number literal", terminator: "\n")
+        return nil
+    }
+}
+
 // unique id generator.
 // UID factory: we can request a unique ID through UID.get.newID
 // Singleton

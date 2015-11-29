@@ -17,12 +17,12 @@ import Foundation
 class Vec : Primitive {
     override func apply(args: [SExpr]) -> SExpr {
         if args.count == 2 {
-            if let arg1 = args[0] as? MDouble, let arg2 = args[1] as? MDouble {
-                return MVector(_value: Vector(x: arg1.value, y: arg2.value))
+            if let arg1 = cast2double(args[0]), let arg2 = cast2double(args[1]) {
+                return MVector(_value: Vector(x: arg1, y: arg2))
             }
         } else if args.count == 3 {
-            if let arg1 = args[0] as? MDouble, let arg2 = args[1] as? MDouble, let arg3 = args[2] as? MDouble {
-                return MVector(_value: Vector(x: arg1.value, y: arg2.value, z: arg3.value))
+            if let arg1 = cast2double(args[0]), let arg2 = cast2double(args[1]), let arg3 = cast2double(args[2]) {
+                return MVector(_value: Vector(x: arg1, y: arg2, z: arg3))
             }
         }
         
@@ -54,13 +54,13 @@ class Vex : Primitive {
 class Color : Primitive {
     override func apply(args: [SExpr]) -> SExpr {
         if args.count == 3 {
-            if let r = args[0] as? MDouble, let g = args[1] as? MDouble, let b = args[2] as? MDouble {
-                let color = [Float(r.value), Float(g.value), Float(b.value)]
+            if let r = cast2double(args[0]), let g = cast2double(args[1]), let b = cast2double(args[2]) {
+                let color = [Float(r), Float(g), Float(b)]
                 return MColor(_value: color)
             }
         } else if args.count == 4 {
-            if let r = args[0] as? MDouble, let g = args[1] as? MDouble, let b = args[2] as? MDouble, let a = args[3] as? MDouble {
-                let color = [Float(r.value), Float(g.value), Float(b.value), Float(a.value)]
+            if let r = cast2double(args[0]), let g = cast2double(args[1]), let b = cast2double(args[2]), let a = cast2double(args[3]) {
+                let color = [Float(r), Float(g), Float(b), Float(a)]
                 return MColor(_value: color)
             }
         }
@@ -74,9 +74,9 @@ class Pln : Primitive {
     override func apply(args: [SExpr]) -> SExpr {
         if args.count == 2 {
             if let vec = args[0] as? MVector {
-                if let w = args[1] as? MDouble {
+                if let w = cast2double(args[1]) {
                     
-                    return MPlane(_value: Plane(normal: vec.value, w: w.value))
+                    return MPlane(_value: Plane(normal: vec.value, w: w))
                     
                 } else if let point = args[1] as? MVector {
                     

@@ -117,6 +117,8 @@ extension LispToken {
                 return MQuote()
             case "begin":
                 return MBegin()
+            case "display":
+                return Display()
             default:
                 return MSymbol(_key: symbol)
             }

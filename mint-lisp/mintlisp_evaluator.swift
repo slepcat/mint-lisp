@@ -173,8 +173,31 @@ class Evaluator {
                         isRet = true
                     }
                     
-                } else {
+                } else if let _ = pair.car as? Display {
                     
+                    if cf.seq.count > cf.pc {
+                        
+                        if cf.pc == 0 {
+                            cf.pc++
+                        }
+                        
+                        push(cf)
+                        cf = (cf.seq[cf.pc], delayed_list_of_values(cf.seq[cf.pc]), 0, cf.env)
+                        continue
+                        
+                    } else {
+                        if let disp = cf.seq.first as? Primitive {
+                            
+                            res = disp.apply(tail(cf.seq))
+                            isRet = true
+                            
+                        } else {
+                            print("syntax error: not a procedure > " + cf.exp._debug_string(), terminator: "\n")
+                            isRet = true
+                        }
+                    }
+                } else {
+                
                     if cf.seq.count > cf.pc {
                         
                         push(cf)

@@ -80,7 +80,7 @@ public class Interpreter {
             }
             */
             let result = read_recursive(token.0, parser: parser, acc: [])
-            trees += result
+            //trees += result
             return result
         }
         
@@ -138,25 +138,6 @@ public class Interpreter {
         }
         
         return acc
-    }
-    
-    ///// Utilities /////
-    
-    func delayed_list_of_values(_opds :SExpr) -> [SExpr] {
-        if let atom = _opds as? Atom {
-            return [atom]
-        } else {
-            return tail_delayed_list_of_values(_opds, acc: [])
-        }
-    }
-    
-    private func tail_delayed_list_of_values(_opds :SExpr, var acc: [SExpr]) -> [SExpr] {
-        if let pair = _opds as? Pair {
-            acc.append(pair.car)
-            return tail_delayed_list_of_values(pair.cdr, acc: acc)
-        } else {
-            return acc
-        }
     }
 }
 

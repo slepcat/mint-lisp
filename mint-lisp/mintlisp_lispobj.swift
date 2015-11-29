@@ -99,7 +99,11 @@ public class Pair:SExpr {
         
         for s in res {
             if s[s.startIndex] == "(" {
-                acc += "\n" + leveledIndent + s
+                if indent == "" {
+                    acc += s
+                } else {
+                    acc += "\n" + leveledIndent + s
+                }
             } else {
                 if acc == "" {
                     acc += s
@@ -608,11 +612,13 @@ public class IOMesh: MintIO {
     public var mesh: [Double]
     public var normal: [Double]
     public var color: [Float]
+    public var alpha: [Float]
     
-    init(mesh:[Double], normal:[Double], color:[Float]) {
+    init(mesh:[Double], normal:[Double], color:[Float], alpha:[Float]) {
         self.mesh = mesh
         self.normal = normal
         self.color = color
+        self.alpha = alpha
     }
     
     public func str(indent: String, level: Int) -> String {

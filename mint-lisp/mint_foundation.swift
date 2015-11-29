@@ -194,6 +194,7 @@ struct Vertex {
     let pos : Vector
     var normal : Vector = Vector(x: 0, y: 0, z: 0)
     var color = [Float](count: 3, repeatedValue: 0.5)
+    var alpha : Float = 1.0
     //var tag:Int = Tag.get.newTag
     
     // defined by `CSG.Vertex`.
