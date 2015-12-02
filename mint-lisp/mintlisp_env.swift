@@ -155,6 +155,19 @@ func global_environment() -> [String : SExpr] {
     ///// 3d primitives /////
     
     primitives["cube"] = Cube()
+    primitives["sphere"] = Sphere()
+    primitives["cylinder"] = Cylinder()
+    
+    ///// 3d Transform /////
+    
+    primitives["set-color"] = SetColor()
+    primitives["union"] = Union()
+    primitives["subtract"] = Subtract()
+    primitives["intersect"] = Intersect()
+    primitives["rotate"] = Rotate()
+    primitives["rotate-axis"] = RotateAxis()
+    primitives["move"] = Translate()
+    primitives["scale"] = Scale()
     
     ///// IO /////
     

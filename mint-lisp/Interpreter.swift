@@ -109,6 +109,18 @@ public class Interpreter {
         return lookup(uid).target
     }
     
+    public func reload_env() {
+        global.hash_table = global_environment()
+        
+        for tree in trees {
+            if let pair = tree as? Pair {
+                if let _ = pair.car as? MDefine {
+                    eval(pair)
+                }
+            }
+        }
+    }
+    
     public func lookup(uid: UInt) -> (conscell: SExpr, target: SExpr) {
         for exp in trees {
             let res = exp.lookup_exp(uid)

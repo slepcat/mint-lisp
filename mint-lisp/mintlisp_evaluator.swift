@@ -154,7 +154,7 @@ class Evaluator {
                     
                 } else if let _ = pair.car as? MBegin {
                     
-                    if cf.seq.count > cf.pc {
+                    if (cf.seq.count > cf.pc) && (cf.seq.count > 1) {
                         
                         if cf.pc == 0 {
                             cf.pc++
@@ -175,7 +175,7 @@ class Evaluator {
                     
                 } else if let _ = pair.car as? Display {
                     
-                    if cf.seq.count > cf.pc {
+                    if (cf.seq.count > cf.pc) && (cf.seq.count > 1) {
                         
                         if cf.pc == 0 {
                             cf.pc++

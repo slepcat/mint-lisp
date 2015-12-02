@@ -81,6 +81,20 @@ private func tail_delayed_list_of_values(_opds :SExpr, var acc: [SExpr]) -> [SEx
     }
 }
 
+public func list_from_array(array: [SExpr]) -> SExpr {
+    return tail_list_from_array(array, acc: MNull())
+}
+
+private func tail_list_from_array(var array: [SExpr], var acc: SExpr) -> SExpr {
+    if array.count == 0 {
+        return acc
+    } else {
+        let exp = array.removeLast()
+        acc = Pair(car: exp, cdr: acc)
+        return tail_list_from_array(array, acc: acc)
+    }
+}
+
 ///// numeric //////
 
 func cast2double(exp: SExpr) -> Double? {
