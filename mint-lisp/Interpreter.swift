@@ -8,14 +8,14 @@
 
 import Foundation
 
-public class Interpreter {
+public class Interpreter : NSObject {
     
     var trees:[SExpr] = []
     let global: Env
     
     public var indent: String = "  "
     
-    public init() {
+    public override init() {
         global = Env()
         global.hash_table = global_environment()
     }

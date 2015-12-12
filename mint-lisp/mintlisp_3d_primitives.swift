@@ -9,12 +9,12 @@
 import Foundation
 
 
-protocol MintPort:class {
-    func write(data: MintIO, uid: UInt)
+class MintPort: NSObject {
+    func write(data: MintIO, uid: UInt) {}
 }
 
-protocol MintReadPort:class {
-    func read(path: String, uid: UInt) -> MintIO
+class MintReadPort:NSObject {
+    func read(path: String, uid: UInt) -> MintIO {return MintIO()}
 }
 
 class MintStdPort {
@@ -39,7 +39,11 @@ class MintStdPort {
     }
     
     func errprint(err:String, uid: UInt) {
-        stderrport?.write(IOErr(err: err, uid: uid), uid: uid)
+        if let port = stderrport {
+            objc_sync_enter(port)
+            port.write(IOErr(err: err, uid: uid), uid: uid)
+            objc_sync_exit(port)
+        }
     }
     
     class var get: MintStdPort {
@@ -51,6 +55,10 @@ class MintStdPort {
 }
 
 class Display: Primitive {
+
+    override func mirror_for_thread() -> SExpr {
+        return Display(uid: uid)
+    }
     
     override func apply(args: [SExpr]) -> SExpr {
         
@@ -93,7 +101,13 @@ class Display: Primitive {
                 } else {
                     print("display take only polygons", terminator: "\n")
                     if let port = MintStdPort.get.currentport {
+                        objc_sync_enter(port)
+                        
                         port.write(IOMesh(mesh: [], normal: [], color: [], alpha: []), uid: uid)
+                        
+                        objc_sync_exit(port)
+                        
+                        port.performSelectorOnMainThread("update", withObject: nil, waitUntilDone: false)
                     }
                     return MNull()
                 }
@@ -101,7 +115,11 @@ class Display: Primitive {
         }
         
         if let port = MintStdPort.get.currentport {
+            objc_sync_enter(port)
             port.write(IOMesh(mesh: acc, normal: acc_normal, color: acc_color, alpha: acc_alpha), uid: uid)
+            objc_sync_exit(port)
+            
+            port.performSelectorOnMainThread("update", withObject: nil, waitUntilDone: false)
         }
         
         return MNull()

@@ -16,6 +16,14 @@ public class SExpr {
         uid = UID.get.newID
     }
     
+    init(uid: UInt) {
+        self.uid = uid
+    }
+    
+    func mirror_for_thread() -> SExpr {
+        return SExpr(uid: uid)
+    }
+    
     func lookup_exp(uid:UInt) -> (conscell: SExpr, target: SExpr) {
         if self.uid == uid {
             return (MNull.errNull, self)
@@ -46,21 +54,35 @@ public class Pair:SExpr {
     override init() {
         car = MNull()
         cdr = MNull()
+        super.init()
     }
     
     init(car _car:SExpr) {
         car = _car
         cdr = MNull()
+        super.init()
     }
     
     init(cdr _cdr:SExpr) {
         car = MNull()
         cdr = _cdr
+        super.init()
     }
     
     init(car _car:SExpr, cdr _cdr:SExpr) {
         car = _car
         cdr = _cdr
+        super.init()
+    }
+    
+    private init(uid: UInt, car: SExpr, cdr: SExpr) {
+        self.car = car
+        self.cdr = cdr
+        super.init(uid: uid)
+    }
+    
+    override func mirror_for_thread() -> SExpr {
+        return Pair(uid: uid, car: car.mirror_for_thread(), cdr: cdr.mirror_for_thread())
     }
     
     override func lookup_exp(uid:UInt) -> (conscell: SExpr, target: SExpr) {
@@ -153,6 +175,10 @@ public class Form:SExpr {
 
 public class MDefine:Form {
     
+    override func mirror_for_thread() -> SExpr {
+        return MDefine(uid: uid)
+    }
+    
     override public func params_str() -> [String] {
         return ["symbol", "value"]
     }
@@ -168,6 +194,10 @@ public class MDefine:Form {
 
 public class MQuote: Form {
     
+    override func mirror_for_thread() -> SExpr {
+        return MQuote(uid: uid)
+    }
+    
     override public func params_str() -> [String] {
         return ["value"]
     }
@@ -182,6 +212,10 @@ public class MQuote: Form {
 }
 
 public class MBegin:Form {
+    
+    override func mirror_for_thread() -> SExpr {
+        return MBegin(uid: uid)
+    }
     
     override public func params_str() -> [String] {
         return [".procs"]
@@ -213,6 +247,18 @@ public class Procedure:Form {
         body = _body
         
         super.init()
+    }
+    
+    private init(uid: UInt, params: SExpr, body: SExpr, initial_env: Env, rec_env: Env?) {
+        self.params = params
+        self.body = body
+        self.initial_env = initial_env
+        self.rec_env = rec_env
+        super.init(uid: uid)
+    }
+    
+    override func mirror_for_thread() -> SExpr {
+        return Procedure(uid: uid, params: params.mirror_for_thread(), body: body.mirror_for_thread(), initial_env: initial_env.clone(), rec_env: rec_env?.clone())
     }
     
     func apply(env: Env, seq: [SExpr]) -> (exp: SExpr, env: Env) {
@@ -282,6 +328,10 @@ public class Procedure:Form {
 
 public class MLambda: Form {
     
+    override func mirror_for_thread() -> SExpr {
+        return MLambda(uid: uid)
+    }
+    
     func make_lambda(params: SExpr, body: SExpr) -> SExpr {
         return Pair(car: self, cdr: Pair(car: params, cdr: Pair(car: body)))
     }
@@ -301,6 +351,10 @@ public class MLambda: Form {
 
 public class MIf: Form {
     
+    override func mirror_for_thread() -> SExpr {
+        return MIf(uid: uid)
+    }
+    
     public override func params_str() -> [String] {
         return ["predic", "then", "else"]
     }
@@ -315,6 +369,10 @@ public class MIf: Form {
 }
 
 public class MSet:Form {
+    
+    override func mirror_for_thread() -> SExpr {
+        return MSet(uid: uid)
+    }
     
     public override func params_str() -> [String] {
         return ["symbol", "value"]
@@ -341,6 +399,16 @@ public class MSymbol:Atom {
     
     init(_key: String) {
         key = _key
+        super.init()
+    }
+    
+    private init(uid: UInt, key: String) {
+        self.key = key
+        super.init(uid: uid)
+    }
+    
+    override func mirror_for_thread() -> SExpr {
+        return MSymbol(uid: uid, key: key)
     }
     
     override func eval(env: Env) -> SExpr {
@@ -368,6 +436,16 @@ public class MInt: Literal {
     
     init(_value: Int) {
         value = _value
+        super.init()
+    }
+    
+    private init(uid: UInt, value: Int) {
+        self.value = value
+        super.init(uid: uid)
+    }
+    
+    override func mirror_for_thread() -> SExpr {
+        return MInt(uid: uid, value: value)
     }
     
     public override func str(indent: String, level:Int) -> String {
@@ -384,6 +462,16 @@ public class MDouble: Literal {
     
     init(_value: Double) {
         value = _value
+        super.init()
+    }
+    
+    private init(uid: UInt, value: Double) {
+        self.value = value
+        super.init(uid: uid)
+    }
+    
+    override func mirror_for_thread() -> SExpr {
+        return MDouble(uid: uid, value: value)
     }
     
     public override func str(indent: String, level:Int) -> String {
@@ -400,6 +488,16 @@ public class MStr: Literal {
     
     init(_value: String) {
         value = _value
+        super.init()
+    }
+    
+    private init(uid: UInt, value: String) {
+        self.value = value
+        super.init(uid: uid)
+    }
+    
+    override func mirror_for_thread() -> SExpr {
+        return MStr(uid: uid, value: value)
     }
     
     public override func str(indent: String, level:Int) -> String {
@@ -416,6 +514,16 @@ public class MChar: Literal {
     
     init(_value: Character) {
         value = _value
+        super.init()
+    }
+    
+    private init(uid: UInt, value: Character) {
+        self.value = value
+        super.init(uid: uid)
+    }
+    
+    override func mirror_for_thread() -> SExpr {
+        return MChar(uid: uid, value: value)
     }
     
     public override func str(indent: String, level:Int) -> String {
@@ -428,6 +536,10 @@ public class MChar: Literal {
 }
 
 public class MNull:Literal {
+    
+    override func mirror_for_thread() -> SExpr {
+        return MNull(uid: uid)
+    }
     
     // avoid consume uid. do not use as a member of s-expression.
     // cause identification problem for SExpr manipulation
@@ -456,6 +568,16 @@ public class MBool:Literal {
     
     init(_value: Bool) {
         value = _value
+        super.init()
+    }
+    
+    private init(uid: UInt, value: Bool) {
+        self.value = value
+        super.init(uid: uid)
+    }
+    
+    override func mirror_for_thread() -> SExpr {
+        return MBool(uid: uid, value: value)
     }
     
     public override func str(indent: String, level:Int) -> String {
@@ -472,6 +594,16 @@ public class MVector:Literal {
     
     init(_value: Vector) {
         value = _value
+        super.init()
+    }
+    
+    private init(uid: UInt, value: Vector) {
+        self.value = value
+        super.init(uid: uid)
+    }
+    
+    override func mirror_for_thread() -> SExpr {
+        return MVector(uid: uid, value: value)
     }
     
     public override func str(indent: String, level: Int) -> String {
@@ -488,6 +620,16 @@ public class MVertex:Literal {
     
     init(_value: Vertex) {
         value = _value
+        super.init()
+    }
+    
+    private init(uid: UInt, value: Vertex) {
+        self.value = value
+        super.init(uid: uid)
+    }
+    
+    override func mirror_for_thread() -> SExpr {
+        return MVertex(uid: uid, value: value)
     }
     
     public override func str(indent: String, level: Int) -> String {
@@ -518,6 +660,16 @@ public class MColor : Literal {
     
     init(_value: [Float]) {
         value = _value
+        super.init()
+    }
+    
+    private init(uid: UInt, value: [Float]) {
+        self.value = value
+        super.init(uid: uid)
+    }
+    
+    override func mirror_for_thread() -> SExpr {
+        return MColor(uid: uid, value: value)
     }
     
     public override func str(indent: String, level: Int) -> String {
@@ -554,6 +706,16 @@ public class MPlane : Literal {
     
     init(_value: Plane) {
         value = _value
+        super.init()
+    }
+    
+    private init(uid: UInt, value: Plane) {
+        self.value = value
+        super.init(uid: uid)
+    }
+    
+    override func mirror_for_thread() -> SExpr {
+        return MPlane(uid: uid, value: value)
     }
     
     public override func str(indent: String, level: Int) -> String {
@@ -573,6 +735,16 @@ public class MPolygon : Literal {
     
     init(_value: Polygon) {
         value = _value
+        super.init()
+    }
+    
+    private init(uid: UInt, value: Polygon) {
+        self.value = value
+        super.init(uid: uid)
+    }
+    
+    override func mirror_for_thread() -> SExpr {
+        return MPolygon(uid: uid, value: value)
     }
     
     public override func str(indent: String, level: Int) -> String {
