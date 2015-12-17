@@ -102,7 +102,7 @@ class LispSpec: QuickSpec {
             var test_res = false
             
             if let res = gl_env.hash_table["fact"] {
-                if let proc = res as? Procedure {
+                if let _ = res as? Procedure {
                     test_res = true
                 }
             }
@@ -273,7 +273,7 @@ class InterpreterSpec : QuickSpec {
             expect(expr[1]._debug_string()).to(equal("(Symbol:bit . (Int:8 . _null_))"))
             expect(expr[2]._debug_string()).to(equal("(Symbol:bit . (Int:10 . _null_))"))
         }
-        
+        /*
         it("should remove uid designated element in the middle of binary tree") {
             
             var rmuid1 :UInt = 0
@@ -355,6 +355,6 @@ class InterpreterSpec : QuickSpec {
             
             expect(test_exp._debug_string()).to(equal("(Symbol:+ . (Int:1 . (Int:3 . (Int:2 . _null_))))"))
         }
-        
+        */
     }
 }
