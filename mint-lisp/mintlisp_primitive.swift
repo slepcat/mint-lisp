@@ -1112,6 +1112,38 @@ class Cons : Primitive {
     }
 }
 
+class Join : Primitive {
+    override func apply(args: [SExpr]) -> SExpr {
+        if args.count == 2 {
+            
+            if let pair = args[0] as? Pair {
+                let jointpt = lastcdr(pair)
+                jointpt.cdr = args[1]
+                return args[0]
+            } else {
+                return Pair(car: args[0], cdr: args[1])
+            }
+        }
+        
+        print("join must take 2 element", terminator: "\n")
+        return MNull()
+    }
+    
+    private func lastcdr(pair: Pair) -> Pair {
+        if pair.cdr.isNull() {
+            return pair
+        } else if let pair2 = pair.cdr as? Pair {
+            return lastcdr(pair2)
+        } else {
+            return pair
+        }
+    }
+    
+    override func params_str() -> [String] {
+        return ["elem", "list"]
+    }
+}
+
 class Car : Primitive {
     override func apply(args: [SExpr]) -> SExpr {
         if args.count == 1 {

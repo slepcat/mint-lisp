@@ -133,6 +133,7 @@ func global_environment() -> [String : SExpr] {
     ///// conscell management /////
     
     primitives["cons"] = Cons()
+    primitives["join"] = Join()
     primitives["car"] = Car()
     primitives["cdr"] = Cdr()
     primitives["caar"] = Caar()
