@@ -238,6 +238,839 @@ class isEqual:Primitive {
     }
 }
 
+class NotEqual:Primitive {
+    
+    override var category : String {
+        get {return "math"}
+    }
+    
+    override func apply(var args: [SExpr]) -> SExpr {
+        if args.count == 0 {
+            return MNull()
+        } else {
+            let head = args.removeAtIndex(0)
+            let result = foldl(proc, acc: head, operands: args)
+            if let res = result as? MBool {
+                return res
+            } else if let _ = result as? MNull {
+                print("Cannot apply \"/=\" to non-number objects.")
+                return MNull()
+            } else {
+                return MBool(_value: true)
+            }
+        }
+    }
+    
+    override func proc(a: SExpr, b: SExpr) -> SExpr {
+        switch a {
+        case let num as MInt:
+            switch b {
+            case let num2 as MDouble:
+                return Double(num.value) != num2.value ? a : MBool(_value: false)
+            case let num2 as MInt:
+                return Double(num.value) != Double(num2.value) ? a : MBool(_value: false)
+            default:
+                return MNull()
+            }
+        case let num as MDouble:
+            
+            switch b {
+            case let num2 as MDouble:
+                return num.value != num2.value ? b : MBool(_value: false)
+            case let num2 as MInt:
+                return num.value != Double(num2.value) ? b : MBool(_value: false)
+            default:
+                return MNull()
+            }
+        default:
+            return MNull()
+            
+        }
+    }
+}
+
+class GreaterThan:Primitive {
+    
+    override var category : String {
+        get {return "math"}
+    }
+    
+    override func apply(var args: [SExpr]) -> SExpr {
+        if args.count == 0 {
+            return MNull()
+        } else {
+            let head = args.removeAtIndex(0)
+            let result = foldl(proc, acc: head, operands: args)
+            if let res = result as? MBool {
+                return res
+            } else if let _ = result as? MNull {
+                print("Cannot apply \">\" to non-number objects.")
+                return MNull()
+            } else {
+                return MBool(_value: true)
+            }
+        }
+    }
+    
+    override func proc(a: SExpr, b: SExpr) -> SExpr {
+        switch a {
+        case let num as MInt:
+            switch b {
+            case let num2 as MDouble:
+                return Double(num.value) > num2.value ? b : MBool(_value: false)
+            case let num2 as MInt:
+                return Double(num.value) > Double(num2.value) ? b : MBool(_value: false)
+            default:
+                return MNull()
+            }
+        case let num as MDouble:
+            
+            switch b {
+            case let num2 as MDouble:
+                return num.value > num2.value ? b : MBool(_value: false)
+            case let num2 as MInt:
+                return num.value > Double(num2.value) ? b : MBool(_value: false)
+            default:
+                return MNull()
+            }
+        case let bool as MBool:
+            return bool
+        default:
+            return MNull()
+            
+        }
+    }
+}
+
+class EqualOrGreaterThan:Primitive {
+    
+    override var category : String {
+        get {return "math"}
+    }
+    
+    override func apply(var args: [SExpr]) -> SExpr {
+        if args.count == 0 {
+            return MNull()
+        } else {
+            let head = args.removeAtIndex(0)
+            let result = foldl(proc, acc: head, operands: args)
+            if let res = result as? MBool {
+                return res
+            } else if let _ = result as? MNull {
+                print("Cannot apply \">=\" to non-number objects.")
+                return MNull()
+            } else {
+                return MBool(_value: true)
+            }
+        }
+    }
+    
+    override func proc(a: SExpr, b: SExpr) -> SExpr {
+        switch a {
+        case let num as MInt:
+            switch b {
+            case let num2 as MDouble:
+                return Double(num.value) >= num2.value ? b : MBool(_value: false)
+            case let num2 as MInt:
+                return Double(num.value) >= Double(num2.value) ? b : MBool(_value: false)
+            default:
+                return MNull()
+            }
+        case let num as MDouble:
+            
+            switch b {
+            case let num2 as MDouble:
+                return num.value >= num2.value ? b : MBool(_value: false)
+            case let num2 as MInt:
+                return num.value >= Double(num2.value) ? b : MBool(_value: false)
+            default:
+                return MNull()
+            }
+        case let bool as MBool:
+            return bool
+        default:
+            return MNull()
+            
+        }
+    }
+}
+
+class SmallerThan:Primitive {
+    
+    override var category : String {
+        get {return "math"}
+    }
+    
+    override func apply(var args: [SExpr]) -> SExpr {
+        if args.count == 0 {
+            return MNull()
+        } else {
+            let head = args.removeAtIndex(0)
+            let result = foldl(proc, acc: head, operands: args)
+            if let res = result as? MBool {
+                return res
+            } else if let _ = result as? MNull {
+                print("Cannot apply \"<\" to non-number objects.")
+                return MNull()
+            } else {
+                return MBool(_value: true)
+            }
+        }
+    }
+    
+    override func proc(a: SExpr, b: SExpr) -> SExpr {
+        switch a {
+        case let num as MInt:
+            switch b {
+            case let num2 as MDouble:
+                return Double(num.value) < num2.value ? b : MBool(_value: false)
+            case let num2 as MInt:
+                return Double(num.value) < Double(num2.value) ? b : MBool(_value: false)
+            default:
+                return MNull()
+            }
+        case let num as MDouble:
+            
+            switch b {
+            case let num2 as MDouble:
+                return num.value < num2.value ? b : MBool(_value: false)
+            case let num2 as MInt:
+                return num.value < Double(num2.value) ? b : MBool(_value: false)
+            default:
+                return MNull()
+            }
+        case let bool as MBool:
+            return bool
+        default:
+            return MNull()
+            
+        }
+    }
+}
+
+class EqualOrSmallerThan:Primitive {
+    
+    override var category : String {
+        get {return "math"}
+    }
+    
+    override func apply(var args: [SExpr]) -> SExpr {
+        if args.count == 0 {
+            return MNull()
+        } else {
+            let head = args.removeAtIndex(0)
+            let result = foldl(proc, acc: head, operands: args)
+            if let res = result as? MBool {
+                return res
+            } else if let _ = result as? MNull {
+                print("Cannot apply \"<=\" to non-number objects.")
+                return MNull()
+            } else {
+                return MBool(_value: true)
+            }
+        }
+    }
+    
+    override func proc(a: SExpr, b: SExpr) -> SExpr {
+        switch a {
+        case let num as MInt:
+            switch b {
+            case let num2 as MDouble:
+                return Double(num.value) <= num2.value ? b : MBool(_value: false)
+            case let num2 as MInt:
+                return Double(num.value) <= Double(num2.value) ? b : MBool(_value: false)
+            default:
+                return MNull()
+            }
+        case let num as MDouble:
+            
+            switch b {
+            case let num2 as MDouble:
+                return num.value <= num2.value ? b : MBool(_value: false)
+            case let num2 as MInt:
+                return num.value <= Double(num2.value) ? b : MBool(_value: false)
+            default:
+                return MNull()
+            }
+        case let bool as MBool:
+            return bool
+        default:
+            return MNull()
+            
+        }
+    }
+}
+
+class Max:Primitive {
+    
+    override var category : String {
+        get {return "math"}
+    }
+    
+    override func proc(a: SExpr, b: SExpr) -> SExpr {
+        switch a {
+        case let num as MInt:
+            switch b {
+            case let num2 as MDouble:
+                return Double(num.value) < num2.value ? b : a
+            case let num2 as MInt:
+                return num.value < num2.value ? b : a
+            default:
+                return MNull()
+            }
+        case let num as MDouble:
+            
+            switch b {
+            case let num2 as MDouble:
+                return num.value < num2.value ? b : a
+            case let num2 as MInt:
+                return num.value < Double(num2.value) ? b : a
+            default:
+                return MNull()
+            }
+        default:
+            return MNull()
+        }
+    }
+}
+
+class Min:Primitive {
+    
+    override var category : String {
+        get {return "math"}
+    }
+    
+    override func proc(a: SExpr, b: SExpr) -> SExpr {
+        switch a {
+        case let num as MInt:
+            switch b {
+            case let num2 as MDouble:
+                return Double(num.value) > num2.value ? b : a
+            case let num2 as MInt:
+                return num.value > num2.value ? b : a
+            default:
+                return MNull()
+            }
+        case let num as MDouble:
+            
+            switch b {
+            case let num2 as MDouble:
+                return num.value > num2.value ? b : a
+            case let num2 as MInt:
+                return num.value > Double(num2.value) ? b : a
+            default:
+                return MNull()
+            }
+        default:
+            return MNull()
+        }
+    }
+}
+
+class And:Primitive {
+    
+    override var category : String {
+        get {return "math"}
+    }
+    
+    override func apply(var args: [SExpr]) -> SExpr {
+        if args.count == 0 {
+            return MNull()
+        } else {
+            let head = args.removeAtIndex(0)
+            let result = foldl(proc, acc: head, operands: args)
+            if let res = result as? MBool {
+                return res
+            } else if let _ = result as? MNull {
+                print("Cannot apply \"and\" to non-bool objects.")
+                return MNull()
+            } else {
+                return MBool(_value: true)
+            }
+        }
+    }
+    
+    override func proc(a: SExpr, b: SExpr) -> SExpr {
+        switch a {
+        case let num as MBool:
+            switch b {
+            case let num2 as MBool:
+                return MBool(_value: num.value && num2.value)
+            default:
+                return MNull()
+            }
+        default:
+            return MNull()
+            
+        }
+    }
+}
+
+class Or:Primitive {
+    
+    override var category : String {
+        get {return "math"}
+    }
+    
+    override func apply(var args: [SExpr]) -> SExpr {
+        if args.count == 0 {
+            return MNull()
+        } else {
+            let head = args.removeAtIndex(0)
+            let result = foldl(proc, acc: head, operands: args)
+            if let res = result as? MBool {
+                return res
+            } else if let _ = result as? MNull {
+                print("Cannot apply \"or\" to non-bool objects.")
+                return MNull()
+            } else {
+                return MBool(_value: true)
+            }
+        }
+    }
+    
+    override func proc(a: SExpr, b: SExpr) -> SExpr {
+        switch a {
+        case let num as MBool:
+            switch b {
+            case let num2 as MBool:
+                return MBool(_value: num.value || num2.value)
+            default:
+                return MNull()
+            }
+        default:
+            return MNull()
+            
+        }
+    }
+}
+
+class Not:Primitive {
+    
+    override var category : String {
+        get {return "math"}
+    }
+    
+    override func apply(args: [SExpr]) -> SExpr {
+        if args.count == 1 {
+            if let res = args.last as? MBool {
+                if res.value {
+                    return MBool(_value: false)
+                } else {
+                    return MBool(_value: true)
+                }
+            } else {
+                print("Cannot apply \"not\" to non-bool objects.")
+                return MNull()
+            }
+        } else {
+            print("\"not\" take only 1 args")
+            return MNull()
+        }
+    }
+}
+
+class Mod :Primitive {
+    
+    override var category : String {
+        get {return "math"}
+    }
+    
+    override func apply(args: [SExpr]) -> SExpr {
+        
+        if args.count == 2 {
+            let a = args[0]
+            let b = args[1]
+            
+            switch a {
+            case let num as MInt:
+                switch b {
+                case let num2 as MDouble:
+                    return MDouble(_value: Double(num.value) % num2.value)
+                case let num2 as MInt:
+                    return MInt(_value: num.value % num2.value)
+                default:
+                    break
+                }
+            case let num as MDouble:
+                
+                switch b {
+                case let num2 as MDouble:
+                    return MDouble(_value: num.value % num2.value)
+                case let num2 as MInt:
+                    return MDouble(_value: num.value % Double(num2.value))
+                default:
+                    break
+                }
+            default:
+                break
+            }
+        }
+        
+        print("\"mod\" take 2 num values")
+        return MNull()
+    }
+}
+
+class Power:Primitive {
+    
+    override var category : String {
+        get {return "math"}
+    }
+    
+    override func apply(args: [SExpr]) -> SExpr {
+        if args.count == 2 {
+            if let value = cast2double(args[0]), let indice = cast2double(args[1]) {
+                return MDouble(_value: pow(value, indice))
+            }
+        }
+        print("\"pow\" take 2 num values")
+        return MNull()
+    }
+}
+
+class Floor:Primitive {
+    
+    override var category : String {
+        get {return "math"}
+    }
+    
+    override func apply(args: [SExpr]) -> SExpr {
+        if args.count == 1 {
+            if let value = cast2double(args[0]) {
+                return MInt(_value: Int(floor(value)))
+            }
+        }
+        print("\"floor\" take 1 num values")
+        return MNull()
+    }
+}
+
+
+class Round:Primitive {
+    
+    override var category : String {
+        get {return "math"}
+    }
+    
+    override func apply(args: [SExpr]) -> SExpr {
+        if args.count == 1 {
+            if let value = cast2double(args[0]) {
+                return MInt(_value: Int(round(value)))
+            }
+        }
+        print("\"round\" take 1 num values")
+        return MNull()
+    }
+}
+
+class Ceil:Primitive {
+    
+    override var category : String {
+        get {return "math"}
+    }
+    
+    override func apply(args: [SExpr]) -> SExpr {
+        if args.count == 1 {
+            if let value = cast2double(args[0]) {
+                return MInt(_value: Int(ceil(value)))
+            }
+        }
+        print("\"ceil\" take 1 num values")
+        return MNull()
+    }
+}
+
+class Sin:Primitive {
+    
+    override var category : String {
+        get {return "math"}
+    }
+    
+    override func apply(args: [SExpr]) -> SExpr {
+        if args.count == 1 {
+            if let value = cast2double(args[0]) {
+                return MDouble(_value: sin(value))
+            }
+        }
+        print("\"sin\" take 1 num values")
+        return MNull()
+    }
+}
+
+class Cos:Primitive {
+    
+    override var category : String {
+        get {return "math"}
+    }
+    
+    override func apply(args: [SExpr]) -> SExpr {
+        if args.count == 1 {
+            if let value = cast2double(args[0]) {
+                return MDouble(_value: cos(value))
+            }
+        }
+        print("\"cos\" take 1 num values")
+        return MNull()
+    }
+}
+
+class Tan:Primitive {
+    
+    override var category : String {
+        get {return "math"}
+    }
+    
+    override func apply(args: [SExpr]) -> SExpr {
+        if args.count == 1 {
+            if let value = cast2double(args[0]) {
+                return MDouble(_value: tan(value))
+            }
+        }
+        print("\"tan\" take 1 num values")
+        return MNull()
+    }
+}
+
+class ArcSin:Primitive {
+    
+    override var category : String {
+        get {return "math"}
+    }
+    
+    override func apply(args: [SExpr]) -> SExpr {
+        if args.count == 1 {
+            if let value = cast2double(args[0]) {
+                return MDouble(_value: asin(value))
+            }
+        }
+        print("\"asin\" take 1 num values")
+        return MNull()
+    }
+}
+
+class ArcCos:Primitive {
+    
+    override var category : String {
+        get {return "math"}
+    }
+    
+    override func apply(args: [SExpr]) -> SExpr {
+        if args.count == 1 {
+            if let value = cast2double(args[0]) {
+                return MDouble(_value: acos(value))
+            }
+        }
+        print("\"acos\" take 1 num values")
+        return MNull()
+    }
+}
+
+class ArcTan:Primitive {
+    
+    override var category : String {
+        get {return "math"}
+    }
+    
+    override func apply(args: [SExpr]) -> SExpr {
+        if args.count == 1 {
+            if let value = cast2double(args[0]) {
+                return MDouble(_value: atan(value))
+            }
+        }
+        print("\"atan\" take 1 num values")
+        return MNull()
+    }
+}
+
+class ArcTan2:Primitive {
+    
+    override var category : String {
+        get {return "math"}
+    }
+    
+    override func apply(args: [SExpr]) -> SExpr {
+        if args.count == 2 {
+            if let value1 = cast2double(args[0]), let value2 = cast2double(args[1])  {
+                return MDouble(_value: atan2(value1, value2))
+            }
+        }
+        print("\"atan\" take 1 num values")
+        return MNull()
+    }
+}
+
+class Sinh:Primitive {
+    
+    override var category : String {
+        get {return "math"}
+    }
+    
+    override func apply(args: [SExpr]) -> SExpr {
+        if args.count == 1 {
+            if let value = cast2double(args[0]) {
+                return MDouble(_value: sinh(value))
+            }
+        }
+        print("\"sinh\" take 1 num values")
+        return MNull()
+    }
+}
+
+class Cosh:Primitive {
+    
+    override var category : String {
+        get {return "math"}
+    }
+    
+    override func apply(args: [SExpr]) -> SExpr {
+        if args.count == 1 {
+            if let value = cast2double(args[0]) {
+                return MDouble(_value: cosh(value))
+            }
+        }
+        print("\"cosh\" take 1 num values")
+        return MNull()
+    }
+}
+
+class Tanh:Primitive {
+    
+    override var category : String {
+        get {return "math"}
+    }
+    
+    override func apply(args: [SExpr]) -> SExpr {
+        if args.count == 1 {
+            if let value = cast2double(args[0]) {
+                return MDouble(_value: tanh(value))
+            }
+        }
+        print("\"tanh\" take 1 num values")
+        return MNull()
+    }
+}
+
+class Log:Primitive {
+    
+    override var category : String {
+        get {return "math"}
+    }
+    
+    override func apply(args: [SExpr]) -> SExpr {
+        if args.count == 1 {
+            if let value = cast2double(args[0]) {
+                return MDouble(_value: log(value))
+            }
+        }
+        print("\"log\" take 1 num values")
+        return MNull()
+    }
+}
+
+class Log10:Primitive {
+    
+    override var category : String {
+        get {return "math"}
+    }
+    
+    override func apply(args: [SExpr]) -> SExpr {
+        if args.count == 1 {
+            if let value = cast2double(args[0]) {
+                return MDouble(_value: log10(value))
+            }
+        }
+        print("\"log10\" take 1 num values")
+        return MNull()
+    }
+}
+
+class Sqrt:Primitive {
+    
+    override var category : String {
+        get {return "math"}
+    }
+    
+    override func apply(args: [SExpr]) -> SExpr {
+        if args.count == 1 {
+            if let value = cast2double(args[0]) {
+                return MDouble(_value: sqrt(value))
+            }
+        }
+        print("\"sqrt\" take 1 num values")
+        return MNull()
+    }
+}
+
+class Abs:Primitive {
+    
+    override var category : String {
+        get {return "math"}
+    }
+    
+    override func apply(args: [SExpr]) -> SExpr {
+        if args.count == 1 {
+            switch args.last {
+            case let num as MDouble:
+                return MDouble(_value: fabs(num.value))
+            case let num as MInt:
+                return MInt(_value: abs(num.value))
+            default:
+                break
+            }
+        }
+        print("\"abs\" take 1 num values")
+        return MNull()
+    }
+}
+
+class Exp:Primitive {
+    
+    override var category : String {
+        get {return "math"}
+    }
+    
+    override func apply(args: [SExpr]) -> SExpr {
+        if args.count == 1 {
+            if let value = cast2double(args[0]) {
+                return MDouble(_value: exp(value))
+            }
+        }
+        print("\"exp\" take 1 num values")
+        return MNull()
+    }
+}
+
+class Random:Primitive {
+    
+    override var category : String {
+        get {return "math"}
+    }
+    
+    override func apply(args: [SExpr]) -> SExpr {
+        if args.count == 0 {
+            return MInt(_value: random())
+        }
+        print("\"random\" take no values")
+        return MNull()
+    }
+}
+
+class Time:Primitive {
+    
+    override var category : String {
+        get {return "math"}
+    }
+    
+    override func apply(args: [SExpr]) -> SExpr {
+        if args.count == 0 {
+            return MDouble(_value: NSTimeIntervalSince1970)
+        }
+        print("\"time\" take no values")
+        return MNull()
+    }
+}
+
 class CastDouble : Primitive {
     override func apply(args: [SExpr]) -> SExpr {
         
