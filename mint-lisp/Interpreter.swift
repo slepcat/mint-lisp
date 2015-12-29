@@ -10,6 +10,9 @@ import Foundation
 
 public class Interpreter : NSObject {
     
+    var threadPool : [NSThread] = []
+    var executing : Bool = false
+    
     var trees:[SExpr] = []
     let global: Env
     
@@ -20,7 +23,11 @@ public class Interpreter : NSObject {
         global.hash_table = global_environment()
     }
     
-    let evaluator = Evaluator()
+    public func init_env() {
+        global.hash_table = global_environment()
+    }
+    
+    //let evaluator = Evaluator()
     
     ///// Interpreter /////
     
@@ -108,7 +115,7 @@ public class Interpreter : NSObject {
         
         return lookup(uid).target
     }
-    
+    /*
     public func reload_env() {
         global.hash_table = global_environment()
         
@@ -119,7 +126,7 @@ public class Interpreter : NSObject {
                 }
             }
         }
-    }
+    }*/
     
     public func lookup(uid: UInt) -> (conscell: SExpr, target: SExpr) {
         for exp in trees {
@@ -132,12 +139,128 @@ public class Interpreter : NSObject {
         return (MNull.errNull, MNull.errNull)
     }
     
-    public func eval(uid: UInt) -> SExpr {
-        return evaluator.eval(preprocess(uid), gl_env:global)
+    ///// Look up location of uid /////
+    
+    public func lookup_treeindex_of(uid: UInt) -> Int {
+        for var i = 0; trees.count > i; i++ {
+            let res = trees[i].lookup_exp(uid)
+            
+            if !res.target.isNull() {
+                return i
+            }
+        }
+        
+        return -1
     }
     
+    // run all trees
+    
+    func run_all() {
+        
+        cancell()
+        
+        init_env()
+        
+        var treearray : [SExpr] = []
+        
+        for tree in trees {
+            treearray.append(tree.mirror_for_thread())
+        }
+        
+        let task = Evaluator(exps: treearray, env: global, retTo: self)
+        
+        let thread = NSThread(target: task, selector: "main", object: nil)
+        thread.stackSize = 8388608 // set 8 MB stack size
+        
+        threadPool.append(thread)
+        
+        for th in threadPool {
+            th.start()
+        }
+        
+        executing = true
+    }
+    
+    
+    // update run when 'trees' are edited.
+    
+    public func eval(uid: UInt) -> (SExpr, UInt) {
+        
+        let i = lookup_treeindex_of(uid)
+        
+        cancell()
+        
+        // Boolean methods (originaly from openJSCAD) use deep recursion & require large call stack.
+        //::::: Todo> Boolean without recursive call (may be with GCD concurrent iteration?), NSThread -> NSOperation
+        if i >= 0 {
+            if let pair = trees[i] as? Pair {
+                if let _ = pair.car as? MDefine {
+                    let task = Evaluator(exp: trees[i].mirror_for_thread(), env: global, retTo: self)
+                    
+                    let thread = NSThread(target: task, selector: "main", object: nil)
+                    thread.stackSize = 8388608 // set 8 MB stack size
+                    
+                    threadPool.append(thread)
+                } else {
+                    let task = Evaluator(exp: trees[i].mirror_for_thread(), env: global.clone(), retTo: self)
+                    
+                    let thread = NSThread(target: task, selector: "main", object: nil)
+                    thread.stackSize = 8388608 // set 8 MB stack size
+                    
+                    threadPool.append(thread)
+                }
+            }
+            //return (eval(trees[i]), trees[i].uid)
+        }
+        
+        for th in threadPool {
+            th.start()
+        }
+        
+        executing = true
+        
+        return (MNull.errNull, 0)
+    }
+    
+    // call back from NSThread when eval finished.
+    func eval_result(result: AnyObject?) {
+        
+        print("eval finished", terminator: "\n")
+        
+        //controller.setNeedsDisplay()
+        executing = false
+    }
+    
+    
+    public func eval_mainthread(uid: UInt) -> SExpr {
+        let target = lookup(uid).target
+        let task = Evaluator(exps: [target], env: global, retTo: self)
+        
+        task.main()
+        
+        if let result = task.res {
+            return result
+        } else {
+            return MNull()
+        }
+    }
+    /*
     public func eval(exp: SExpr) -> SExpr {
         return evaluator.eval(exp, gl_env: global)
+    }
+    */
+    // stop all execution
+    
+    func cancell() {
+        for th in threadPool {
+            if th.executing {
+                th.cancel()
+            }
+        }
+        
+        threadPool = []
+        
+        executing = false
     }
     
     ///// Export /////

@@ -8,7 +8,90 @@
 
 import Foundation
 
-class Evaluator {
+class Evaluator : NSObject {
+    
+    var evaltree : SExpr {
+        get {
+            if let exp = evaltrees.last {
+                return exp
+            }else{
+                return MNull()
+            }
+        }
+        set {
+            evaltrees.append(newValue)
+        }
+    }
+    var evaltrees : [SExpr] = []
+    
+    let env : Env
+    
+    var res : SExpr? {
+        get {
+            return resarray.last
+        }
+        set {
+            if let v = newValue {
+                resarray.append(v)
+            }
+        }
+    }
+    var resarray : [SExpr] = []
+    let returnPoint : Interpreter
+    
+    weak var thread : NSThread!
+    
+    init(exp: SExpr, env: Env, retTo: Interpreter) {
+        self.env = env
+        self.thread = nil
+        returnPoint = retTo
+        super.init()
+        
+        evaltree = exp
+    }
+    
+    init(exps: [SExpr], env: Env, retTo: Interpreter) {
+        self.env = env
+        self.evaltrees = exps
+        self.thread = nil
+        returnPoint = retTo
+    }
+    
+    func main() {
+        thread = NSThread.currentThread()
+        if evaltrees.count > 1 {
+            for var i = 0; evaltrees.count > i; i++ {
+                if let pair = evaltrees[i] as? Pair {
+                    if let _ = pair.car as? MDefine {
+                        resarray.append(eval(pair, gl_env: env))
+                    }
+                }
+            }
+            
+            for var i = 0; evaltrees.count > i; i++ {
+                if let pair = evaltrees[i] as? Pair {
+                    if let _ = pair.car as? MDefine {
+                        
+                    } else {
+                        resarray.append(eval(pair, gl_env: env))
+                    }
+                }
+            }
+            
+            returnPoint.performSelectorOnMainThread("eval_result:", withObject: resarray, waitUntilDone: false)
+            
+        } else {
+            if let exp = evaltrees.last {
+                res = eval(exp, gl_env: env)
+            }
+            
+            returnPoint.performSelectorOnMainThread("eval_result:", withObject: resarray, waitUntilDone: false)
+        }
+        
+        for var i = 0; resarray.count > i; i++ {
+            print_leaf(resarray[i].str("", level: 0), uid: evaltrees[i].uid)
+        }
+    }
     
     private var callstack : [(exp:SExpr, seq:[SExpr], pc:Int, env:Env)] = []
     
@@ -26,7 +109,7 @@ class Evaluator {
     func eval(expr: SExpr, gl_env:Env) -> SExpr {
         var cf : (exp:SExpr, seq:[SExpr], pc:Int, env:Env) = (expr, delayed_list_of_values(expr), 0, gl_env)
         
-        while true {
+        while !thread.cancelled {
             
             var isRet = false
             var res : SExpr = MNull()
@@ -67,13 +150,15 @@ class Evaluator {
                         }
                         
                     } else {
-                    
+                        
                         if let symbol = cf.seq[1] as? MSymbol {
+                            objc_sync_enter(cf.env)
                             if !cf.env.set_variable(symbol.key, val: cf.seq[2]) {
                                 print("failed to bind: undefined varialble identifier > " + symbol._debug_string(), terminator: "\n")
                             } else {
                                 print(cf.seq[2]._debug_string() + " is set to " + symbol._debug_string(), terminator: "\n")
                             }
+                            objc_sync_exit(cf.env)
                         } else {
                             print("failed to bind: not symbol > " + cf.seq[1]._debug_string(), terminator: "\n")
                         }
@@ -108,11 +193,13 @@ class Evaluator {
                         
                     } else {
                         if let symbol = cf.seq[1] as? MSymbol {
+                            objc_sync_enter(cf.env)
                             if !cf.env.define_variable_force(symbol.key, val: cf.seq[2]) {// overwrite allowed
                                 print("failed to bind: used varialble identifier > " + symbol._debug_string(), terminator: "\n")
                             } else {
                                 print(cf.seq[2]._debug_string() + " is defined as " + symbol._debug_string(), terminator: "\n")
                             }
+                            objc_sync_exit(cf.env)
                         } else {
                             print("failed to bind: not symbol > " + cf.seq[1]._debug_string(), terminator: "\n")
                         }
@@ -214,7 +301,7 @@ class Evaluator {
                         }
                     }
                 } else {
-                
+                    
                     if cf.seq.count > cf.pc {
                         
                         push(cf)
@@ -254,6 +341,8 @@ class Evaluator {
             }
             
         }
+        print("eval cancelled", terminator: "\n")
+        return MNull()
     }
     
     private func delayed_list_of_values(_opds :SExpr) -> [SExpr] {
@@ -280,5 +369,84 @@ class Evaluator {
         } else {
             return []
         }
+    }
+    
+    func print_leaf(err: String, uid: UInt) {
+        
+        if let port = MintStdPort.get.errport {
+            objc_sync_enter(port)
+            port.write(IOErr(err: err, uid: lookup_leaf_of(uid)), uid: uid)
+            objc_sync_exit(port)
+            
+            port.performSelectorOnMainThread("update", withObject: nil, waitUntilDone: false)
+        }
+    }
+    
+    // lookup uid of s-expression which include designated uid object.
+    func lookup_leaf_of(uid: UInt) -> UInt {
+        for tree in evaltrees {
+            if tree.uid == uid {
+                return uid
+            } else {
+                if let pair = tree as? Pair {
+                    let res = rec_lookup_leaf(uid, expr: pair)
+                    if res > 0 {
+                        return res
+                    }
+                }
+            }
+        }
+        return 0
+    }
+    
+    func rec_lookup_leaf(uid: UInt, expr: Pair) -> UInt {
+        var unchecked : [Pair] = []
+        let chain = gen_pairchain_of_leaf(expr)
+        
+        for pair in chain {
+            if pair.car.uid == uid {
+                
+                return expr.uid
+                
+                /*
+                if let pair2 = pair.car as? Pair {
+                return pair2.uid
+                } else {
+                return expr.uid
+                }
+                */
+            } else if pair.cdr.uid == uid {
+                return expr.uid
+            } else {
+                if let pair2 = pair.car as? Pair {
+                    unchecked.append(pair2)
+                }
+            }
+        }
+        
+        while unchecked.count > 0 {
+            let head = unchecked.removeLast()
+            let res = rec_lookup_leaf(uid, expr: head)
+            if res > 0 {
+                return res
+            }
+        }
+        
+        return 0
+    }
+    
+    private func gen_pairchain_of_leaf(exp:SExpr) -> [Pair] {
+        var acc : [Pair] = []
+        var head = exp
+        
+        while true {
+            if let pair = head as? Pair {
+                acc.append(pair)
+                head = pair.cdr
+            } else {
+                return acc
+            }
+        }
+        
     }
 }
