@@ -268,7 +268,12 @@ public class Procedure:Form {
         if let _env = rec_env {
             for var i = 0; _params.count > i; i++ {
                 if let sym = _params[i] as? MSymbol {
-                    _env.set_variable(sym.key, val: seq[i])
+                    if seq.count > i {
+                        _env.set_variable(sym.key, val: seq[i])
+                    } else {
+                        print("syntax error: procedure. small params number")
+                        return (body, env)
+                    }
                 } else {
                     if !_params[i].isNull() || i != 0 {
                         print("syntax error: procedure. not symbol in params")

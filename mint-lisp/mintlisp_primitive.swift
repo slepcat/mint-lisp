@@ -1064,7 +1064,7 @@ class Time:Primitive {
     
     override func apply(args: [SExpr]) -> SExpr {
         if args.count == 0 {
-            return MDouble(_value: NSTimeIntervalSince1970)
+            return MDouble(_value: NSDate().timeIntervalSinceReferenceDate)
         }
         print("\"time\" take no values")
         return MNull()
