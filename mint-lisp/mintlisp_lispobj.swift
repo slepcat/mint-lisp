@@ -272,12 +272,12 @@ public class Procedure:Form {
                         _env.set_variable(sym.key, val: seq[i])
                     } else {
                         print("syntax error: procedure. small params number")
-                        return (body, env)
+                        return (MNull(), env)
                     }
                 } else {
                     if !_params[i].isNull() || i != 0 {
                         print("syntax error: procedure. not symbol in params")
-                        return (body, env)
+                        return (MNull(), env)
                     }
                 }
             }
@@ -285,7 +285,8 @@ public class Procedure:Form {
             if let new_env = initial_env.extended_env(_params, values: seq) {
                 rec_env = new_env.clone()
             } else {
-                return (body, env)
+                // not properly env generated.
+                return (MNull(), env)
             }
         }
         
