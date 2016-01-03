@@ -141,7 +141,7 @@ public class Interpreter : NSObject {
     
     ///// Look up location of uid /////
     
-    public func lookup_treeindex_of(uid: UInt) -> Int {
+    public func lookup_treeindex_of(uid: UInt) -> Int? {
         for var i = 0; trees.count > i; i++ {
             let res = trees[i].lookup_exp(uid)
             
@@ -150,7 +150,7 @@ public class Interpreter : NSObject {
             }
         }
         
-        return -1
+        return nil
     }
     
     // run all trees
@@ -186,13 +186,11 @@ public class Interpreter : NSObject {
     
     public func eval(uid: UInt) -> (SExpr, UInt) {
         
-        let i = lookup_treeindex_of(uid)
-        
         cancell()
         
         // Boolean methods (originaly from openJSCAD) use deep recursion & require large call stack.
         //::::: Todo> Boolean without recursive call (may be with GCD concurrent iteration?), NSThread -> NSOperation
-        if i >= 0 {
+        if let i = lookup_treeindex_of(uid) {
             if let pair = trees[i] as? Pair {
                 if let _ = pair.car as? MDefine {
                     let task = Evaluator(exp: trees[i].mirror_for_thread(), env: global, retTo: self)

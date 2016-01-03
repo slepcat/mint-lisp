@@ -324,7 +324,7 @@ public class Procedure:Form {
     }
     
     public override func str(indent: String, level:Int) -> String {
-        return "proc: export error!"
+        return "<procedure>"
     }
     
     public override func _debug_string() -> String {
