@@ -24,6 +24,10 @@ public class SExpr {
         return SExpr(uid: uid)
     }
     
+    func clone() -> SExpr {
+        return SExpr()
+    }
+    
     func lookup_exp(uid:UInt) -> (conscell: SExpr, target: SExpr) {
         if self.uid == uid {
             return (MNull.errNull, self)
@@ -83,6 +87,10 @@ public class Pair:SExpr {
     
     override func mirror_for_thread() -> SExpr {
         return Pair(uid: uid, car: car.mirror_for_thread(), cdr: cdr.mirror_for_thread())
+    }
+    
+    override func clone() -> SExpr {
+        return Pair(car: car.clone(), cdr: car.clone())
     }
     
     override func lookup_exp(uid:UInt) -> (conscell: SExpr, target: SExpr) {
@@ -179,6 +187,10 @@ public class MDefine:Form {
         return MDefine(uid: uid)
     }
     
+    override func clone() -> SExpr {
+        return MDefine()
+    }
+    
     override public func params_str() -> [String] {
         return ["symbol", "value"]
     }
@@ -198,6 +210,10 @@ public class MQuote: Form {
         return MQuote(uid: uid)
     }
     
+    override func clone() -> SExpr {
+        return MQuote()
+    }
+    
     override public func params_str() -> [String] {
         return ["value"]
     }
@@ -215,6 +231,10 @@ public class MBegin:Form {
     
     override func mirror_for_thread() -> SExpr {
         return MBegin(uid: uid)
+    }
+    
+    override func clone() -> SExpr {
+        return MBegin()
     }
     
     override public func params_str() -> [String] {
@@ -259,6 +279,10 @@ public class Procedure:Form {
     
     override func mirror_for_thread() -> SExpr {
         return Procedure(uid: uid, params: params.mirror_for_thread(), body: body.mirror_for_thread(), initial_env: initial_env.clone(), rec_env: rec_env?.clone())
+    }
+    
+    override func clone() -> SExpr {
+        return Procedure(_params: params, body: body, env: initial_env)
     }
     
     func apply(env: Env, seq: [SExpr]) -> (exp: SExpr, env: Env) {
@@ -332,10 +356,125 @@ public class Procedure:Form {
     }
 }
 
+public class Macro:Form {
+    
+    let literals : SExpr
+    let rules : [(pattern: SExpr, template: SExpr)]
+    let env : Env
+    
+    override var category : String {
+        get {return "custom"}
+    }
+    
+    init(params: SExpr, env _env: Env) {
+        env = _env
+        
+        let list = delayed_list_of_values(params)
+        if list.count >= 2 {
+            literals = list[0]
+            
+            var acc : [(pattern: SExpr, template: SExpr)] = []
+            
+            for var i = 1; list.count > i; i++ {
+                let rule = delayed_list_of_values(list[i])
+                if rule.count == 2 {
+                    acc.append((pattern: rule[0], template: rule[1]))
+                }
+            }
+            rules = acc
+            
+        } else {
+            literals = MNull()
+            rules = []
+        }
+        
+        super.init()
+    }
+    
+    private init(uid: UInt, literals _literals: SExpr, rules _rules: [(pattern: SExpr, template: SExpr)], env _env: Env) {
+        env = _env
+        rules = _rules
+        literals = _literals
+        
+        super.init(uid: uid)
+    }
+    
+    private init(literals _literals: SExpr, rules _rules: [(pattern: SExpr, template: SExpr)], env _env: Env) {
+        env = _env
+        rules = _rules
+        literals = _literals
+        
+        super.init()
+    }
+    
+    public func expand(expr: SExpr) -> SExpr {
+        
+        
+        
+        
+        
+        
+        
+        return MNull()
+    }
+    
+    override func mirror_for_thread() -> SExpr {
+        
+        var newrules : [(pattern: SExpr, template: SExpr)] = []
+        
+        for elm in rules {
+            newrules.append((pattern: elm.pattern.mirror_for_thread(), template: elm.template.mirror_for_thread()))
+        }
+        
+        return Macro(uid: uid, literals: literals.mirror_for_thread(), rules: newrules, env: env.clone())
+    }
+    
+    override func clone() -> SExpr {
+        var newrules : [(pattern: SExpr, template: SExpr)] = []
+        
+        for elm in rules {
+            newrules.append((pattern: elm.pattern.clone(), template: elm.template.clone()))
+        }
+        
+        return Macro(literals: literals.clone(), rules: newrules, env: env.clone())
+    }
+
+    
+    // Generate array of atoms without evaluation for Evaluator.eval() method
+    func delayed_list_of_args(_opds :SExpr) -> [SExpr] {
+        if let atom = _opds as? Atom {
+            return [atom]
+        } else {
+            return tail_delayed_list_of_values(_opds, acc: [])
+        }
+    }
+    
+    private func tail_delayed_list_of_values(_opds :SExpr, var acc: [SExpr]) -> [SExpr] {
+        if let pair = _opds as? Pair {
+            acc.append(pair.car)
+            return tail_delayed_list_of_values(pair.cdr, acc: acc)
+        } else {
+            return acc
+        }
+    }
+    
+    public override func str(indent: String, level:Int) -> String {
+        return "<syntax>"
+    }
+    
+    public override func _debug_string() -> String {
+        return "syntax"
+    }
+}
+
 public class MLambda: Form {
     
     override func mirror_for_thread() -> SExpr {
         return MLambda(uid: uid)
+    }
+    
+    override func clone() -> SExpr {
+        return MLambda()
     }
     
     func make_lambda(params: SExpr, body: SExpr) -> SExpr {
@@ -361,6 +500,10 @@ public class MIf: Form {
         return MIf(uid: uid)
     }
     
+    override func clone() -> SExpr {
+        return MIf()
+    }
+    
     public override func params_str() -> [String] {
         return ["predic", "then", "else"]
     }
@@ -380,6 +523,10 @@ public class MSet:Form {
         return MSet(uid: uid)
     }
     
+    override func clone() -> SExpr {
+        return MSet()
+    }
+    
     public override func params_str() -> [String] {
         return ["symbol", "value"]
     }
@@ -390,6 +537,50 @@ public class MSet:Form {
     
     public override func _debug_string() -> String {
         return "set!"
+    }
+}
+
+public class Import:Form {
+    override func mirror_for_thread() -> SExpr {
+        return Import(uid: uid)
+    }
+    
+    override func clone() -> SExpr {
+        return Import()
+    }
+    
+    public override func params_str() -> [String] {
+        return ["libname"]
+    }
+    
+    public override func str(indent: String, level:Int) -> String {
+        return "import"
+    }
+    
+    public override func _debug_string() -> String {
+        return "import"
+    }
+}
+
+public class Export:Form {
+    override func mirror_for_thread() -> SExpr {
+        return Export(uid: uid)
+    }
+    
+    override func clone() -> SExpr {
+        return Export()
+    }
+    
+    public override func params_str() -> [String] {
+        return ["symbol, template"]
+    }
+    
+    public override func str(indent: String, level:Int) -> String {
+        return "export"
+    }
+    
+    public override func _debug_string() -> String {
+        return "export"
     }
 }
 
@@ -415,6 +606,10 @@ public class MSymbol:Atom {
     
     override func mirror_for_thread() -> SExpr {
         return MSymbol(uid: uid, key: key)
+    }
+    
+    override func clone() -> SExpr {
+        return MSymbol(_key: key)
     }
     
     override func eval(env: Env) -> SExpr {
@@ -454,6 +649,10 @@ public class MInt: Literal {
         return MInt(uid: uid, value: value)
     }
     
+    override func clone() -> SExpr {
+        return MInt(_value: value)
+    }
+    
     public override func str(indent: String, level:Int) -> String {
         return "\(value)"
     }
@@ -478,6 +677,10 @@ public class MDouble: Literal {
     
     override func mirror_for_thread() -> SExpr {
         return MDouble(uid: uid, value: value)
+    }
+    
+    override func clone() -> SExpr {
+        return MDouble(_value: value)
     }
     
     public override func str(indent: String, level:Int) -> String {
@@ -506,6 +709,10 @@ public class MStr: Literal {
         return MStr(uid: uid, value: value)
     }
     
+    override func clone() -> SExpr {
+        return MStr(_value: value)
+    }
+    
     public override func str(indent: String, level:Int) -> String {
         return "\"" + value + "\""
     }
@@ -532,6 +739,10 @@ public class MChar: Literal {
         return MChar(uid: uid, value: value)
     }
     
+    override func clone() -> SExpr {
+        return MChar(_value: value)
+    }
+    
     public override func str(indent: String, level:Int) -> String {
         return "\(value)"
     }
@@ -545,6 +756,10 @@ public class MNull:Literal {
     
     override func mirror_for_thread() -> SExpr {
         return MNull(uid: uid)
+    }
+    
+    override func clone() -> SExpr {
+        return MNull()
     }
     
     // avoid consume uid. do not use as a member of s-expression.
@@ -586,6 +801,10 @@ public class MBool:Literal {
         return MBool(uid: uid, value: value)
     }
     
+    override func clone() -> SExpr {
+        return MBool(_value: value)
+    }
+    
     public override func str(indent: String, level:Int) -> String {
         return "\(value)"
     }
@@ -612,6 +831,10 @@ public class MVector:Literal {
         return MVector(uid: uid, value: value)
     }
     
+    override func clone() -> SExpr {
+        return MVector(_value: value)
+    }
+    
     public override func str(indent: String, level: Int) -> String {
         return "(vec \(value.x) \(value.y) \(value.z))"
     }
@@ -636,6 +859,10 @@ public class MVertex:Literal {
     
     override func mirror_for_thread() -> SExpr {
         return MVertex(uid: uid, value: value)
+    }
+    
+    override func clone() -> SExpr {
+        return MVertex(_value: value)
     }
     
     public override func str(indent: String, level: Int) -> String {
@@ -676,6 +903,10 @@ public class MColor : Literal {
     
     override func mirror_for_thread() -> SExpr {
         return MColor(uid: uid, value: value)
+    }
+    
+    override func clone() -> SExpr {
+        return MColor(_value: value)
     }
     
     public override func str(indent: String, level: Int) -> String {
@@ -724,6 +955,10 @@ public class MPlane : Literal {
         return MPlane(uid: uid, value: value)
     }
     
+    override func clone() -> SExpr {
+        return MPlane(_value: value)
+    }
+    
     public override func str(indent: String, level: Int) -> String {
         
         return "(plane (vec \(value.normal.x) \(value.normal.y) \(value.normal.z)) \(value.w))"
@@ -751,6 +986,10 @@ public class MPolygon : Literal {
     
     override func mirror_for_thread() -> SExpr {
         return MPolygon(uid: uid, value: value)
+    }
+    
+    override func clone() -> SExpr {
+        return MPolygon(_value: value)
     }
     
     public override func str(indent: String, level: Int) -> String {
@@ -784,6 +1023,14 @@ public class MPolygon : Literal {
 
 public class MintIO {
     
+}
+
+public class SExprIO : MintIO {
+    public var exp_list : [SExpr]
+    
+    init(exps: [SExpr]) {
+        exp_list = exps
+    }
 }
 
 public class IOMesh: MintIO {

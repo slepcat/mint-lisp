@@ -119,6 +119,10 @@ extension LispToken {
                 return MBegin()
             case "display":
                 return Display()
+            case "import":
+                return Import()
+            case "export":
+                return Export()
             default:
                 return MSymbol(_key: symbol)
             }

@@ -11,6 +11,8 @@ import Foundation
 
 class MintPort: NSObject {
     func write(data: MintIO, uid: UInt) {}
+    func create_port(uid: UInt) {}
+    func remove_port(uid: UInt) {}
 }
 
 class MintReadPort:NSObject {
@@ -19,11 +21,16 @@ class MintReadPort:NSObject {
 
 class MintStdPort {
     private var currentport : MintPort? = nil
+    private var currentreadport : MintReadPort? = nil
     private var stderrport : MintPort? = nil
     private init(){}
     
     var port: MintPort? {
         return currentport
+    }
+    
+    var readport: MintReadPort? {
+        return currentreadport
     }
     
     var errport: MintPort? {
@@ -32,6 +39,10 @@ class MintStdPort {
     
     func setPort(newPort:MintPort) {
         currentport = newPort
+    }
+    
+    func setReadPort(newPort:MintReadPort) {
+        currentreadport = newPort
     }
     
     func setErrPort(newErrPort : MintPort ) {
@@ -55,6 +66,24 @@ class MintStdPort {
 }
 
 class Display: Primitive {
+    
+    override init() {
+        super.init()
+        
+        if let port = MintStdPort.get.port {
+            port.create_port(self.uid)
+        }
+    }
+    
+    deinit {
+        if let port = MintStdPort.get.port {
+            port.remove_port(self.uid)
+        }
+    }
+    
+    override init(uid: UInt) {
+        super.init(uid: uid)
+    }
 
     override func mirror_for_thread() -> SExpr {
         return Display(uid: uid)

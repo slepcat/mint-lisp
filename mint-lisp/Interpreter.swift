@@ -109,12 +109,141 @@ public class Interpreter : NSObject {
         }
     }
     
+    
+    ///// Pre-Processor /////
+    // import external lib & expand macro
+    
     public func preprocess(uid: UInt) -> SExpr {
         
-        // todo
-        
-        return lookup(uid).target
+        if let i = lookup_treeindex_of(uid) {
+            // import or macro expand
+            
+            return preprocess(trees[i])
+
+        } else {
+            return MNull()
+        }
     }
+    
+    public func preprocess(expr : SExpr) -> SExpr {
+        // import or macro expand
+        
+        if let pair = expr as? Pair {
+            
+            if let _ = pair.car as? Import {
+                // if current tree is import, load libs
+                // and return null and escape evaluation
+            
+                import_lib(pair, preprefix: "", depth: 0)
+                return MNull()
+            
+            } else if let _ = pair.car as? Export {
+                // if expr is Export, return null and escape evaluation
+                
+                return MNull()
+            } else {
+                // macro expansion
+                return rec_macro_expansion(pair)
+            }
+        } else {
+            return expr
+        }
+    }
+    
+    
+    public func preprocess_import(expr : SExpr, prefix: String, depth: UInt) -> SExpr {
+        // import or macro expand
+        
+        if let pair = expr as? Pair {
+            
+            if let _ = pair.car as? Import {
+                // if current tree is import, load libs
+                // and return null and escape evaluation
+                
+                import_lib(pair, preprefix: prefix, depth: depth)
+                return MNull()
+                
+            } else if let _ = pair.car as? Export {
+                // if expr is Export, return null and escape evaluation
+                if depth == 1 {
+                    // if depth is >1, do not add pallete imported leaves
+                    // todo : add export to tool pallete
+                }
+                
+                return MNull()
+            } else {
+                // macro expansion
+                return rec_macro_expansion(pair)
+            }
+        } else {
+            return expr
+        }
+    }
+    
+    //// library import ////
+    
+    func import_lib(expr: SExpr, preprefix: String, depth: UInt){
+        
+        let list = delayed_list_of_values(expr)
+        if list.count == 3 {
+            if let path = list[1] as? MSymbol, let prefix = list[2] as? MSymbol {
+                
+                let port = MintStdPort.get.readport
+                if let result = port?.read(path.key, uid: path.uid) as? SExprIO {
+                    
+                    var acc : [SExpr] = []
+                    
+                    acc = result.exp_list.map() { expr in
+                        return self.preprocess_import(expr, prefix: preprefix + prefix.key, depth: depth + 1)
+                    }
+                    
+                    let lib_env = Env()
+                    lib_env.hash_table = global_environment()
+                    
+                    let task = Evaluator(exps: acc, env: lib_env, retTo: self)
+                    task.main()
+                    
+                    lib_env.hash_table.map() { (varkey, expr) in
+                        if global_environment()[varkey] == nil {
+                            self.global.hash_table[prefix.key + varkey] = expr
+                        }
+                    }
+                    
+                }
+            }
+        }
+    }
+    
+    ////  macro expansion ////
+    
+    func is_macro(expr: SExpr) -> Bool {
+        if let sym = expr as? MSymbol {
+            if let _ = sym.eval(global) as? Macro {
+                return true
+            }
+        }
+        
+        return false
+    }
+    
+    func rec_macro_expansion(expr: Pair) -> SExpr {
+        if let macro = expr.car.eval(global) as? Macro {
+            if let expanded = macro.expand(expr.cdr) as? Pair {
+                return rec_macro_expansion(expanded)
+            } else {
+                return macro.expand(expr.cdr)
+            }
+        } else if let pair_a = expr.car as? Pair, let pair_d = expr.cdr as? Pair{
+            return Pair(car: rec_macro_expansion(pair_a), cdr: rec_macro_expansion(pair_d))
+        } else if let pair_a = expr.car as? Pair {
+            return Pair(car: rec_macro_expansion(pair_a), cdr: expr.cdr)
+        } else if let pair_d = expr.cdr as? Pair {
+            return Pair(car: expr.car, cdr: rec_macro_expansion(pair_d))
+        } else {
+            return expr
+        }
+    }
+    
     /*
     public func reload_env() {
         global.hash_table = global_environment()
@@ -164,7 +293,7 @@ public class Interpreter : NSObject {
         var treearray : [SExpr] = []
         
         for tree in trees {
-            treearray.append(tree.mirror_for_thread())
+            treearray.append(preprocess(tree.mirror_for_thread()))
         }
         
         let task = Evaluator(exps: treearray, env: global, retTo: self)
@@ -193,14 +322,14 @@ public class Interpreter : NSObject {
         if let i = lookup_treeindex_of(uid) {
             if let pair = trees[i] as? Pair {
                 if let _ = pair.car as? MDefine {
-                    let task = Evaluator(exp: trees[i].mirror_for_thread(), env: global, retTo: self)
+                    let task = Evaluator(exp: preprocess(trees[i].mirror_for_thread()), env: global, retTo: self)
                     
                     let thread = NSThread(target: task, selector: "main", object: nil)
                     thread.stackSize = 8388608 // set 8 MB stack size
                     
                     threadPool.append(thread)
                 } else {
-                    let task = Evaluator(exp: trees[i].mirror_for_thread(), env: global.clone(), retTo: self)
+                    let task = Evaluator(exp: preprocess(trees[i].mirror_for_thread()), env: global.clone(), retTo: self)
                     
                     let thread = NSThread(target: task, selector: "main", object: nil)
                     thread.stackSize = 8388608 // set 8 MB stack size
@@ -242,11 +371,13 @@ public class Interpreter : NSObject {
             return MNull()
         }
     }
+    
     /*
-    public func eval(exp: SExpr) -> SExpr {
+    public func eval(exp: SExpr) {
         return evaluator.eval(exp, gl_env: global)
     }
     */
+    
     // stop all execution
     
     func cancell() {
