@@ -307,7 +307,7 @@ public class Procedure:Form {
             }
         } else {
             if let new_env = initial_env.extended_env(_params, values: seq) {
-                rec_env = new_env.clone()
+                rec_env = new_env
             } else {
                 // not properly env generated.
                 return (MNull(), env)

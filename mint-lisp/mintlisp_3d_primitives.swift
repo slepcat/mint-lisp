@@ -67,6 +67,8 @@ class MintStdPort {
 
 class Display: Primitive {
     
+    var isbg : Bool = false
+    
     override init() {
         super.init()
         
@@ -76,13 +78,17 @@ class Display: Primitive {
     }
     
     deinit {
-        if let port = MintStdPort.get.port {
-            port.remove_port(self.uid)
+        if !isbg {
+            print("display \(uid) removed", terminator: "\n")
+            if let port = MintStdPort.get.port {
+                port.remove_port(self.uid)
+            }
         }
     }
     
     override init(uid: UInt) {
         super.init(uid: uid)
+        isbg = true
     }
 
     override func mirror_for_thread() -> SExpr {

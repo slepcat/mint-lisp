@@ -16,6 +16,15 @@ class Env {
         ext_env = nil
     }
     
+    /* debug print
+    deinit {
+        if hash_table.count > 10 {
+            print("deinit env, with \(hash_table.count) elements")
+        }
+    }
+    */
+    
+    
     func lookup(key : String) -> SExpr {
         if let value = hash_table[key] {
             return value
@@ -58,7 +67,7 @@ class Env {
     
     func clone() -> Env {
         let cloned_env = Env()
-        cloned_env.ext_env = self.ext_env
+        cloned_env.ext_env = self.ext_env?.clone()
         cloned_env.hash_table = self.hash_table
         return cloned_env
     }

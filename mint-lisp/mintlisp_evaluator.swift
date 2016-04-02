@@ -37,7 +37,7 @@ class Evaluator : NSObject {
         }
     }
     var resarray : [SExpr] = []
-    let returnPoint : Interpreter
+    unowned let returnPoint : Interpreter
     
     weak var thread : NSThread!
     
@@ -56,6 +56,12 @@ class Evaluator : NSObject {
         self.thread = nil
         returnPoint = retTo
     }
+    
+    /* debug
+    deinit {
+        print("evaluator deinit", terminator:"\n")
+    }
+    */
     
     func main() {
         thread = NSThread.currentThread()
@@ -145,7 +151,7 @@ class Evaluator : NSObject {
                             continue
                             
                         } else {
-                            print("syntax error: define take 2 args > " + cf.exp._debug_string(), terminator: "\n")
+                            print("syntax error: set! take 2 args > " + cf.exp._debug_string(), terminator: "\n")
                             isRet = true
                         }
                         

@@ -14,7 +14,7 @@ public class Interpreter : NSObject {
     var executing : Bool = false
     
     var trees:[SExpr] = []
-    let global: Env
+    var global: Env
     
     public var indent: String = "  "
     
@@ -184,6 +184,23 @@ public class Interpreter : NSObject {
     
     func import_lib(expr: SExpr, preprefix: String, depth: UInt){
         
+        func add_prefix(prefix: String, target: [(String, SExpr)], expr: SExpr) {
+            
+            if let sym = expr as? MSymbol {
+                for (key, _) in target {
+                    if key == sym.key {
+                        sym.key = prefix + sym.key
+                    }
+                }
+            } else if let pair = expr as? Pair {
+                add_prefix(prefix, target: target, expr: pair.car)
+                add_prefix(prefix, target: target, expr: pair.cdr)
+            } else if let proc = expr as? Procedure {
+                add_prefix(prefix, target: target, expr: proc.body)
+            }
+        }
+        
+        
         let list = delayed_list_of_values(expr)
         if list.count == 3 {
             if let path = list[1] as? MSymbol, let prefix = list[2] as? MSymbol {
@@ -193,22 +210,32 @@ public class Interpreter : NSObject {
                     
                     var acc : [SExpr] = []
                     
-                    acc = result.exp_list.map() { expr in
+                    acc = result.exp_list.map() { [unowned self] expr in
                         return self.preprocess_import(expr, prefix: preprefix + prefix.key, depth: depth + 1)
                     }
                     
-                    let lib_env = Env()
-                    lib_env.hash_table = global_environment()
+                    //let lib_env = Env()
+                    //lib_env.hash_table = global_environment()
                     
-                    let task = Evaluator(exps: acc, env: lib_env, retTo: self)
+                    let task = Evaluator(exps: acc, env: global, retTo: self)
                     task.main()
                     
-                    lib_env.hash_table.map() { (varkey, expr) in
+                    /*
+                    var acc_imported_env: [(String, SExpr)] = []
+                    
+                    //　extract env variable which should be added to parent env
+                    for (varkey, expr) in lib_env.hash_table {
                         if global_environment()[varkey] == nil {
-                            self.global.hash_table[prefix.key + varkey] = expr
+                            acc_imported_env.append((varkey, expr))
                         }
                     }
                     
+                    // add to global, and add prefix to avoid name space collision
+                    for (varkey, expr) in acc_imported_env {
+                        add_prefix(prefix.key, target: acc_imported_env, expr: expr)
+                        global.hash_table[prefix.key + varkey] = expr
+                    }
+                    */
                 }
             }
         }
