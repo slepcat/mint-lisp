@@ -11,7 +11,7 @@ import Foundation
 
 func + (left: Matrix4x4, right: Matrix4x4) -> Matrix4x4 {
     var r : [Double] = []
-    for var i = 0; i < 16; i++ {
+    for i in 0 ..< 16 {
         r[i] = left.elements[i] + right.elements[i]
     }
     return Matrix4x4(matrix: r)
@@ -19,7 +19,7 @@ func + (left: Matrix4x4, right: Matrix4x4) -> Matrix4x4 {
 
 func - (left: Matrix4x4, right: Matrix4x4) -> Matrix4x4 {
     var r : [Double] = []
-    for var i = 0; i < 16; i++ {
+    for i in 0 ..< 16 {
         r[i] = left.elements[i] - right.elements[i]
     }
     return Matrix4x4(matrix: r)

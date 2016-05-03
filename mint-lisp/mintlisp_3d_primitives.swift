@@ -13,6 +13,7 @@ class MintPort: NSObject {
     func write(data: MintIO, uid: UInt) {}
     func create_port(uid: UInt) {}
     func remove_port(uid: UInt) {}
+    func update() {}
 }
 
 class MintReadPort:NSObject {
@@ -142,7 +143,7 @@ class Display: Primitive {
                         
                         objc_sync_exit(port)
                         
-                        port.performSelectorOnMainThread("update", withObject: nil, waitUntilDone: false)
+                        port.performSelectorOnMainThread(#selector(MintPort.update), withObject: nil, waitUntilDone: false)
                     }
                     return MNull()
                 }
@@ -154,7 +155,7 @@ class Display: Primitive {
             port.write(IOMesh(mesh: acc, normal: acc_normal, color: acc_color, alpha: acc_alpha), uid: uid)
             objc_sync_exit(port)
             
-            port.performSelectorOnMainThread("update", withObject: nil, waitUntilDone: false)
+            port.performSelectorOnMainThread(#selector(MintPort.update), withObject: nil, waitUntilDone: false)
         }
         
         return MNull()
@@ -260,7 +261,7 @@ class Cube: Primitive {
                 let poly = Pair()
                 var pointer = poly
                 
-                for var i = 0; (i + 3) < vertices.count; i += 3 {
+                for i in 0.stride(to: vertices.count - 3, by: 3) {
                     var pl = Polygon(vertices: [vertices[i], vertices[i + 1], vertices[i + 2]])
                     pl.generateNormal()
                     pointer.car = MPolygon(_value: pl)
@@ -331,7 +332,7 @@ class Sphere:Primitive{
                 
                 var polygons : [Polygon] = []
                 
-                for var slice1 = 0; slice1 <= resolution; slice1++ {
+                for slice1 in 0.stride(through: resolution, by: 1) {
                     let angle = M_PI * 2.0 * Double(slice1) / Double(resolution)
                     let cylinderpoint = xvector.times(cos(angle)) + yvector.times(sin(angle))
                     if slice1 > 0 {
@@ -339,7 +340,7 @@ class Sphere:Primitive{
                         var prevcospitch : Double = 0
                         var prevsinpitch : Double = 0
                         
-                        for var slice2 = 0; slice2 <= qresolution; slice2++ {
+                        for slice2 in 0.stride(through: qresolution, by: 1) {
                             
                             let pitch = 0.5 * M_PI * Double(slice2) / Double(qresolution)
                             let cospitch = cos(pitch)
@@ -456,7 +457,7 @@ class Cylinder:Primitive{
                     return Vertex(pos: pos)
                 }
                 
-                for(var i = 0; i < slices; i++) {
+                for i in 0 ..< slices {
                     let t0 = Double(i) / Double(slices)
                     let t1 = Double(i + 1) / Double(slices)
                     

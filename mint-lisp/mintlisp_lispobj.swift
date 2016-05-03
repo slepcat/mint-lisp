@@ -79,7 +79,7 @@ public class Pair:SExpr {
         super.init()
     }
     
-    private init(uid: UInt, car: SExpr, cdr: SExpr) {
+    init(uid: UInt, car: SExpr, cdr: SExpr) {
         self.car = car
         self.cdr = cdr
         super.init(uid: uid)
@@ -119,7 +119,7 @@ public class Pair:SExpr {
     public override func str(indent: String, level:Int) -> String {
         
         var leveledIndent : String = ""
-        for var i = 0; level > i; i++ {
+        for _ in 0.stride(to: level, by: 1) {
             leveledIndent += indent
         }
         
@@ -290,7 +290,7 @@ public class Procedure:Form {
         let _params = delayed_list_of_args(self.params)
         
         if let _env = rec_env {
-            for var i = 0; _params.count > i; i++ {
+            for i in 0.stride(to: _params.count, by: 1) {
                 if let sym = _params[i] as? MSymbol {
                     if seq.count > i {
                         _env.set_variable(sym.key, val: seq[i])
@@ -381,7 +381,7 @@ public class Macro:Form {
             
             var acc : [(pattern: SExpr, template: SExpr)] = []
             
-            for var i = 0; rule_list.count > i; i++ {
+            for i in 0.stride(to: rule_list.count, by: 1) {
                 let rule = delayed_list_of_values(list[i])
                 if rule.count == 2 {
                     acc.append((pattern: rule[0], template: rule[1]))

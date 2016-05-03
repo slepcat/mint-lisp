@@ -155,10 +155,11 @@ func zero<Token, Result>() -> Comb<Token, Result>.Parser {
 }
 
 func consumer<Token>() -> Comb<Token, Token>.Parser {
-    return { (var input:[Token]) in
+    return { (input:[Token]) in
         if input.count == 0 {
             return []
         } else {
+            var input = input
             let head = input.removeAtIndex(0)
             return [(head, input)]
         }
@@ -463,12 +464,12 @@ func parseLispExpr() -> Comb<LispToken, SExpr>.Parser {
         }
     }
     
-    return bind(parenthesesParser { zeroOrMore(parseLispExpr() <|> atom) }){ (var exprs: [SExpr]) in
+    return bind(parenthesesParser { zeroOrMore(parseLispExpr() <|> atom) }){ (exprs: [SExpr]) in
         if exprs.count > 0 {
             //let head = exprs.removeAtIndex(0)
             let head = Pair()
             var pointer = head
-            for var i = 0; exprs.count > (i + 1); i++ {
+            for i in 0.stride(to: exprs.count - 1, by: 1) {
                 pointer.car = exprs[i]
                 pointer.cdr = Pair()
                 pointer = pointer.cdr as! Pair

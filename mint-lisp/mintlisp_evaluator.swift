@@ -66,7 +66,7 @@ class Evaluator : NSObject {
     func main() {
         thread = NSThread.currentThread()
         if evaltrees.count > 1 {
-            for var i = 0; evaltrees.count > i; i++ {
+            for i in 0.stride(to: evaltrees.count, by: 1) {
                 if let pair = evaltrees[i] as? Pair {
                     if let _ = pair.car as? MDefine {
                         resarray.append(eval(pair, gl_env: env))
@@ -74,7 +74,7 @@ class Evaluator : NSObject {
                 }
             }
             
-            for var i = 0; evaltrees.count > i; i++ {
+            for i in 0.stride(to: evaltrees.count, by: 1) {
                 if let pair = evaltrees[i] as? Pair {
                     if let _ = pair.car as? MDefine {
                         
@@ -84,17 +84,17 @@ class Evaluator : NSObject {
                 }
             }
             
-            returnPoint.performSelectorOnMainThread("eval_result:", withObject: resarray, waitUntilDone: false)
+            returnPoint.performSelectorOnMainThread(#selector(returnPoint.eval_result), withObject: resarray, waitUntilDone: false)
             
         } else {
             if let exp = evaltrees.last {
                 res = eval(exp, gl_env: env)
             }
             
-            returnPoint.performSelectorOnMainThread("eval_result:", withObject: resarray, waitUntilDone: false)
+            returnPoint.performSelectorOnMainThread(#selector(returnPoint.eval_result), withObject: resarray, waitUntilDone: false)
         }
         
-        for var i = 0; resarray.count > i; i++ {
+        for i in 0.stride(to: resarray.count, by: 1) {
             print_leaf(resarray[i].str("", level: 0), uid: evaltrees[i].uid)
         }
     }
@@ -267,7 +267,7 @@ class Evaluator : NSObject {
                     if (cf.seq.count > cf.pc) && (cf.seq.count > 1) {
                         
                         if cf.pc == 0 {
-                            cf.pc++
+                            cf.pc += 1
                         }
                         
                         push(cf)
@@ -288,7 +288,7 @@ class Evaluator : NSObject {
                     if (cf.seq.count > cf.pc) && (cf.seq.count > 1) {
                         
                         if cf.pc == 0 {
-                            cf.pc++
+                            cf.pc += 1
                         }
                         
                         push(cf)
@@ -338,7 +338,7 @@ class Evaluator : NSObject {
                 if let nf = pop() {
                     cf = nf
                     cf.seq[cf.pc] = res
-                    cf.pc++
+                    cf.pc += 1
                     continue
                 } else {
                     // if there is no more frame in the stack, return result
@@ -369,6 +369,7 @@ class Evaluator : NSObject {
     }
     
     private func tail(var seq: [SExpr]) -> [SExpr] {
+        
         if seq.count > 0 {
             seq.removeAtIndex(0)
             return seq
@@ -384,7 +385,7 @@ class Evaluator : NSObject {
             port.write(IOErr(err: err, uid: lookup_leaf_of(uid)), uid: uid)
             objc_sync_exit(port)
             
-            port.performSelectorOnMainThread("update", withObject: nil, waitUntilDone: false)
+            port.performSelectorOnMainThread(#selector(MintPort.update), withObject: nil, waitUntilDone: false)
         }
     }
     

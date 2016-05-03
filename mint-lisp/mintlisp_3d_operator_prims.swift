@@ -30,7 +30,7 @@ class SetColor : TransformOperator {
                 
                 for poly in polylist {
                     if let p = poly as? MPolygon {
-                        for var i = 0; p.value.vertices.count > i; i++ {
+                        for i in 0..<p.value.vertices.count {
                             p.value.vertices[i].color = color
                         }
                     } else {
@@ -289,10 +289,10 @@ class Rotate : TransformOperator {
                 
                 var newpolygons : [Polygon] = []
                 
-                for var i = 0; original.mesh.count > i; i++ {
+                for i in 0..<original.mesh.count {
                     var newpolyvex : [Vertex] = []
                     
-                    for var j = 0; original.mesh[i].vertices.count > j; j++ {
+                    for j in 0..<original.mesh[i].vertices.count {
                         newpolyvex += [original.mesh[i].vertices[j].transform(rotatematrix)]
                     }
                     
@@ -348,10 +348,10 @@ class RotateAxis : TransformOperator {
                 
                 var newpolygons : [Polygon] = []
                 
-                for var i = 0; original.mesh.count > i; i++ {
+                for i in 0..<original.mesh.count {
                     var newpolyvex : [Vertex] = []
                     
-                    for var j = 0; original.mesh[i].vertices.count > j; j++ {
+                    for j in 0..<original.mesh[i].vertices.count {
                         newpolyvex += [original.mesh[i].vertices[j].transform(rotatematrix)]
                     }
                     
@@ -405,10 +405,10 @@ class Translate : TransformOperator {
                 
                 var newpolygons : [Polygon] = []
                 
-                for var i = 0; original.mesh.count > i; i++ {
+                for i in 0..<original.mesh.count {
                     var newpolyvex : [Vertex] = []
                     
-                    for var j = 0; original.mesh[i].vertices.count > j; j++ {
+                    for j in 0..<original.mesh[i].vertices.count {
                         newpolyvex += [original.mesh[i].vertices[j].transform(matrix)]
                     }
                     
@@ -466,10 +466,10 @@ class Scale : TransformOperator {
                     
                     var newpolygons : [Polygon] = []
                     
-                    for var i = 0; original.mesh.count > i; i++ {
+                    for i in 0..<original.mesh.count {
                         var newpolyvex : [Vertex] = []
                         
-                        for var j = 0; original.mesh[i].vertices.count > j; j++ {
+                        for j in 0..<original.mesh[i].vertices.count {
                             newpolyvex += [original.mesh[i].vertices[j].transform(matrix)]
                         }
                         

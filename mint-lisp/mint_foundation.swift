@@ -359,7 +359,7 @@ struct Plane {
                 var f : [Vertex] = []
                 var b : [Vertex] = []
                 
-                for var i = 0; i < poly.vertices.count; i++ {
+                for i in 0 ..< poly.vertices.count {
                     let j = (i + 1) % poly.vertices.count
                     let ti = types[i]
                     let tj = types[j]
@@ -526,7 +526,7 @@ struct Polygon {
         
         let polyNormal = a.cross(b).unit()
         
-        for var i = 0; i < self.vertices.count; i++ {
+        for i in 0 ..< self.vertices.count {
             self.vertices[i].normal = polyNormal
         }
     }
@@ -588,7 +588,7 @@ struct Polygon {
             // STL requires triangular polygons. If our polygon has more vertices, create
             // multiple triangles:
             let firstVertexStl = self.vertices[0].toStlString()
-            for var i = 0; i < self.vertices.count - 2; i++ {
+            for i in 0 ..< self.vertices.count - 2 {
                 result += "facet normal " + self.plane.normal.toStlString() + "\nouter loop\n"
                 result += firstVertexStl
                 result += self.vertices[i + 1].toStlString()
@@ -612,7 +612,7 @@ struct Polygon {
         
         var triangles : [Polygon] = []
         
-        for var i = 2; vertices.count > i; i++ {
+        for i in 2.stride(to: vertices.count, by: 1) {
             let vexs = [vertices[0], vertices[i-1], vertices[i]]
             triangles += [Polygon(vertices: vexs)]
         }
@@ -625,7 +625,7 @@ struct Polygon {
             var prevprevpos = vertices[vertices.count - 2].pos
             var prevpos = vertices[vertices.count - 1].pos
             
-            for var i = 0; i < vertices.count; i++ {
+            for i in 0 ..< vertices.count {
                 let pos = vertices[i].pos
                 if !isConvexPoint(prevprevpos, point: prevpos, nextpoint: pos, normal: normal) {
                     return false
@@ -699,7 +699,7 @@ class Mesh {
                 
                 var triangles = polygon.triangulationConvex()
                 
-                for var i = 0; triangles.count > i; i++ {
+                for i in 0.stride(to: triangles.count, by: 1) {
                     triangles[i].generateNormal()
                     for vertex in triangles[i].vertices {
                         normals += [vertex.normal.x, vertex.normal.y, vertex.normal.z]
@@ -755,7 +755,7 @@ class Mesh {
             var minpoint = Vector(x: 0, y: 0, z: 0)
             var maxpoint = Vector(x: 0, y: 0, z: 0)
             
-            for var i = 0; mesh.count > i; i++ {
+            for i in 0.stride(to: mesh.count, by: 1) {
 				let bounds = mesh[i].boundingBox()
                 
                 minpoint = minpoint.min(bounds.min)

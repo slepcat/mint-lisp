@@ -293,11 +293,11 @@ public class Interpreter : NSObject {
                 return macro.expand(expr.cdr)
             }
         } else if let pair_a = expr.car as? Pair, let pair_d = expr.cdr as? Pair{
-            return Pair(car: rec_macro_expansion(pair_a), cdr: rec_macro_expansion(pair_d))
+            return Pair(uid: expr.uid, car: rec_macro_expansion(pair_a), cdr: rec_macro_expansion(pair_d))
         } else if let pair_a = expr.car as? Pair {
-            return Pair(car: rec_macro_expansion(pair_a), cdr: expr.cdr)
+            return Pair(uid: expr.uid, car: rec_macro_expansion(pair_a), cdr: expr.cdr)
         } else if let pair_d = expr.cdr as? Pair {
-            return Pair(car: expr.car, cdr: rec_macro_expansion(pair_d))
+            return Pair(uid: expr.uid, car: expr.car, cdr: rec_macro_expansion(pair_d))
         } else {
             return expr
         }
@@ -330,7 +330,7 @@ public class Interpreter : NSObject {
     ///// Look up location of uid /////
     
     public func lookup_treeindex_of(uid: UInt) -> Int? {
-        for var i = 0; trees.count > i; i++ {
+        for i in 0.stride(to: trees.count, by: 1) {
             let res = trees[i].lookup_exp(uid)
             
             if !res.target.isNull() {
@@ -357,7 +357,7 @@ public class Interpreter : NSObject {
         
         let task = Evaluator(exps: treearray, env: global, retTo: self)
         
-        let thread = NSThread(target: task, selector: "main", object: nil)
+        let thread = NSThread(target: task, selector: #selector(Evaluator.main), object: nil)
         thread.stackSize = 8388608 // set 8 MB stack size
         
         threadPool.append(thread)
@@ -383,14 +383,14 @@ public class Interpreter : NSObject {
                 if let _ = pair.car as? MDefine {
                     let task = Evaluator(exp: preprocess(trees[i].mirror_for_thread()), env: global, retTo: self)
                     
-                    let thread = NSThread(target: task, selector: "main", object: nil)
+                    let thread = NSThread(target: task, selector: #selector(Evaluator.main), object: nil)
                     thread.stackSize = 8388608 // set 8 MB stack size
                     
                     threadPool.append(thread)
                 } else {
                     let task = Evaluator(exp: preprocess(trees[i].mirror_for_thread()), env: global.clone(), retTo: self)
                     
-                    let thread = NSThread(target: task, selector: "main", object: nil)
+                    let thread = NSThread(target: task, selector: #selector(Evaluator.main), object: nil)
                     thread.stackSize = 8388608 // set 8 MB stack size
                     
                     threadPool.append(thread)

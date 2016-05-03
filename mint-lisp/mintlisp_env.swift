@@ -44,7 +44,7 @@ class Env {
         _env.ext_env = self
         
         if symbols.count == values.count {
-            for var i = 0; symbols.count > i; i++ {
+            for i in 0..<symbols.count {
                 if let symbol = symbols[i] as? MSymbol {
                     _env.define_variable(symbol.key, val: values[i])
                 } else {

@@ -9,10 +9,13 @@
 import Foundation
 
 
-func foldl<T>(_func: (T, T) -> T, var acc: T, var operands: [T]) -> T{
+func foldl<T>(_func: (T, T) -> T, acc: T, operands: [T]) -> T{
     if operands.count == 0 {
         return acc
     } else {
+        var acc = acc
+        var operands = operands
+        
         let head = operands.removeAtIndex(0)
         acc = _func(acc, head)
         
@@ -24,10 +27,13 @@ func map<T, U>(_func: (T) -> U, operands: [T]) -> [U] {
     return tail_map(_func, acc: [], operands: operands)
 }
 
-private func tail_map<T, U>(_func: (T) -> U, var acc: [U], var operands: [T]) -> [U] {
+private func tail_map<T, U>(_func: (T) -> U, acc: [U], operands: [T]) -> [U] {
     if operands.count == 0 {
         return acc
     } else {
+        var acc = acc
+        var operands = operands
+        
         let head = operands.removeAtIndex(0)
         acc.append(_func(head))
         return tail_map(_func,acc: acc, operands: operands)
@@ -43,10 +49,12 @@ private func flatten<U>(nested:[[U]]) -> [U] {
     return tail_flatten(nested, acc: [])
 }
 
-private func tail_flatten<U>(var nested:[[U]], acc:[U]) -> [U] {
+private func tail_flatten<U>(nested:[[U]], acc:[U]) -> [U] {
     if nested.count == 0 {
         return acc
     } else {
+        var nested = nested
+        
         let head = nested.removeAtIndex(0)
         let newacc = head + acc
         return tail_flatten(nested, acc: newacc)
@@ -72,10 +80,9 @@ public func delayed_list_of_values(_opds :SExpr) -> [SExpr] {
     }
 }
 
-private func tail_delayed_list_of_values(_opds :SExpr, var acc: [SExpr]) -> [SExpr] {
+private func tail_delayed_list_of_values(_opds :SExpr, acc: [SExpr]) -> [SExpr] {
     if let pair = _opds as? Pair {
-        acc.append(pair.car)
-        return tail_delayed_list_of_values(pair.cdr, acc: acc)
+        return tail_delayed_list_of_values(pair.cdr, acc: acc + [pair.car])
     } else {
         return acc
     }
@@ -85,10 +92,13 @@ public func list_from_array(array: [SExpr]) -> SExpr {
     return tail_list_from_array(array, acc: MNull())
 }
 
-private func tail_list_from_array(var array: [SExpr], var acc: SExpr) -> SExpr {
+private func tail_list_from_array(array: [SExpr], acc: SExpr) -> SExpr {
     if array.count == 0 {
         return acc
     } else {
+        var array = array
+        var acc = acc
+        
         let exp = array.removeLast()
         acc = Pair(car: exp, cdr: acc)
         return tail_list_from_array(array, acc: acc)
@@ -118,7 +128,8 @@ class UID {
     private init(){}
     
     var newID: UInt {
-        return count++
+        count += 1
+        return count
     }
     
     class var get: UID {

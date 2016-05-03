@@ -49,11 +49,15 @@ class PolygonTreeNode {
             // remove ourselves from the parent's children list:
             if let parentcsg = parent {
                 
-                for var i = 0; parentcsg.children.count > i; i++ {
+                var i = 0
+                
+                while i < parentcsg.children.count {
                     if parentcsg.children[i] === self {
                         parentcsg.children.removeAtIndex(i)
-                        i--
+                        i -= 1
                     }
+                    
+                    i += 1
                 }
                 // invalidate the parent's polygon, and of all parents above it:
                 parentcsg.recursivelyInvalidatePolygon()
