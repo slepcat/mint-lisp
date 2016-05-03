@@ -18,6 +18,9 @@ public class Interpreter : NSObject {
     
     public var indent: String = "  "
     
+    // to detect cycle import
+    private var imported : [String] = []
+    
     public override init() {
         global = Env()
         global.hash_table = global_environment()
@@ -126,6 +129,11 @@ public class Interpreter : NSObject {
     }
     
     public func preprocess(expr : SExpr) -> SExpr {
+        
+        // init import path record
+        
+        imported = []
+        
         // import or macro expand
         
         if let pair = expr as? Pair {
@@ -184,12 +192,12 @@ public class Interpreter : NSObject {
     
     func import_lib(expr: SExpr, preprefix: String, depth: UInt){
         
-        func add_prefix(prefix: String, target: [(String, SExpr)], expr: SExpr) {
+        func add_prefix(prefix: String, target: [String], expr: SExpr) {
             
             if let sym = expr as? MSymbol {
-                for (key, _) in target {
+                for key in target {
                     if key == sym.key {
-                        sym.key = prefix + sym.key
+                        sym.key = prefix + "." + sym.key
                     }
                 }
             } else if let pair = expr as? Pair {
@@ -203,39 +211,63 @@ public class Interpreter : NSObject {
         
         let list = delayed_list_of_values(expr)
         if list.count == 3 {
-            if let path = list[1] as? MSymbol, let prefix = list[2] as? MSymbol {
+            if let path = list[1] as? MSymbol, let prefix_expr = list[2] as? MSymbol {
+                
+                // check import loop
+                for p in imported {
+                    if path.key == p {
+                        print("error: same lib is imported repeatedly.")
+                        return
+                    }
+                }
+                
+                // if not repeatedly imported, add to the record
+                imported.append(path.key)
                 
                 let port = MintStdPort.get.readport
                 if let result = port?.read(path.key, uid: path.uid) as? SExprIO {
                     
                     var acc : [SExpr] = []
                     
-                    acc = result.exp_list.map() { [unowned self] expr in
-                        return self.preprocess_import(expr, prefix: preprefix + prefix.key, depth: depth + 1)
+                    // generate prefix
+                    
+                    var prefix : String
+                    
+                    if preprefix == "" {
+                        prefix = prefix_expr.key
+                    } else {
+                        prefix = preprefix + "." + prefix_expr.key
                     }
                     
-                    //let lib_env = Env()
-                    //lib_env.hash_table = global_environment()
+                    acc = result.exp_list.map() { [unowned self] expr in
+                        return self.preprocess_import(expr, prefix: prefix, depth: depth + 1)
+                    }
+                    
+                    // save current env hash table to check added key later
+                    
+                    var prev_env: [String : SExpr] = global.hash_table
                     
                     let task = Evaluator(exps: acc, env: global, retTo: self)
                     task.main()
                     
-                    /*
-                    var acc_imported_env: [(String, SExpr)] = []
+                    // extract added variables
                     
-                    //　extract env variable which should be added to parent env
-                    for (varkey, expr) in lib_env.hash_table {
-                        if global_environment()[varkey] == nil {
-                            acc_imported_env.append((varkey, expr))
+                    var addedvars : [String] = []
+                    
+                    for (varkey, _) in global.hash_table {
+                        if prev_env[varkey] == nil {
+                            addedvars.append(varkey)
                         }
                     }
                     
-                    // add to global, and add prefix to avoid name space collision
-                    for (varkey, expr) in acc_imported_env {
-                        add_prefix(prefix.key, target: acc_imported_env, expr: expr)
-                        global.hash_table[prefix.key + varkey] = expr
+                    // add prefix to avoid name space collision.
+                    for (varkey, expr) in global.hash_table {
+                        if prev_env[varkey] == nil {
+                            global.hash_table.removeValueForKey(varkey)
+                            global.hash_table[prefix + "." + varkey] = expr
+                            add_prefix(prefix, target: addedvars, expr: expr)
+                        }
                     }
-                    */
                 }
             }
         }
