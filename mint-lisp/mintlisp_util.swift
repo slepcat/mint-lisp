@@ -69,8 +69,11 @@ func _or(a :Bool, b: Bool) -> Bool {
     return (a || b)
 }
 
-
 ///// Utilities /////
+
+public func delayed_list_of_args(_opds :SExpr) -> [SExpr] {
+    return delayed_list_of_values(_opds)
+}
 
 public func delayed_list_of_values(_opds :SExpr) -> [SExpr] {
     if let atom = _opds as? Atom {
@@ -102,6 +105,17 @@ private func tail_list_from_array(array: [SExpr], acc: SExpr) -> SExpr {
         let exp = array.removeLast()
         acc = Pair(car: exp, cdr: acc)
         return tail_list_from_array(array, acc: acc)
+    }
+}
+
+public func tail(_seq: [SExpr]) -> [SExpr] {
+    var seq = _seq
+    
+    if seq.count > 0 {
+        seq.removeAtIndex(0)
+        return seq
+    } else {
+        return []
     }
 }
 

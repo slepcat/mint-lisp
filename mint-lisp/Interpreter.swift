@@ -97,15 +97,18 @@ public class Interpreter : NSObject {
         return []
     }
     
-    private func read_recursive(tokens: [LispToken], parser: [LispToken] -> [(SExpr, [LispToken])], var acc:[SExpr]) -> [SExpr] {
+    private func read_recursive(tokens: [LispToken], parser: [LispToken] -> [(SExpr, [LispToken])], acc:[SExpr]) -> [SExpr] {
+        
+        var acc2 = acc
+        
         if tokens.count == 0 {
-            return acc
+            return acc2
         } else {
             
             if let res = parser(tokens).first {
                 
-                acc.append(res.0)
-                return read_recursive(res.1, parser: parser, acc: acc)
+                acc2.append(res.0)
+                return read_recursive(res.1, parser: parser, acc: acc2)
             }
             
             return [MNull()]

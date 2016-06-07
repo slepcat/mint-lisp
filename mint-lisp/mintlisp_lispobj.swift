@@ -154,10 +154,12 @@ public class Pair:SExpr {
         }
     }
     
-    private func tail_str_list_of_exprs(_opds :SExpr, var acc: [String], indent:String, level: Int) -> [String] {
+    private func tail_str_list_of_exprs(_opds :SExpr, acc: [String], indent:String, level: Int) -> [String] {
         if let pair = _opds as? Pair {
-            acc.append(pair.car.str(indent, level: level))
-            return tail_str_list_of_exprs(pair.cdr, acc: acc, indent: indent, level: level)
+            var acc2 = acc
+            
+            acc2.append(pair.car.str(indent, level: level))
+            return tail_str_list_of_exprs(pair.cdr, acc: acc2, indent: indent, level: level)
         } else {
             return acc
         }
@@ -315,24 +317,6 @@ public class Procedure:Form {
         }
         
         return (body, rec_env!.clone())
-    }
-    
-    // Generate array of atoms without evaluation for Evaluator.eval() method
-    func delayed_list_of_args(_opds :SExpr) -> [SExpr] {
-        if let atom = _opds as? Atom {
-            return [atom]
-        } else {
-            return tail_delayed_list_of_values(_opds, acc: [])
-        }
-    }
-    
-    private func tail_delayed_list_of_values(_opds :SExpr, var acc: [SExpr]) -> [SExpr] {
-        if let pair = _opds as? Pair {
-            acc.append(pair.car)
-            return tail_delayed_list_of_values(pair.cdr, acc: acc)
-        } else {
-            return acc
-        }
     }
     
     override public func params_str() -> [String] {
@@ -510,25 +494,6 @@ public class Macro:Form {
         }
         
         return Macro(identifier: identifier.clone(),literals: newlit, rules: newrules, env: env.clone())
-    }
-
-    
-    // Generate array of atoms without evaluation for Evaluator.eval() method
-    func delayed_list_of_args(_opds :SExpr) -> [SExpr] {
-        if let atom = _opds as? Atom {
-            return [atom]
-        } else {
-            return tail_delayed_list_of_values(_opds, acc: [])
-        }
-    }
-    
-    private func tail_delayed_list_of_values(_opds :SExpr, var acc: [SExpr]) -> [SExpr] {
-        if let pair = _opds as? Pair {
-            acc.append(pair.car)
-            return tail_delayed_list_of_values(pair.cdr, acc: acc)
-        } else {
-            return acc
-        }
     }
     
     public override func str(indent: String, level:Int) -> String {
@@ -1107,16 +1072,43 @@ public class SExprIO : MintIO {
 }
 
 public class IOMesh: MintIO {
-    public var mesh: [Double]
-    public var normal: [Double]
+    public var mesh: [Float]
+    public var normal: [Float]
     public var color: [Float]
     public var alpha: [Float]
+    public var drawtype : UInt
     
     init(mesh:[Double], normal:[Double], color:[Float], alpha:[Float]) {
-        self.mesh = mesh
-        self.normal = normal
+        
+        func d2farray(array: [Double]) -> [Float] {
+            var acc : [Float] = []
+            
+            for e in array {
+                acc.append(Float(e))
+            }
+            
+            return acc
+        }
+        
+        self.mesh = d2farray(mesh)
+        self.normal = d2farray(normal)
         self.color = color
-        self.alpha = alpha
+        
+        if alpha.count < (mesh.count / 3) {
+            
+            var al : [Float] = alpha
+            
+            while al.count < (mesh.count / 3) {
+                al.append(1.0)
+            }
+            
+            self.alpha = al
+            
+        } else {
+            self.alpha = alpha
+        }
+        
+        self.drawtype = 0
     }
     
     public func str(indent: String, level: Int) -> String {

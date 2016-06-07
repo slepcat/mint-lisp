@@ -351,33 +351,6 @@ class Evaluator : NSObject {
         return MNull()
     }
     
-    private func delayed_list_of_values(_opds :SExpr) -> [SExpr] {
-        if let atom = _opds as? Atom {
-            return [atom]
-        } else {
-            return tail_delayed_list_of_values(_opds, acc: [])
-        }
-    }
-    
-    private func tail_delayed_list_of_values(_opds :SExpr, var acc: [SExpr]) -> [SExpr] {
-        if let pair = _opds as? Pair {
-            acc.append(pair.car)
-            return tail_delayed_list_of_values(pair.cdr, acc: acc)
-        } else {
-            return acc
-        }
-    }
-    
-    private func tail(var seq: [SExpr]) -> [SExpr] {
-        
-        if seq.count > 0 {
-            seq.removeAtIndex(0)
-            return seq
-        } else {
-            return []
-        }
-    }
-    
     func print_leaf(err: String, uid: UInt) {
         
         if let port = MintStdPort.get.errport {

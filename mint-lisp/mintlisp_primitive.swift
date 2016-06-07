@@ -14,7 +14,8 @@ class Primitive:Form {
         get {return "lisp"}
     }
     
-    func apply(var args: [SExpr]) -> SExpr {
+    func apply(argsl: [SExpr]) -> SExpr {
+        var args = argsl
         if args.count == 0 {
             return MNull()
         } else {
@@ -193,7 +194,8 @@ class isEqual:Primitive {
         get {return "math"}
     }
     
-    override func apply(var args: [SExpr]) -> SExpr {
+    override func apply(argsl: [SExpr]) -> SExpr {
+        var args = argsl
         if args.count == 0 {
             return MNull()
         } else {
@@ -244,7 +246,8 @@ class NotEqual:Primitive {
         get {return "math"}
     }
     
-    override func apply(var args: [SExpr]) -> SExpr {
+    override func apply(argsl: [SExpr]) -> SExpr {
+        var args = argsl
         if args.count == 0 {
             return MNull()
         } else {
@@ -295,7 +298,8 @@ class GreaterThan:Primitive {
         get {return "math"}
     }
     
-    override func apply(var args: [SExpr]) -> SExpr {
+    override func apply(argsl: [SExpr]) -> SExpr {
+        var args = argsl
         if args.count == 0 {
             return MNull()
         } else {
@@ -348,7 +352,9 @@ class EqualOrGreaterThan:Primitive {
         get {return "math"}
     }
     
-    override func apply(var args: [SExpr]) -> SExpr {
+    override func apply(argsl: [SExpr]) -> SExpr {
+        var args = argsl
+        
         if args.count == 0 {
             return MNull()
         } else {
@@ -401,7 +407,9 @@ class SmallerThan:Primitive {
         get {return "math"}
     }
     
-    override func apply(var args: [SExpr]) -> SExpr {
+    override func apply(argsl: [SExpr]) -> SExpr {
+        var args = argsl
+        
         if args.count == 0 {
             return MNull()
         } else {
@@ -454,7 +462,9 @@ class EqualOrSmallerThan:Primitive {
         get {return "math"}
     }
     
-    override func apply(var args: [SExpr]) -> SExpr {
+    override func apply(argsl: [SExpr]) -> SExpr {
+        var args = argsl
+        
         if args.count == 0 {
             return MNull()
         } else {
@@ -573,7 +583,9 @@ class And:Primitive {
         get {return "math"}
     }
     
-    override func apply(var args: [SExpr]) -> SExpr {
+    override func apply(argsl: [SExpr]) -> SExpr {
+        var args = argsl
+        
         if args.count == 0 {
             return MNull()
         } else {
@@ -612,7 +624,9 @@ class Or:Primitive {
         get {return "math"}
     }
     
-    override func apply(var args: [SExpr]) -> SExpr {
+    override func apply(argsl: [SExpr]) -> SExpr {
+        var args = argsl
+        
         if args.count == 0 {
             return MNull()
         } else {
