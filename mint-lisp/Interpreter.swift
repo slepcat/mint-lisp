@@ -228,9 +228,10 @@ public class Interpreter : NSObject {
                 imported.append(path.key)
                 
                 let port = MintStdPort.get.readport
-                if let result = port?.read(path.key, uid: path.uid) as? SExprIO {
+                if let result = port?.read(path.key, uid: path.uid) {
                     
                     var acc : [SExpr] = []
+                    let exp_list = delayed_list_of_values(result)
                     
                     // generate prefix
                     
@@ -242,7 +243,7 @@ public class Interpreter : NSObject {
                         prefix = preprefix + "." + prefix_expr.key
                     }
                     
-                    acc = result.exp_list.map() { [unowned self] expr in
+                    acc = exp_list.map() { [unowned self] expr in
                         return self.preprocess_import(expr, prefix: prefix, depth: depth + 1)
                     }
                     

@@ -133,6 +133,16 @@ func cast2double(exp: SExpr) -> Double? {
     }
 }
 
+func d2farray(array: [Double]) -> [Float] {
+    var acc : [Float] = []
+    
+    for e in array {
+        acc.append(Float(e))
+    }
+    
+    return acc
+}
+
 // unique id generator.
 // UID factory: we can request a unique ID through UID.get.newID
 // Singleton

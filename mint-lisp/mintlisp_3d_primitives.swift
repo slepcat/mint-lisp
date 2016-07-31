@@ -10,14 +10,14 @@ import Foundation
 
 
 class MintPort: NSObject {
-    func write(data: MintIO, uid: UInt) {}
+    func write(data: SExpr, uid: UInt) {}
     func create_port(uid: UInt) {}
     func remove_port(uid: UInt) {}
     func update() {}
 }
 
 class MintReadPort:NSObject {
-    func read(path: String, uid: UInt) -> MintIO {return MintIO()}
+    func read(path: String, uid: UInt) -> SExpr {return SExpr()}
 }
 
 class MintStdPort {
@@ -53,7 +53,7 @@ class MintStdPort {
     func errprint(err:String, uid: UInt) {
         if let port = stderrport {
             objc_sync_enter(port)
-            port.write(IOErr(err: err, uid: uid), uid: uid)
+            port.write(MStr(_value: err), uid: uid)
             objc_sync_exit(port)
         }
     }
@@ -98,61 +98,9 @@ class Display: Primitive {
     
     override func apply(args: [SExpr]) -> SExpr {
         
-        var acc: [Double] = []
-        var acc_normal: [Double] = []
-        var acc_color: [Float] = []
-        var acc_alpha: [Float] = []
-        
-        for arg in args {
-            let polys = delayed_list_of_values(arg)
-            
-            for poly in polys {
-                if let p = poly as? MPolygon {
-                    let vertices = p.value.vertices
-                    
-                    if vertices.count == 3 {
-                        for vertex in vertices {
-                            acc += [vertex.pos.x, vertex.pos.y, vertex.pos.z]
-                            acc_normal += [vertex.normal.x, vertex.normal.y, vertex.normal.z]
-                            acc_color += vertex.color
-                            acc_alpha += [vertex.alpha]
-                        }
-                    } else if vertices.count > 3 {
-                        // if polygon is not triangle, split it to triangle polygons
-                        
-                        //if polygon.checkIfConvex() {
-                        
-                        let triangles = p.value.triangulationConvex()
-                        
-                        for tri in triangles {
-                            for vertex in tri.vertices {
-                                acc += [vertex.pos.x, vertex.pos.y, vertex.pos.z]
-                                acc_normal += [vertex.normal.x, vertex.normal.y, vertex.normal.z]
-                                acc_color += vertex.color
-                                acc_alpha += [vertex.alpha]
-                            }
-                        }
-                    }
-                    
-                } else {
-                    print("display take only polygons", terminator: "\n")
-                    if let port = MintStdPort.get.currentport {
-                        objc_sync_enter(port)
-                        
-                        port.write(IOMesh(mesh: [], normal: [], color: [], alpha: []), uid: uid)
-                        
-                        objc_sync_exit(port)
-                        
-                        port.performSelectorOnMainThread(#selector(MintPort.update), withObject: nil, waitUntilDone: false)
-                    }
-                    return MNull()
-                }
-            }
-        }
-        
         if let port = MintStdPort.get.currentport {
             objc_sync_enter(port)
-            port.write(IOMesh(mesh: acc, normal: acc_normal, color: acc_color, alpha: acc_alpha), uid: uid)
+            port.write(list_from_array(args), uid: uid)
             objc_sync_exit(port)
             
             port.performSelectorOnMainThread(#selector(MintPort.update), withObject: nil, waitUntilDone: false)

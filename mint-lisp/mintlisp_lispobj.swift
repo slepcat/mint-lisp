@@ -1059,6 +1059,8 @@ public class MPolygon : Literal {
     }
 }
 
+/*
+
 public class MintIO {
     
 }
@@ -1137,6 +1139,8 @@ public class IOErr: MintIO {
         return "<<#IOErr> \(err), uid: \(uid_err)>"
     }
 }
+ 
+ */
 
 extension Literal : CustomStringConvertible {
     public var description: String {

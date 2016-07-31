@@ -355,7 +355,7 @@ class Evaluator : NSObject {
         
         if let port = MintStdPort.get.errport {
             objc_sync_enter(port)
-            port.write(IOErr(err: err, uid: lookup_leaf_of(uid)), uid: uid)
+            port.write(MStr(_value: err), uid: uid)
             objc_sync_exit(port)
             
             port.performSelectorOnMainThread(#selector(MintPort.update), withObject: nil, waitUntilDone: false)
