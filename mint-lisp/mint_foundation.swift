@@ -17,6 +17,11 @@
 import Foundation
 
 
+// `epsilon` is the tolerance used by `splitPolygon()` to decide if a
+// point is on the plane.
+let epsilon = 1e-5
+
+
 // Enum difinition for BSP /Boolean operation
 // You cannot change order of cases because Planer.splitPolygon use it.
 enum BSP : Int {
@@ -26,12 +31,7 @@ enum BSP : Int {
 // # struct Vector
 // Represents a 3D vector.
 //
-// Example usage:
-//
-//     new Vector(x: 1,y: 2,z: 3)
-//     new Vector([1, 2, 3])
-//     new Vector(x: 1, y: 2) // assume z=0
-//     new Vector([1, 2]) // assume z=0
+
 
 struct Vector {
     let x:Double
@@ -83,19 +83,19 @@ struct Vector {
         return Vector(x: fabs(self.x) , y: fabs(self.y) , z: fabs(self.z))
     }
     
-    func times(k:Double) -> Vector {
+    func times(_ k:Double) -> Vector {
         return Vector(x: k * self.x, y: k * self.y , z: k * self.z)
     }
     
-    func dividedBy(k: Double) -> Vector {
+    func dividedBy(_ k: Double) -> Vector {
         return Vector(x: self.x / k , y: self.y / k , z: self.z / k)
     }
     
-    func dot(a: Vector) -> Double {
+    func dot(_ a: Vector) -> Double {
         return (self.x * a.x) + (self.y * a.y) + (self.z * a.z)
     }
     
-    func cross(a: Vector) -> Vector {
+    func cross(_ a: Vector) -> Vector {
         return Vector(x: self.y * a.z - self.z * a.y,y: self.z * a.x - self.x * a.z,z: self.x * a.y - self.y * a.x)
     }
     
@@ -115,19 +115,19 @@ struct Vector {
         return self.dividedBy(self.length())
     }
     
-    func distanceTo(a: Vector) -> Double {
+    func distanceTo(_ a: Vector) -> Double {
         return (self - a).length()
     }
     
-    func distanceToSquared(a: Vector) -> Double {
+    func distanceToSquared(_ a: Vector) -> Double {
         return (self - a).lengthSquared()
     }
     
-    func equals(a: Vector) -> Bool {
+    func equals(_ a: Vector) -> Bool {
         return ((self.x == a.x) && (self.y == a.y) && (self.z == a.z))
     }
     
-    func transform(matrix: Matrix4x4) -> Vector {
+    func transform(_ matrix: Matrix4x4) -> Vector {
         return self * matrix
     }
     
@@ -156,11 +156,11 @@ struct Vector {
         }
     }
     
-    func min(a: Vector) -> Vector {
+    func min(_ a: Vector) -> Vector {
         return Vector(x: fmin(self.x, a.x), y: fmin(self.y, a.y), z: fmin(self.z, a.z))
     }
     
-    func max(a: Vector) -> Vector {
+    func max(_ a: Vector) -> Vector {
         return Vector(x: fmax(self.x, a.x), y: fmax(self.y, a.y),z: fmax(self.z, a.z))
     }
 }
@@ -173,6 +173,14 @@ func - (left: Vector, right:Vector) -> Vector {
     return Vector(x: left.x - right.x, y: left.y - right.y, z: left.z - right.z)
 }
 
+func == (left: Vector, right: Vector) -> Bool {
+    if (left.x == right.x) && (left.y == right.y) && (left.z == right.z) {
+        return true
+    } else {
+        return false
+    }
+}
+
 struct Vector2D {
     let x:Double
     let y:Double
@@ -183,17 +191,14 @@ struct Vector2D {
     }
 }
 
+////////////////////////////////////
 // # struct Vertex
-// Represents a vertex of a polygon. Use your own vertex class instead of this
-// one to provide additional features like texture coordinates and vertex
-// colors. Custom vertex classes need to provide a `pos` property
-// `flipped()`, and `interpolate()` methods that behave analogous to the ones
-// defined by `CSG.Vertex`.
+// Represents a vertex of a polygon.
 
 struct Vertex {
     let pos : Vector
     var normal : Vector = Vector(x: 0, y: 0, z: 0)
-    var color = [Float](count: 3, repeatedValue: 0.5)
+    var color = [Float](repeating: 0.5, count: 3)
     var alpha : Float = 1.0
     //var tag:Int = Tag.get.newTag
     
@@ -211,13 +216,13 @@ struct Vertex {
     // Create a new vertex between this vertex and `other` by linearly
     // interpolating all properties using a parameter of `t`. Subclasses should
     // override this to interpolate additional properties.
-    func interpolate(other: Vertex, t: Double) -> Vertex {
+    func interpolate(_ other: Vertex, t: Double) -> Vertex {
         let newpos = self.pos.lerp(vector: other.pos, k: t)
         return Vertex(pos: newpos)
     }
     
     // Affine transformation of vertex. Returns a new Vertex
-    func transform(matrix: Matrix4x4) -> Vertex {
+    func transform(_ matrix: Matrix4x4) -> Vertex {
         var newvex = Vertex(pos: pos.transform(matrix))
         newvex.color = color
         return newvex
@@ -236,6 +241,7 @@ struct Vertex {
     }
 }
 
+///////////////////////////////////
 // # struct Plane
 // Represents a plane in 3D space.
 
@@ -243,10 +249,6 @@ struct Plane {
     let normal : Vector
     let w : Double
     //var tag:Int = Tag.get.newTag
-    
-    // `epsilon` is the tolerance used by `splitPolygon()` to decide if a
-    // point is on the plane.
-    static let epsilon = 1e-5
     
     init(normal: Vector, w: Double) {
         self.normal = normal
@@ -283,11 +285,11 @@ struct Plane {
         return 0//self.tag
     }
     
-    func equals(plane: Plane) -> Bool {
+    func equals(_ plane: Plane) -> Bool {
         return self.normal.equals(plane.normal) && self.w == plane.w
     }
     
-    func transform(matrix: Matrix4x4) -> Plane {
+    func transform(_ matrix: Matrix4x4) -> Plane {
         let
         ismirror = matrix.isMirroring()
         // get two vectors in the plane:
@@ -323,14 +325,14 @@ struct Plane {
     // .front: a Polygon of the front part, optional
     // .back: a Polygon of the back part, optional
     
-    func splitPolygon(poly: Polygon) -> (type: BSP, front: Polygon?, back:Polygon?) {
+    func splitPolygon(_ poly: Polygon) -> (type: BSP, front: Polygon?, back:Polygon?) {
         
         var polyType : Int = BSP.Coplanar.rawValue
         var types:[BSP] = []
         
         for vertex in poly.vertices {
             let t = self.normal.dot(vertex.pos) - self.w;
-            let type : BSP = (t < -Plane.epsilon) ? BSP.Back : ((t > Plane.epsilon) ? BSP.Front : BSP.Coplanar)
+            let type : BSP = (t < -epsilon) ? BSP.Back : ((t > epsilon) ? BSP.Front : BSP.Coplanar)
             
             // Use bit operation to identify the polygon's relationship with Plane
             // 0 | 0 = 0 : coplanar
@@ -424,19 +426,16 @@ struct Plane {
         return p1 + direction.times(labda)
     }
     
-    /*
-    // returns CSG.Vector3D
-    intersectWithLine: function(line3d) {
-    return line3d.intersectWithPlane(this);
-    },
+    func intersectWithLine(_ line: Line) -> Vector {
+        return line.intersectWithPlane(self)
+    }
     
     // intersection of two planes
-    intersectWithPlane: function(plane) {
-    return CSG.Line3D.fromPlanes(this, plane);
-    },
-    */
+    func intersectWithPlane(_ plane: Plane) -> Line? {
+        return Line(plane1: self, plane2: plane)
+    }
     
-    func signedDistanceToPoint(point: Vector) -> Double {
+    func signedDistanceToPoint(_ point: Vector) -> Double {
         return self.normal.dot(point) - self.w;
     }
     
@@ -444,12 +443,367 @@ struct Plane {
         return "[normal: " + self.normal.toString() + ", w: \(self.w)]"
     }
     
-    func mirrorPoint(point: Vector) -> Vector {
+    func mirrorPoint(_ point: Vector) -> Vector {
         let distance = self.signedDistanceToPoint(point)
         let mirrored = point - self.normal.times(distance * 2.0)
         return mirrored
     }
     
+    func pointOnPlane(_ point: Vector) -> Vector {
+        let distance = self.signedDistanceToPoint(point)
+        let onplane = point - self.normal.times(distance)
+        return onplane
+    }
+    
+}
+
+//////////////////////////////////////
+// # struct Line
+
+struct Line {
+    
+    let pos : Vector
+    let direction : Vector
+    
+    init(origin: Vector, direction: Vector) {
+        pos = origin
+        self.direction = direction
+    }
+    
+    init(pt1: Vector, pt2: Vector) {
+        let dir = (pt2 - pt1).unit()
+        pos = pt1
+        direction = dir
+    }
+    
+    init?(plane1: Plane, plane2: Plane) {
+        let dir = plane1.normal.cross(plane2.normal)
+        let l = dir.length()
+        
+        if l < 1e-10 {
+            print("Parallel planes")
+            return nil
+        }
+        
+        direction = dir.times(1.0 / l);
+    
+        let mabsx = abs(direction.x)
+        let mabsy = abs(direction.y)
+        let mabsz = abs(direction.z)
+        
+        if (mabsx >= mabsy) && (mabsx >= mabsz) {
+            // direction vector is mostly pointing towards x
+            // find a point p for which x is zero:
+            let r = solve2Linear(plane1.normal.y, b: plane1.normal.z, c: plane2.normal.y, d: plane2.normal.z, u: plane1.w, v: plane2.w)
+            pos = Vector(x: 0, y: r.0, z: r.1)
+        } else if((mabsy >= mabsx) && (mabsy >= mabsz)) {
+            // find a point p for which y is zero:
+            let r = solve2Linear(plane1.normal.x, b: plane1.normal.z, c: plane2.normal.x, d: plane2.normal.z, u: plane1.w, v: plane2.w)
+            pos = Vector(x: r.0, y: 0, z: r.1)
+        } else {
+            // find a point p for which z is zero:
+            let r = solve2Linear(plane1.normal.x, b: plane1.normal.y, c: plane2.normal.x, d: plane2.normal.y, u: plane1.w, v: plane2.w)
+            pos = Vector(x: r.0, y: r.1, z: 0)
+        }
+    }
+    
+    func intersectWithPlane(_ plane: Plane) -> Vector {
+        
+       
+        // plane: plane.normal * p = plane.w
+        // line: p=line.point + labda * line.direction
+        let labda = (plane.w - plane.normal.dot(self.pos)) / plane.normal.dot(self.direction)
+        let point = pos + (direction.times(labda))
+        return point
+    }
+    
+    func clone() -> Line {
+        return Line(origin: pos, direction: direction)
+    }
+    
+    func reverse() -> Line {
+        return Line(origin: pos, direction: direction.negated())
+    }
+    
+    func transform(_ mat:Matrix4x4) -> Line{
+        let newpoint = pos * mat
+        let pointPlusDirection = pos + direction
+        let newPointPlusDirection = pointPlusDirection * mat
+        let newdirection = newPointPlusDirection - newpoint
+        return Line(origin: newpoint, direction: newdirection)
+    }
+    
+    func closestPointOnLine(_ point: Vector) -> Vector {
+        let t = (point - pos).dot(direction) / direction.dot(direction)
+        let closestpoint = pos + direction.times(t)
+        return closestpoint
+    }
+    
+    func distanceToPoint(_ point: Vector) -> Double {
+        let closestpoint = closestPointOnLine(point)
+        let distancevector = point - closestpoint
+        let distance = distancevector.length()
+        return distance
+    }
+    
+    func equals(_ line: Line) -> Bool{
+        if !(direction == line.direction) {
+            return false
+        }
+        
+        let distance = distanceToPoint(line.pos)
+        if distance > 1e-8 {
+            return false
+        }
+        return true
+    }
+}
+
+//////////////////////////////////////
+// # struct LineSegment
+
+struct LineSegment {
+    
+    let points : [Vertex]
+    
+    var from : Vertex {
+        get {
+            return points[0]
+        }
+    }
+    
+    var to : Vertex {
+        get {
+            return points[1]
+        }
+    }
+    
+    init(from: Vertex, to: Vertex) {
+        points = [from] + [to]
+    }
+    
+    init(line: Line, length: Double) {
+        
+        let endpoint = line.pos + line.direction.times(length)
+        
+        points = [Vertex(pos: line.pos)] + [Vertex(pos:endpoint)]
+    }
+    
+    func projectPtsOnPlane(_ plane: Plane) -> LineSegment {
+        
+        var newpoints : [Vertex] = []
+        
+        for pt in points {
+            let distance = abs(plane.signedDistanceToPoint(pt.pos))
+            if distance > epsilon {
+                var newvex = Vertex(pos: plane.pointOnPlane(pt.pos))
+                newvex.alpha = pt.alpha
+                newvex.color = pt.color
+                newvex.normal = plane.normal
+                
+                newpoints.append(newvex)
+            } else {
+                newpoints.append(pt)
+            }
+        }
+        
+        return LineSegment(from: newpoints[0], to: newpoints[1])
+    }
+    
+    func projectPtsOnPlane() -> LineSegment {
+        
+        let plane : Plane = Plane(normal: Vector(x: 0, y: 0, z: 1), point: Vector(x: 0, y: 0, z: 0))
+        
+        return projectPtsOnPlane(plane)
+    }
+    
+    func line() -> Line {
+        
+        let dir = (points[1].pos - points[0].pos).unit()
+        
+        return Line(origin: points[0].pos, direction: dir)
+    }
+}
+
+//////////////////////////////////////
+// # struct Path
+// 'Path' represent path in 3d space.
+// It don't have to be on same plane.
+
+struct Path {
+    
+    var closed : Bool
+    var points : [Vertex]
+    
+    var lines : [LineSegment] {
+        get {
+            
+            let points = remove_duplicate_points().points
+            var lines : [LineSegment] = []
+            
+            for i in stride(from:0, to: lines.count-1, by: 1) {
+                lines.append(LineSegment(from: points[i], to: points[i+1]))
+            }
+            return lines
+        }
+    }
+    
+    var plane : Plane {
+        get {
+            if points.count > 2 {
+                return Plane(a: points[0], b: points[1], c: points[2])
+            } else {
+                return Plane(normal: Vector(x: 0, y: 0, z: 1), point: Vector(x: 0, y: 0, z: 0))
+            }
+        }
+    }
+    
+    init(points: [Vertex], closed : Bool) {
+        self.closed = closed
+        self.points = points
+    }
+    
+    init(lines: [LineSegment]) {
+        
+        var acc : [Vertex] = []
+        
+        for ln in lines {
+            acc += ln.points
+        }
+        
+        closed = false
+        
+        if let first = acc.first, let last = acc.last {
+            let distance = first.pos.distanceTo(last.pos)
+            if distance < epsilon {
+                closed = true
+            }
+        }
+        
+        points = acc
+    }
+    
+    func remove_duplicate_points() -> Path {
+        // re-parse the points into CSG.Vector2D
+        // and remove any duplicate points
+        var prevpoint : Vertex? = nil
+        
+        if closed && (points.count > 0) {
+            prevpoint = Vertex(pos: points[points.count - 1].pos)
+        }
+        
+        var newpoints : [Vertex] = []
+        
+        for pt in points {
+            var skip = false
+            
+            if let prev = prevpoint {
+                let distance = pt.pos.distanceTo(prev.pos)
+                if distance < epsilon {
+                    skip = true
+                }
+            }
+            
+            if !skip {
+                newpoints += [pt]
+            }
+            
+            prevpoint = pt
+        }
+        
+        return Path(points: newpoints, closed: closed)
+    }
+    
+    func projectPtsOnPlane(_ plane: Plane) -> Path {
+        
+        var newpoints : [Vertex] = []
+        
+        for pt in points {
+            let distance = abs(plane.signedDistanceToPoint(pt.pos))
+            if distance > epsilon {
+                var newvex = Vertex(pos: plane.pointOnPlane(pt.pos))
+                newvex.alpha = pt.alpha
+                newvex.color = pt.color
+                newvex.normal = plane.normal
+                
+                newpoints.append(newvex)
+            } else {
+                newpoints.append(pt)
+            }
+        }
+        
+        return Path(points: newpoints, closed: closed)
+    }
+    
+    func projectPtsOnPlane() -> Path {
+        return projectPtsOnPlane(plane)
+    }
+}
+
+///////////////////////////////////////////
+//# struct Shape
+//
+// 'Shape' represent 2D geometry, which is enclosed and on same plane.
+// Also, it can be manipulated with CGS style operation when all 'shapes" are on same plane.
+
+struct Shape {
+    var linesegs : [LineSegment]
+    var plane : Plane
+    
+    init(path: Path) {
+        
+        let projected = path.projectPtsOnPlane()
+        
+        plane = projected.plane
+        linesegs = projected.lines
+        
+        if !projected.closed {
+            if let firstpt = projected.lines.first?.from, let lastpt = projected.lines.last?.to {
+                linesegs.append(LineSegment(from: firstpt, to: lastpt))
+            }
+        }
+    }
+    
+    init(path: Path, plane: Plane) {
+        
+        let projected = path.projectPtsOnPlane(plane)
+        
+        self.plane = plane
+        linesegs = projected.lines
+        
+        if !projected.closed {
+            if let firstpt = projected.lines.first?.from, let lastpt = projected.lines.last?.to {
+                linesegs.append(LineSegment(from: firstpt, to: lastpt))
+            }
+        }
+    }
+    
+    init(lines: [LineSegment]) {
+        let path = Path(lines: lines).projectPtsOnPlane()
+        
+        plane = path.plane
+        self.linesegs = path.lines
+        
+        if !path.closed {
+            if let firstpt = path.lines.first?.from, let lastpt = path.lines.last?.to {
+                linesegs.append(LineSegment(from: firstpt, to: lastpt))
+            }
+        }
+    }
+    
+    
+    init(lines: [LineSegment], plane: Plane) {
+        let path = Path(lines: lines).projectPtsOnPlane(plane)
+        
+        self.plane = plane
+        self.linesegs = path.lines
+        
+        if !path.closed {
+            if let firstpt = path.lines.first?.from, let lastpt = path.lines.last?.to {
+                linesegs.append(LineSegment(from: firstpt, to: lastpt))
+            }
+        }
+    }
 }
 
 //# struct Polygon
@@ -574,7 +928,7 @@ struct Polygon {
     }
     
     func flipped() -> Polygon {
-        let newvertices : [Vertex] = Array(vertices.reverse())
+        let newvertices : [Vertex] = Array(vertices.reversed())
         var newPoly = Polygon(vertices: newvertices)
         newPoly.generateNormal()
         //var newplane = plane.flipped()
@@ -612,7 +966,7 @@ struct Polygon {
         
         var triangles : [Polygon] = []
         
-        for i in 2.stride(to: vertices.count, by: 1) {
+        for i in stride(from: 2, to: vertices.count, by: 1) {
             let vexs = [vertices[0], vertices[i-1], vertices[i]]
             triangles += [Polygon(vertices: vexs)]
         }
@@ -620,7 +974,7 @@ struct Polygon {
         return triangles
     }
     
-    func verticesConvex(vertices: [Vertex], normal: Vector) -> Bool {
+    func verticesConvex(_ vertices: [Vertex], normal: Vector) -> Bool {
         if vertices.count > 2 {
             var prevprevpos = vertices[vertices.count - 2].pos
             var prevpos = vertices[vertices.count - 1].pos
@@ -637,7 +991,7 @@ struct Polygon {
         return true
     }
     
-    func isConvexPoint(prevpoint: Vector, point: Vector, nextpoint: Vector, normal: Vector) -> Bool {
+    func isConvexPoint(_ prevpoint: Vector, point: Vector, nextpoint: Vector, normal: Vector) -> Bool {
         let crossproduct = point - prevpoint.cross(nextpoint - point)
         let crossdotnormal = crossproduct.dot(normal)
         return (crossdotnormal >= 0)
@@ -699,7 +1053,7 @@ class Mesh {
                 
                 var triangles = polygon.triangulationConvex()
                 
-                for i in 0.stride(to: triangles.count, by: 1) {
+                for i in stride(from: 0, to: triangles.count, by: 1) {
                     triangles[i].generateNormal()
                     for vertex in triangles[i].vertices {
                         normals += [vertex.normal.x, vertex.normal.y, vertex.normal.z]
@@ -755,7 +1109,7 @@ class Mesh {
             var minpoint = Vector(x: 0, y: 0, z: 0)
             var maxpoint = Vector(x: 0, y: 0, z: 0)
             
-            for i in 0.stride(to: mesh.count, by: 1) {
+            for i in stride(from: 0, to: mesh.count, by: 1) {
 				let bounds = mesh[i].boundingBox()
                 
                 minpoint = minpoint.min(bounds.min)
@@ -768,7 +1122,7 @@ class Mesh {
     
     // returns true if there is a possibility that the two solids overlap
     // returns false if we can be sure that they do not overlap
-    func mayOverlap(other: Mesh) -> Bool {
+    func mayOverlap(_ other: Mesh) -> Bool {
     
         if (mesh.count == 0) || (other.mesh.count == 0) {
             return false
@@ -804,4 +1158,21 @@ class Mesh {
             return true
         }
     }
+}
+
+///////////////////////////////
+// # Utilities
+
+// solve 2x2 linear equation:
+// [ab][x] = [u]
+// [cd][y]   [v]
+
+func solve2Linear(_ a: Double, b: Double, c: Double, d: Double, u: Double, v: Double) -> (Double, Double) {
+    let det = a * d - b * c
+    let invdet = 1.0 / det
+    var x = u * d - b * v
+    var y = -u * c + a * v
+    x *= invdet
+    y *= invdet
+    return (x, y)
 }

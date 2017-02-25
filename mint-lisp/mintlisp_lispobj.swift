@@ -28,7 +28,7 @@ public class SExpr {
         return SExpr()
     }
     
-    func lookup_exp(uid:UInt) -> (conscell: SExpr, target: SExpr) {
+    func lookup_exp(_ uid:UInt) -> (conscell: SExpr, target: SExpr) {
         if self.uid == uid {
             return (MNull.errNull, self)
         } else {
@@ -38,11 +38,11 @@ public class SExpr {
     
     func isNull() -> Bool { return false }
     
-    func eval(env: Env) -> SExpr {
+    func eval(_ env: Env) -> SExpr {
         return self
     }
     
-    public func str(indent:String, level: Int) -> String {
+    public func str(_ indent:String, level: Int) -> String {
         return ""
     }
     
@@ -93,7 +93,7 @@ public class Pair:SExpr {
         return Pair(car: car.clone(), cdr: car.clone())
     }
     
-    override func lookup_exp(uid:UInt) -> (conscell: SExpr, target: SExpr) {
+    override func lookup_exp(_ uid:UInt) -> (conscell: SExpr, target: SExpr) {
         
         if self.uid == uid {
             return (MNull.errNull, self)
@@ -116,10 +116,10 @@ public class Pair:SExpr {
         }
     }
     
-    public override func str(indent: String, level:Int) -> String {
+    public override func str(_ indent: String, level:Int) -> String {
         
         var leveledIndent : String = ""
-        for _ in 0.stride(to: level, by: 1) {
+        for _ in stride(from: 0, to: level, by: 1) {
             leveledIndent += indent
         }
         
@@ -146,7 +146,7 @@ public class Pair:SExpr {
         return "(" + acc + ")"
     }
     
-    private func str_list_of_exprs(_opds :SExpr, indent:String, level: Int) -> [String] {
+    private func str_list_of_exprs(_ _opds :SExpr, indent:String, level: Int) -> [String] {
         if let atom = _opds as? Atom {
             return [atom.str(indent, level: level)]
         } else {
@@ -154,7 +154,7 @@ public class Pair:SExpr {
         }
     }
     
-    private func tail_str_list_of_exprs(_opds :SExpr, acc: [String], indent:String, level: Int) -> [String] {
+    private func tail_str_list_of_exprs(_ _opds :SExpr, acc: [String], indent:String, level: Int) -> [String] {
         if let pair = _opds as? Pair {
             var acc2 = acc
             
@@ -197,7 +197,7 @@ public class MDefine:Form {
         return ["symbol", "value"]
     }
     
-    public override func str(indent: String, level:Int) -> String {
+    public override func str(_ indent: String, level:Int) -> String {
         return "define"
     }
     
@@ -220,7 +220,7 @@ public class MQuote: Form {
         return ["value"]
     }
     
-    public override func str(indent: String, level:Int) -> String {
+    public override func str(_ indent: String, level:Int) -> String {
         return "quote"
     }
     
@@ -243,7 +243,7 @@ public class MBegin:Form {
         return [".procs"]
     }
     
-    public override func str(indent: String, level:Int) -> String {
+    public override func str(_ indent: String, level:Int) -> String {
         return "begin"
     }
     
@@ -287,12 +287,12 @@ public class Procedure:Form {
         return Procedure(_params: params, body: body, env: initial_env)
     }
     
-    func apply(env: Env, seq: [SExpr]) -> (exp: SExpr, env: Env) {
+    func apply(_ env: Env, seq: [SExpr]) -> (exp: SExpr, env: Env) {
         
         let _params = delayed_list_of_args(self.params)
         
         if let _env = rec_env {
-            for i in 0.stride(to: _params.count, by: 1) {
+            for i in stride(from:0, to: _params.count, by: 1) {
                 if let sym = _params[i] as? MSymbol {
                     if seq.count > i {
                         _env.set_variable(sym.key, val: seq[i])
@@ -331,7 +331,7 @@ public class Procedure:Form {
         return acc
     }
     
-    public override func str(indent: String, level:Int) -> String {
+    public override func str(_ indent: String, level:Int) -> String {
         return "<procedure>"
     }
     
@@ -365,7 +365,7 @@ public class Macro:Form {
             
             var acc : [(pattern: SExpr, template: SExpr)] = []
             
-            for i in 0.stride(to: rule_list.count, by: 1) {
+            for i in stride(from: 0, to: rule_list.count, by: 1) {
                 let rule = delayed_list_of_values(list[i])
                 if rule.count == 2 {
                     acc.append((pattern: rule[0], template: rule[1]))
@@ -400,7 +400,7 @@ public class Macro:Form {
         super.init()
     }
     
-    public func expand(expr: SExpr) -> SExpr {
+    public func expand(_ expr: SExpr) -> SExpr {
         
         //match expr with rules
         
@@ -413,7 +413,7 @@ public class Macro:Form {
         return MNull()
     }
     
-    private func match(expr: SExpr, pattern: SExpr, template: SExpr) -> SExpr? {
+    private func match(_ expr: SExpr, pattern: SExpr, template: SExpr) -> SExpr? {
         
         var result : [(key : MSymbol, expr : SExpr)] = []
         
@@ -422,7 +422,7 @@ public class Macro:Form {
         return nil
     }
     
-    private func matcher(expr: SExpr, pattern: SExpr) -> [(MSymbol, SExpr)]? {
+    private func matcher(_ expr: SExpr, pattern: SExpr) -> [(MSymbol, SExpr)]? {
         if let matched_pair = expr as? Pair, let pt_pair = pattern as? Pair {
             
             if let res_car = matcher(matched_pair.car, pattern: pt_pair.car), let res_cdr = matcher(matched_pair.cdr, pattern: pt_pair.cdr) {
@@ -453,7 +453,7 @@ public class Macro:Form {
         return nil
     }
     
-    private func isSubIdentifier(expr : SExpr) -> Bool {
+    private func isSubIdentifier(_ expr : SExpr) -> Bool {
         for lt in literals {
             if let sym = lt as? MSymbol, let sym2 = expr as? MSymbol {
                 if sym.key == sym2.key {
@@ -496,7 +496,7 @@ public class Macro:Form {
         return Macro(identifier: identifier.clone(),literals: newlit, rules: newrules, env: env.clone())
     }
     
-    public override func str(indent: String, level:Int) -> String {
+    public override func str(_ indent: String, level:Int) -> String {
         return "<syntax>"
     }
     
@@ -515,7 +515,7 @@ public class MLambda: Form {
         return MLambda()
     }
     
-    func make_lambda(params: SExpr, body: SExpr) -> SExpr {
+    func make_lambda(_ params: SExpr, body: SExpr) -> SExpr {
         return Pair(car: self, cdr: Pair(car: params, cdr: Pair(car: body)))
     }
     
@@ -523,7 +523,7 @@ public class MLambda: Form {
         return ["params", "body"]
     }
     
-    public override func str(indent: String, level:Int) -> String {
+    public override func str(_ indent: String, level:Int) -> String {
         return "lambda"
     }
     
@@ -546,7 +546,7 @@ public class MIf: Form {
         return ["predic", "then", "else"]
     }
     
-    public override func str(indent: String, level:Int) -> String {
+    public override func str(_ indent: String, level:Int) -> String {
         return "if"
     }
     
@@ -569,7 +569,7 @@ public class MSet:Form {
         return ["symbol", "value"]
     }
     
-    public override func str(indent: String, level:Int) -> String {
+    public override func str(_ indent: String, level:Int) -> String {
         return "set!"
     }
     
@@ -591,7 +591,7 @@ public class Import:Form {
         return ["libname"]
     }
     
-    public override func str(indent: String, level:Int) -> String {
+    public override func str(_ indent: String, level:Int) -> String {
         return "import"
     }
     
@@ -613,7 +613,7 @@ public class Export:Form {
         return ["symbol, template"]
     }
     
-    public override func str(indent: String, level:Int) -> String {
+    public override func str(_ indent: String, level:Int) -> String {
         return "export"
     }
     
@@ -650,11 +650,11 @@ public class MSymbol:Atom {
         return MSymbol(_key: key)
     }
     
-    override func eval(env: Env) -> SExpr {
+    override func eval(_ env: Env) -> SExpr {
         return env.lookup(key)
     }
     
-    public override func str(indent: String, level:Int) -> String {
+    public override func str(_ indent: String, level:Int) -> String {
         return key
     }
     
@@ -665,7 +665,7 @@ public class MSymbol:Atom {
 
 public class Literal:Atom {
     
-    override func eval(env: Env) -> SExpr {
+    override func eval(_ env: Env) -> SExpr {
         return self
     }
 }
@@ -691,7 +691,7 @@ public class MInt: Literal {
         return MInt(_value: value)
     }
     
-    public override func str(indent: String, level:Int) -> String {
+    public override func str(_ indent: String, level:Int) -> String {
         return "\(value)"
     }
     
@@ -721,7 +721,7 @@ public class MDouble: Literal {
         return MDouble(_value: value)
     }
     
-    public override func str(indent: String, level:Int) -> String {
+    public override func str(_ indent: String, level:Int) -> String {
         return "\(value)"
     }
     
@@ -751,7 +751,7 @@ public class MStr: Literal {
         return MStr(_value: value)
     }
     
-    public override func str(indent: String, level:Int) -> String {
+    public override func str(_ indent: String, level:Int) -> String {
         return "\"" + value + "\""
     }
     
@@ -781,7 +781,7 @@ public class MChar: Literal {
         return MChar(_value: value)
     }
     
-    public override func str(indent: String, level:Int) -> String {
+    public override func str(_ indent: String, level:Int) -> String {
         return "\(value)"
     }
     
@@ -813,7 +813,7 @@ public class MNull:Literal {
         return true
     }
     
-    public override func str(indent: String, level:Int) -> String {
+    public override func str(_ indent: String, level:Int) -> String {
         return "null"
     }
     
@@ -843,7 +843,7 @@ public class MBool:Literal {
         return MBool(_value: value)
     }
     
-    public override func str(indent: String, level:Int) -> String {
+    public override func str(_ indent: String, level:Int) -> String {
         return "\(value)"
     }
     
@@ -873,7 +873,7 @@ public class MVector:Literal {
         return MVector(_value: value)
     }
     
-    public override func str(indent: String, level: Int) -> String {
+    public override func str(_ indent: String, level: Int) -> String {
         return "(vec \(value.x) \(value.y) \(value.z))"
     }
     
@@ -903,7 +903,7 @@ public class MVertex:Literal {
         return MVertex(_value: value)
     }
     
-    public override func str(indent: String, level: Int) -> String {
+    public override func str(_ indent: String, level: Int) -> String {
         
         var color = "(color"
         for c in value.color {
@@ -927,7 +927,7 @@ public class MVertex:Literal {
 }
 
 public class MColor : Literal {
-    var value = [Float](count: 3 ,repeatedValue: 0.5)
+    var value = [Float](repeating: 0.5 ,count: 3)
     
     init(_value: [Float]) {
         value = _value
@@ -947,7 +947,7 @@ public class MColor : Literal {
         return MColor(_value: value)
     }
     
-    public override func str(indent: String, level: Int) -> String {
+    public override func str(_ indent: String, level: Int) -> String {
         
         var color = "(color"
         for c in value {
@@ -997,7 +997,7 @@ public class MPlane : Literal {
         return MPlane(_value: value)
     }
     
-    public override func str(indent: String, level: Int) -> String {
+    public override func str(_ indent: String, level: Int) -> String {
         
         return "(plane (vec \(value.normal.x) \(value.normal.y) \(value.normal.z)) \(value.w))"
     }
@@ -1006,6 +1006,196 @@ public class MPlane : Literal {
     public override func _debug_string() -> String {
         
         return "Plane: [\(value.normal.x), \(value.normal.y), \(value.normal.z)], \(value.w) "
+    }
+}
+
+public class MLine : Literal {
+    var value : Line
+    
+    init(_value: Line) {
+        value = _value
+        super.init()
+    }
+    
+    private init(uid: UInt, value: Line) {
+        self.value = value
+        super.init(uid: uid)
+    }
+    
+    override func mirror_for_thread() -> SExpr {
+        return MLine(uid: uid, value: value)
+    }
+    
+    override func clone() -> SExpr {
+        return MLine(_value: value)
+    }
+    
+    public override func str(_ indent: String, level: Int) -> String {
+        
+        var acc = "(ln "
+        
+        let pvec = MVector(_value: value.pos)
+        let dvec = MVector(_value: value.direction)
+        acc += pvec.description + " " + dvec.description
+        
+        acc += ")"
+        
+        return acc
+    }
+    
+    public override func _debug_string() -> String {
+        
+        var acc = "Line: "
+        
+        acc += "[\(value.pos.x), \(value.pos.y), \(value.pos.z)] [\(value.direction.x), \(value.direction.y), \(value.direction.z)]"
+        
+        return acc
+    }
+}
+
+public class MLineSeg : Literal {
+    var value : LineSegment
+    
+    init(_value: LineSegment) {
+        value = _value
+        super.init()
+    }
+    
+    private init(uid: UInt, value: LineSegment) {
+        self.value = value
+        super.init(uid: uid)
+    }
+    
+    override func mirror_for_thread() -> SExpr {
+        return MLineSeg(uid: uid, value: value)
+    }
+    
+    override func clone() -> SExpr {
+        return MLineSeg(_value: value)
+    }
+    
+    public override func str(_ indent: String, level: Int) -> String {
+        
+        var acc = "(ln-seg "
+        
+        for vex in value.points {
+            let mvex = MVertex(_value: vex)
+            acc += mvex.description + " "
+        }
+        
+        acc += ")"
+        
+        return acc
+    }
+    
+    public override func _debug_string() -> String {
+        
+        var acc = "LineSegment: "
+        
+        for vex in value.points {
+            acc += "[\(vex.pos.x), \(vex.pos.y), \(vex.pos.z)]" + " "
+        }
+                
+        return acc
+    }
+}
+
+public class MPath : Literal {
+    var value : Path
+    
+    init(_value: Path) {
+        value = _value
+        super.init()
+    }
+    
+    private init(uid: UInt, value: Path) {
+        self.value = value
+        super.init(uid: uid)
+    }
+    
+    override func mirror_for_thread() -> SExpr {
+        return MPath(uid: uid, value: value)
+    }
+    
+    override func clone() -> SExpr {
+        return MPath(_value: value)
+    }
+    
+    public override func str(_ indent: String, level: Int) -> String {
+        
+        var acc = "(path "
+        
+        for ln in value.lines {
+            let mlseg = MLineSeg(_value: ln)
+            acc += mlseg.description + " "
+        }
+        
+        acc += ")"
+        
+        return acc
+    }
+    
+    public override func _debug_string() -> String {
+        
+        var acc = "Path: "
+        
+        for vex in value.points {
+            acc += "[\(vex.pos.x), \(vex.pos.y), \(vex.pos.z)]" + " "
+        }
+        
+        return acc
+    }
+}
+
+public class MShape : Literal {
+    var value : Shape
+    
+    init(_value: Shape) {
+        value = _value
+        super.init()
+    }
+    
+    private init(uid: UInt, value: Shape) {
+        self.value = value
+        super.init(uid: uid)
+    }
+    
+    override func mirror_for_thread() -> SExpr {
+        return MShape(uid: uid, value: value)
+    }
+    
+    override func clone() -> SExpr {
+        return MShape(_value: value)
+    }
+    
+    public override func str(_ indent: String, level: Int) -> String {
+        
+        var acc = "(shape "
+        
+        for lseg in value.linesegs {
+            let mlseg = MLineSeg(_value: lseg)
+            acc += mlseg.description + " "
+        }
+        
+        let mpln = MPlane(_value: value.plane)
+        acc += mpln.description + ")"
+        
+        return acc
+    }
+    
+    public override func _debug_string() -> String {
+        
+        var acc = "Shape: "
+        
+        for lnseg in value.linesegs {
+            for vex in lnseg.points {
+                acc += "[\(vex.pos.x), \(vex.pos.y), \(vex.pos.z)]" + " "
+            }
+        }
+        
+        acc += "plane [\(value.plane.normal.x), \(value.plane.normal.y), \(value.plane.normal.z)] \(value.plane.w)"
+        
+        return acc
     }
 }
 
@@ -1030,7 +1220,7 @@ public class MPolygon : Literal {
         return MPolygon(_value: value)
     }
     
-    public override func str(indent: String, level: Int) -> String {
+    public override func str(_ indent: String, level: Int) -> String {
         
         var acc = "(polygon "
         
@@ -1059,88 +1249,120 @@ public class MPolygon : Literal {
     }
 }
 
-/*
-
-public class MintIO {
+public class MArray : Literal {
+    var value : [SExpr]
     
-}
-
-public class SExprIO : MintIO {
-    public var exp_list : [SExpr]
-    
-    init(exps: [SExpr]) {
-        exp_list = exps
+    init(_value: [SExpr]) {
+        value = _value
+        super.init()
     }
-}
-
-public class IOMesh: MintIO {
-    public var mesh: [Float]
-    public var normal: [Float]
-    public var color: [Float]
-    public var alpha: [Float]
-    public var drawtype : UInt
     
-    init(mesh:[Double], normal:[Double], color:[Float], alpha:[Float]) {
+    private init(uid: UInt, value: [SExpr]) {
+        self.value = value
+        super.init(uid: uid)
+    }
+    
+    override func mirror_for_thread() -> SExpr {
         
-        func d2farray(array: [Double]) -> [Float] {
-            var acc : [Float] = []
-            
-            for e in array {
-                acc.append(Float(e))
-            }
-            
-            return acc
+        var acc : [SExpr] = []
+        
+        for exp in value {
+            acc.append(exp.mirror_for_thread())
         }
         
-        self.mesh = d2farray(mesh)
-        self.normal = d2farray(normal)
-        self.color = color
+        return MArray(uid: uid, value: acc)
+    }
+    
+    override func clone() -> SExpr {
         
-        if alpha.count < (mesh.count / 3) {
-            
-            var al : [Float] = alpha
-            
-            while al.count < (mesh.count / 3) {
-                al.append(1.0)
+        var acc : [SExpr] = []
+        
+        for exp in value {
+            acc.append(exp.clone())
+        }
+        
+        return MArray(_value: acc)
+    }
+    
+    public override func str(_ indent: String, level: Int) -> String {
+        
+        var acc = "(array "
+        
+        for exp in value {
+            acc += exp.str("", level: 0) + " "
+        }
+        
+        acc += ")"
+        
+        return acc
+    }
+    
+    public override func _debug_string() -> String {
+        
+        var acc = "Array: "
+        
+        for exp in value {
+                acc += exp._debug_string() + " "
+        }
+        
+        return acc
+    }
+    
+    public func count() -> MInt {
+        return MInt(_value: value.count)
+    }
+    
+    public func append(_ newExp: SExpr) {
+        value.append(newExp)
+    }
+    
+    public func joint(_ array: MArray) {
+        value += array.value
+    }
+    
+    public func removeAll() {
+        value = []
+    }
+    
+    public func atIndex(_ i: Int) -> SExpr {
+        
+        if value.count == 0 {
+            return  MNull()
+        }
+        
+        if i < 0 {
+            if abs(i) < value.count {
+                return value[i + value.count]
+            } else {
+                return value[(i % value.count) + value.count - 1]
             }
-            
-            self.alpha = al
-            
+        } else if i < value.count {
+            return value[i]
         } else {
-            self.alpha = alpha
+            return value[i % value.count]
         }
-        
-        self.drawtype = 0
     }
     
-    public func str(indent: String, level: Int) -> String {
-        return "<<#IOMesh> \(mesh), \(normal), \(color)>"
+    public func remove(at: Int) -> SExpr {
+        if at < 0 {
+            if abs(at) < value.count {
+                return value.remove(at: at + value.count)
+            } else {
+                return value.remove(at: (at % value.count) + value.count)
+            }
+        } else if at < value.count {
+            return value.remove(at: at)
+        } else {
+            return value.remove(at: at % value.count)
+        }
     }
     
-    public func _debug_string() -> String {
-        return "<<#IOMesh> \(mesh), \(normal), \(color)>"
+    public func removeLast() {
+        if value.count > 0 {
+            value.removeLast()
+        }
     }
 }
-
-public class IOErr: MintIO {
-    public var err : String
-    public var uid_err : UInt
-    
-    init(err: String, uid: UInt) {
-        self.err = err
-        uid_err = uid
-    }
-    
-    public func str(indent: String, level: Int) -> String {
-        return "<<#IOErr> \(err), uid: \(uid_err)>"
-    }
-    
-    public func _debug_string() -> String {
-        return "<<#IOErr> \(err), uid: \(uid_err)>"
-    }
-}
- 
- */
 
 extension Literal : CustomStringConvertible {
     public var description: String {

@@ -15,7 +15,7 @@ import Foundation
 ///// 3D Data Obj Constructor /////
 
 class Vec : Primitive {
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 2 {
             if let arg1 = cast2double(args[0]), let arg2 = cast2double(args[1]) {
                 return MVector(_value: Vector(x: arg1, y: arg2))
@@ -31,7 +31,7 @@ class Vec : Primitive {
 }
 
 class Vex : Primitive {
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let vec = args[0] as? MVector {
                 return MVertex(_value: Vertex(pos: vec.value))
@@ -52,7 +52,7 @@ class Vex : Primitive {
 }
 
 class Color : Primitive {
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 3 {
             if let r = cast2double(args[0]), let g = cast2double(args[1]), let b = cast2double(args[2]) {
                 let color = [Float(r), Float(g), Float(b)]
@@ -71,7 +71,7 @@ class Color : Primitive {
 }
 
 class Pln : Primitive {
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 2 {
             if let vec = args[0] as? MVector {
                 if let w = cast2double(args[1]) {
@@ -101,8 +101,128 @@ class Pln : Primitive {
     }
 }
 
+class Ln : Primitive {
+    override func apply(_ args: [SExpr]) -> SExpr {
+        
+        if args.count == 2 {
+            if let originpt = args[0] as? MVector, let dirpt = args[1] as? MVector {
+                return MLine(_value: Line(origin: originpt.value, direction: dirpt.value))
+            } else if let pl1 = args[0] as? MPlane, let pl2 = args[1] as? MPlane {
+                if let l = Line(plane1: pl1.value, plane2: pl2.value) {
+                    return MLine(_value: l)
+                } else {
+                    print("2 planes are paralell")
+                }
+            }
+        }
+        
+        print("ln take 2 vector or 2 plane")
+        
+        return MNull()
+    }
+}
+
+class Ln_Pos : Primitive {
+    override func apply(_ args: [SExpr]) -> SExpr {
+        
+        if args.count == 1 {
+            if let ln = args[0] as? MLine {
+                return MVector(_value: ln.value.pos)
+            }
+        }
+        
+        print("ln.pos take 1 line")
+        
+        return MNull()
+    }
+}
+
+class Ln_Dir : Primitive {
+    override func apply(_ args: [SExpr]) -> SExpr {
+        
+        if args.count == 1 {
+            if let ln = args[0] as? MLine {
+                return MVector(_value: ln.value.direction)
+            }
+        }
+        
+        print("ln.dir take 1 line")
+        
+        return MNull()
+    }
+}
+
+class LnFrom2Pt : Primitive {
+    override func apply(_ args: [SExpr]) -> SExpr {
+        if args.count == 2 {
+            if let pt1 = args[0] as? MVector, let pt2 = args[1] as? MVector {
+                return MLine(_value: Line(pt1: pt1.value, pt2: pt2.value))
+            }
+        }
+        
+        print("ln-from-2pt take 2 vector")
+        
+        return MNull()    }
+}
+
+class LnSeg : Primitive {
+    override func apply(_ args: [SExpr]) -> SExpr {
+        
+        if args.count == 2 {
+            if let frompt = args[0] as? MVertex, let topt = args[1] as? MVertex {
+                return MLineSeg(_value: LineSegment(from: frompt.value, to: topt.value))
+            } else if let l = args[0] as? MLine, let length = args[1] as? MDouble {
+                return MLineSeg(_value: LineSegment(line: l.value, length: length.value))
+            }
+        }
+        
+        print("ln-seg take 2 vector or 1 vector and 1 double")
+        
+        return MNull()
+    }
+}
+
+class PathLn : Primitive {
+    override func apply(_ args: [SExpr]) -> SExpr {
+        
+        if let _ = args.first as? MVertex {
+            
+            var acc : [Vertex] = []
+            
+            for i in stride(from: 0, to: args.count - 1, by: 1) {
+                if let vex = args[i] as? MVertex {
+                    acc.append(vex.value)
+                } else {
+                    return MNull()
+                }
+            }
+            
+            if let isClose = args.last as? MBool {
+                return MPath(_value: Path(points: acc, closed: isClose.value))
+            }
+            
+        } else if let _ = args.first as? MLineSeg {
+            var acc : [LineSegment] = []
+            
+            for i in stride(from: 0, to: args.count, by: 1) {
+                if let lnseg = args[i] as? MLineSeg {
+                    acc.append(lnseg.value)
+                } else {
+                    return MNull()
+                }
+            }
+            
+            return MPath(_value: Path(lines: acc))
+        }
+        
+        print("path take vertices and 1 bool or line-segments")
+        
+        return MNull()
+    }
+}
+
 class Poly : Primitive {
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         
         if args.count < 3 {
             print("polygon take more than 3 vertices", terminator: "\n")
@@ -127,7 +247,7 @@ class Poly : Primitive {
 ///// 3D Data Obj Accessor /////
 
 class Poly_VexAtIndex : Primitive {
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 2 {
             if let poly = args[0] as? MPolygon, let i = args[1] as? MInt {
                 let vertices = poly.value.vertices
@@ -146,7 +266,7 @@ class Poly_VexAtIndex : Primitive {
 }
 
 class Poly_VexCount : Primitive {
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let poly = args[0] as? MPolygon {
                 return MInt(_value: poly.value.vertices.count)
@@ -159,7 +279,7 @@ class Poly_VexCount : Primitive {
 }
 
 class Pln_normal: Primitive {
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let pln = args[0] as? MPlane {
                 return MVector(_value: pln.value.normal)
@@ -172,7 +292,7 @@ class Pln_normal: Primitive {
 }
 
 class Vex_Pos : Primitive {
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let vex = args[0] as? MVertex {
                 return MVector(_value: vex.value.pos)
@@ -185,7 +305,7 @@ class Vex_Pos : Primitive {
 }
 
 class Vex_Normal : Primitive {
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let vex = args[0] as? MVertex {
                 return MVector(_value: vex.value.normal)
@@ -198,7 +318,7 @@ class Vex_Normal : Primitive {
 }
 
 class Vex_Color : Primitive {
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let vex = args[0] as? MVertex {
                 return MColor(_value: vex.value.color)
@@ -211,7 +331,7 @@ class Vex_Color : Primitive {
 }
 
 class Color_r : Primitive {
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let c = args[0] as? MColor {
                 return MDouble(_value: Double(c.value[0]))
@@ -224,7 +344,7 @@ class Color_r : Primitive {
 }
 
 class Color_g : Primitive {
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let c = args[0] as? MColor {
                 return MDouble(_value: Double(c.value[1]))
@@ -237,7 +357,7 @@ class Color_g : Primitive {
 }
 
 class Color_b : Primitive {
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let c = args[0] as? MColor {
                 return MDouble(_value: Double(c.value[2]))
@@ -250,7 +370,7 @@ class Color_b : Primitive {
 }
 
 class Color_a : Primitive {
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let c = args[0] as? MColor {
                 
@@ -269,7 +389,7 @@ class Color_a : Primitive {
 }
 
 class Vec_x: Primitive {
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let vec = args[0] as? MVector {
                 return MDouble(_value: vec.value.x)
@@ -282,7 +402,7 @@ class Vec_x: Primitive {
 }
 
 class Vec_y: Primitive {
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let vec = args[0] as? MVector {
                 return MDouble(_value: vec.value.y)
@@ -295,7 +415,7 @@ class Vec_y: Primitive {
 }
 
 class Vec_z: Primitive {
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let vec = args[0] as? MVector {
                 return MDouble(_value: vec.value.z)

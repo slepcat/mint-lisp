@@ -143,10 +143,10 @@ extension LispToken {
 typealias SingleTokenizer = Comb<Character, LispToken>.Parser
 
 struct Comb<Token, Result> {
-    typealias Parser = [Token] -> [(Result, [Token])]
+    typealias Parser = ([Token]) -> [(Result, [Token])]
 }
 
-func pure<Token, Result>(result: Result) -> Comb<Token, Result>.Parser {
+func pure<Token, Result>(_ result: Result) -> Comb<Token, Result>.Parser {
     return { input in return [(result, input)] }
 }
 
@@ -160,7 +160,7 @@ func consumer<Token>() -> Comb<Token, Token>.Parser {
             return []
         } else {
             var input = input
-            let head = input.removeAtIndex(0)
+            let head = input.remove(at: 0)
             return [(head, input)]
         }
     }
@@ -175,7 +175,7 @@ func unconsume<Token>() -> Comb<Token, Token>.Parser {
     }
 }
 
-func bind<Token, T, U>(parser: Comb<Token, T>.Parser, factory: T -> Comb<Token, U>.Parser) -> Comb<Token, U>.Parser {
+func bind<Token, T, U>(_ parser: @escaping Comb<Token, T>.Parser, factory: @escaping (T) -> Comb<Token, U>.Parser) -> Comb<Token, U>.Parser {
     return { input in
         let res = parser(input)
         return flatMap(res) {(result, tail) in
@@ -185,7 +185,7 @@ func bind<Token, T, U>(parser: Comb<Token, T>.Parser, factory: T -> Comb<Token, 
     }
 }
 
-func satisfy<Token>(condition: Token -> Bool) -> Comb<Token, Token>.Parser {
+func satisfy<Token>(_ condition: @escaping (Token) -> Bool) -> Comb<Token, Token>.Parser {
     return bind(consumer()) { r in
         if condition(r) {
             return pure(r)
@@ -194,7 +194,7 @@ func satisfy<Token>(condition: Token -> Bool) -> Comb<Token, Token>.Parser {
     }
 }
 
-func predict<Token>(condition: Token -> Bool) -> Comb<Token, Token>.Parser {
+func predict<Token>(_ condition: @escaping (Token) -> Bool) -> Comb<Token, Token>.Parser {
     return bind(unconsume()) { r in
         if condition(r) {
             return pure(r)
@@ -203,44 +203,50 @@ func predict<Token>(condition: Token -> Bool) -> Comb<Token, Token>.Parser {
     }
 }
 
-func token<Token :Equatable>(t: Token) -> Comb<Token, Token>.Parser {
+func token<Token :Equatable>(_ t: Token) -> Comb<Token, Token>.Parser {
     return satisfy { $0 == t }
 }
 
-func nextToken<Token :Equatable>(t: Token) -> Comb<Token, Token>.Parser {
+func nextToken<Token :Equatable>(_ t: Token) -> Comb<Token, Token>.Parser {
     return predict { $0 == t }
 }
 
-func notToken<Token :Equatable>(t :Token) -> Comb<Token, Token>.Parser {
+func notToken<Token :Equatable>(_ t :Token) -> Comb<Token, Token>.Parser {
     return satisfy { $0 != t }
 }
 
-func oneOrMore<Token, Result>(parser: Comb<Token, Result>.Parser) -> Comb<Token, [Result]>.Parser {
+func oneOrMore<Token, Result>(_ parser: @escaping Comb<Token, Result>.Parser) -> Comb<Token, [Result]>.Parser {
     return oneOrMore(parser, buffer: [])
 }
 
-func zeroOrMore<Token, Result>(parser: Comb<Token, Result>.Parser) -> Comb<Token, [Result]>.Parser {
+func zeroOrMore<Token, Result>(_ parser: @escaping Comb<Token, Result>.Parser) -> Comb<Token, [Result]>.Parser {
     return oneOrMore(parser) <|> pure([])
 }
 
-func zeroOrOne<Token, Result>(parser: Comb<Token, Result>.Parser) -> Comb<Token, [Result]>.Parser {
+func zeroOrOne<Token, Result>(_ parser: @escaping Comb<Token, Result>.Parser) -> Comb<Token, [Result]>.Parser {
     return bind(parser) { r in return pure([r]) } <|> pure([])
 }
 
-private func oneOrMore<Token, Result>(parser: Comb<Token, Result>.Parser, buffer: [Result]) -> Comb<Token, [Result]>.Parser {
+fileprivate func oneOrMore<Token, Result>(_ parser: @escaping Comb<Token, Result>.Parser, buffer: [Result]) -> Comb<Token, [Result]>.Parser {
     return bind(parser) { r in
         let combine = buffer + [r]
         return oneOrMore(parser, buffer: combine) <|> pure(combine)
     }
 }
 
-infix operator <|> { associativity left precedence 130 }
-func <|> <Token, Result>(lhs: Comb<Token, Result>.Parser, rhs: Comb<Token, Result>.Parser) -> Comb<Token, Result>.Parser {
+precedencegroup ForParser {
+    higherThan: LogicalConjunctionPrecedence
+    lowerThan: NilCoalescingPrecedence
+    associativity: left
+}
+
+infix operator <|> : ForParser
+func <|> <Token, Result>(lhs: @escaping Comb<Token, Result>.Parser, rhs: @escaping Comb<Token, Result>.Parser) -> Comb<Token, Result>.Parser {
     return { input in lhs(input) + rhs(input) }
 }
 
-infix operator <&> { associativity left precedence 130 }
-func <&> <Token, Result>(lhs: Comb<Token, Result>.Parser, rhs: Comb<Token, Result>.Parser) -> Comb<Token, Result>.Parser {
+infix operator <&> : ForParser
+func <&> <Token, Result>(lhs: @escaping Comb<Token, Result>.Parser, rhs: @escaping Comb<Token, Result>.Parser) -> Comb<Token, Result>.Parser {
     return { input in
         let lres = lhs(input)
         let rres = rhs(input)
@@ -251,38 +257,47 @@ func <&> <Token, Result>(lhs: Comb<Token, Result>.Parser, rhs: Comb<Token, Resul
     }
 }
 
-func ignoreWhitespace<T>(parser :Comb<Character, T>.Parser) -> Comb<Character, T>.Parser {
-    return bind(zeroOrMore(NSCharacterSet.whitespaceAndNewlineCharacterSet().parser)) { result in
+func ignoreWhitespace<T>(_ parser :@escaping Comb<Character, T>.Parser) -> Comb<Character, T>.Parser {
+    return bind(zeroOrMore(CharacterSet.whitespacesAndNewlines.parser)) { result in
         return parser
     }
 }
 
-extension NSCharacterSet {
+extension CharacterSet {
     var parser: Comb<Character, Character>.Parser {
         return satisfy { token in
-            let unichar = (String(token) as NSString).characterAtIndex(0)
-            return self.characterIsMember(unichar)
+            if let unichar = UnicodeScalar((String(token) as NSString).character(at: 0)) {
+                return self.contains(unichar)
+            } else {
+                return false
+            }
         }
     }
     
     var parserNot: Comb<Character, Character>.Parser {
         return satisfy { token in
-            let unichar = (String(token) as NSString).characterAtIndex(0)
-            return !self.characterIsMember(unichar)
+            if let unichar = UnicodeScalar((String(token) as NSString).character(at: 0)) {
+                return !self.contains(unichar)
+            } else {
+                return true
+            }
         }
     }
     
     var parserPredict: Comb<Character, Character>.Parser {
         return predict { token in
-            let unichar = (String(token) as NSString).characterAtIndex(0)
-            return self.characterIsMember(unichar)
+            if let unichar = UnicodeScalar((String(token) as NSString).character(at: 0)) {
+                return self.contains(unichar)
+            } else {
+                return false
+            }
         }
     }
 }
 
 // basic regex
 
-let alphabet : Comb<Character, Character>.Parser = bind(NSCharacterSet(charactersInString: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ").parser) { r in
+let alphabet : Comb<Character, Character>.Parser = bind(CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ").parser) { r in
     return pure(r)
 }
 
@@ -300,19 +315,19 @@ let escapedEscape : Comb<Character, Character>.Parser = bind(token(Character("\\
 
 let notEscapeOrDQuote : Comb<Character, Character>.Parser = satisfy({($0 != Character("\"")) && ($0 != Character("\\"))})
 
-let number : Comb<Character, Character>.Parser = bind(NSCharacterSet(charactersInString: "0123456789").parser) { r in
+let number : Comb<Character, Character>.Parser = bind(CharacterSet(charactersIn: "0123456789").parser) { r in
     return pure(r)
 }
 
-let specialInitialLetter : Comb<Character, Character>.Parser = bind(NSCharacterSet(charactersInString: "!$%&*/:<=>?^_~").parser) { r in
+let specialInitialLetter : Comb<Character, Character>.Parser = bind(CharacterSet(charactersIn: "!$%&*/:<=>?^_~").parser) { r in
     return pure(r)
 }
 
-let specialFollowingLetter : Comb<Character, Character>.Parser = bind(NSCharacterSet(charactersInString: "+-.@").parser) { r in
+let specialFollowingLetter : Comb<Character, Character>.Parser = bind(CharacterSet(charactersIn: "+-.@").parser) { r in
     return pure(r)
 }
 
-let numberSign : Comb<Character, Character>.Parser = bind(NSCharacterSet(charactersInString: "+-").parser) { r in
+let numberSign : Comb<Character, Character>.Parser = bind(CharacterSet(charactersIn: "+-").parser) { r in
     return pure(r)
 }
 
@@ -320,7 +335,7 @@ let floatDot : Comb<Character, Character>.Parser = bind(token(".")) { r in
     return pure(r)
 }
 
-let divider : Comb<Character, Character>.Parser = NSCharacterSet.whitespaceAndNewlineCharacterSet().parserPredict <|> nextToken("(") <|> nextToken(")") <|> nextToken("\"") <|>  nextToken(";")
+let divider : Comb<Character, Character>.Parser = CharacterSet.whitespacesAndNewlines.parserPredict <|> nextToken("(") <|> nextToken(")") <|> nextToken("\"") <|>  nextToken(";")
 
 // Tokens
 
@@ -381,7 +396,7 @@ let tokenString : SingleTokenizer = bind(token(Character("\""))) { _ in
 
 let tokenChar : SingleTokenizer = bind(token("#")) { _ in
     bind(token(Character("\\"))) { _ in
-        bind(NSCharacterSet.whitespaceAndNewlineCharacterSet().parserNot) { r in
+        bind(NSCharacterSet.whitespacesAndNewlines.parserNot) { r in
             bind(divider) { _ in
                 return pure(LispToken.LispChr(r))
             }
@@ -409,7 +424,7 @@ let identifier : SingleTokenizer = bind(alphabet <|> specialInitialLetter) { (a:
     }
 }
 
-let uniqueIdentifier : SingleTokenizer = bind(NSCharacterSet(charactersInString: "+-").parser) { r in
+let uniqueIdentifier : SingleTokenizer = bind(CharacterSet(charactersIn: "+-").parser) { r in
     bind(divider) { _ in
         return pure(LispToken.Symbol(String(r)))
     }
@@ -445,7 +460,7 @@ let lispTokenizer : LispTokenizer = oneOrMore(ignoreWhitespace(tokenSymbol <|> t
 
 // parse s-expression
 
-func parenthesesParser<T>(factory: () -> Comb<LispToken, T>.Parser) -> Comb<LispToken, T>.Parser {
+func parenthesesParser<T>(_ factory: @escaping () -> Comb<LispToken, T>.Parser) -> Comb<LispToken, T>.Parser {
     return bind(satisfy { (t: LispToken) in t.isLParentheses }) { L in
         bind(factory()) { insideList in
             bind(satisfy { (t: LispToken) in t.isRParentheses }) { R in
@@ -469,7 +484,7 @@ func parseLispExpr() -> Comb<LispToken, SExpr>.Parser {
             //let head = exprs.removeAtIndex(0)
             let head = Pair()
             var pointer = head
-            for i in 0.stride(to: exprs.count - 1, by: 1) {
+            for i in stride(from:0, to: exprs.count - 1, by: 1) {
                 pointer.car = exprs[i]
                 pointer.cdr = Pair()
                 pointer = pointer.cdr as! Pair

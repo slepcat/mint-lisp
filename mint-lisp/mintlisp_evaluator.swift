@@ -39,7 +39,7 @@ class Evaluator : NSObject {
     var resarray : [SExpr] = []
     unowned let returnPoint : Interpreter
     
-    weak var thread : NSThread!
+    weak var thread : Thread!
     
     init(exp: SExpr, env: Env, retTo: Interpreter) {
         self.env = env
@@ -64,9 +64,9 @@ class Evaluator : NSObject {
     */
     
     func main() {
-        thread = NSThread.currentThread()
+        thread = Thread.current
         if evaltrees.count > 1 {
-            for i in 0.stride(to: evaltrees.count, by: 1) {
+            for i in stride(from: 0, to: evaltrees.count, by: 1) {
                 if let pair = evaltrees[i] as? Pair {
                     if let _ = pair.car as? MDefine {
                         resarray.append(eval(pair, gl_env: env))
@@ -74,7 +74,7 @@ class Evaluator : NSObject {
                 }
             }
             
-            for i in 0.stride(to: evaltrees.count, by: 1) {
+            for i in stride(from: 0, to: evaltrees.count, by: 1) {
                 if let pair = evaltrees[i] as? Pair {
                     if let _ = pair.car as? MDefine {
                         
@@ -84,24 +84,24 @@ class Evaluator : NSObject {
                 }
             }
             
-            returnPoint.performSelectorOnMainThread(#selector(returnPoint.eval_result), withObject: resarray, waitUntilDone: false)
+            returnPoint.performSelector(onMainThread: #selector(returnPoint.eval_result), with: resarray, waitUntilDone: false)
             
         } else {
             if let exp = evaltrees.last {
                 res = eval(exp, gl_env: env)
             }
             
-            returnPoint.performSelectorOnMainThread(#selector(returnPoint.eval_result), withObject: resarray, waitUntilDone: false)
+            returnPoint.performSelector(onMainThread: #selector(returnPoint.eval_result), with: resarray, waitUntilDone: false)
         }
         
-        for i in 0.stride(to: resarray.count, by: 1) {
+        for i in stride(from: 0, to: resarray.count, by: 1) {
             print_leaf(resarray[i].str("", level: 0), uid: evaltrees[i].uid)
         }
     }
     
     private var callstack : [(exp:SExpr, seq:[SExpr], pc:Int, env:Env)] = []
     
-    private func push(a:(exp:SExpr, seq:[SExpr], pc:Int, env:Env)) {
+    private func push(_ a:(exp:SExpr, seq:[SExpr], pc:Int, env:Env)) {
         callstack.append(a)
     }
     
@@ -112,10 +112,10 @@ class Evaluator : NSObject {
         return nil
     }
     
-    func eval(expr: SExpr, gl_env:Env) -> SExpr {
+    func eval(_ expr: SExpr, gl_env:Env) -> SExpr {
         var cf : (exp:SExpr, seq:[SExpr], pc:Int, env:Env) = (expr, delayed_list_of_values(expr), 0, gl_env)
         
-        while !thread.cancelled {
+        while !thread.isCancelled {
             
             var isRet = false
             var res : SExpr = MNull()
@@ -351,19 +351,20 @@ class Evaluator : NSObject {
         return MNull()
     }
     
-    func print_leaf(err: String, uid: UInt) {
+    func print_leaf(_ err: String, uid: UInt) {
         
         if let port = MintStdPort.get.errport {
             objc_sync_enter(port)
             port.write(MStr(_value: err), uid: uid)
             objc_sync_exit(port)
             
-            port.performSelectorOnMainThread(#selector(MintPort.update), withObject: nil, waitUntilDone: false)
+            
+            port.performSelector(onMainThread: #selector(MintPort.update), with: nil, waitUntilDone: false)
         }
     }
     
     // lookup uid of s-expression which include designated uid object.
-    func lookup_leaf_of(uid: UInt) -> UInt {
+    func lookup_leaf_of(_ uid: UInt) -> UInt {
         for tree in evaltrees {
             if tree.uid == uid {
                 return uid
@@ -379,7 +380,7 @@ class Evaluator : NSObject {
         return 0
     }
     
-    func rec_lookup_leaf(uid: UInt, expr: Pair) -> UInt {
+    func rec_lookup_leaf(_ uid: UInt, expr: Pair) -> UInt {
         var unchecked : [Pair] = []
         let chain = gen_pairchain_of_leaf(expr)
         
@@ -415,7 +416,7 @@ class Evaluator : NSObject {
         return 0
     }
     
-    private func gen_pairchain_of_leaf(exp:SExpr) -> [Pair] {
+    private func gen_pairchain_of_leaf(_ exp:SExpr) -> [Pair] {
         var acc : [Pair] = []
         var head = exp
         

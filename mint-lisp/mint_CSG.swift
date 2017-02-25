@@ -29,7 +29,7 @@ class PolygonTreeNode {
     
     // fill the tree with polygons. Should be called on the root node only; child nodes must
     // always be a derivate (split) of the parent node.
-    func addPolygons(poly: [Polygon]) {
+    func addPolygons(_ poly: [Polygon]) {
         if !isRootNode() {
             for p in poly {
                 addChild(p)
@@ -53,7 +53,7 @@ class PolygonTreeNode {
                 
                 while i < parentcsg.children.count {
                     if parentcsg.children[i] === self {
-                        parentcsg.children.removeAtIndex(i)
+                        parentcsg.children.remove(at: i)
                         i -= 1
                     }
                     
@@ -168,7 +168,7 @@ class PolygonTreeNode {
     
     // Slightly modified. This ver of splitByPlane() does not have 'cpbacknodes' argument,
     // because Swift cannot have 2 arguments of same reference.
-    func splitByPlane(plane: Plane, inout cpfrontnodes: [PolygonTreeNode], inout frontnodes: [PolygonTreeNode], inout backnodes: [PolygonTreeNode]) {
+    func splitByPlane(_ plane: Plane, cpfrontnodes: inout [PolygonTreeNode], frontnodes: inout [PolygonTreeNode], backnodes: inout [PolygonTreeNode]) {
         
         if children.count > 0 {
             // if we have children, split the children
@@ -227,7 +227,7 @@ class PolygonTreeNode {
     // this should be called whenever the polygon is split
     // a child should be created for every fragment of the split polygon
     // returns the newly created child
-    private func addChild(poly: Polygon) -> PolygonTreeNode {
+    fileprivate func addChild(_ poly: Polygon) -> PolygonTreeNode {
         let newchild = PolygonTreeNode()
         newchild.parent = self
         newchild.polygon = poly
@@ -236,7 +236,7 @@ class PolygonTreeNode {
     }
     
     
-    private func invertSub() {
+    fileprivate func invertSub() {
         if let poly = polygon {
             polygon = poly.flipped()
         }
@@ -246,7 +246,7 @@ class PolygonTreeNode {
         }
     }
     
-    private func recursivelyInvalidatePolygon() {
+    fileprivate func recursivelyInvalidatePolygon() {
         if polygon != nil {
             polygon = nil
             if let parentcsg = parent {
@@ -281,7 +281,7 @@ class MeshTree {
     
     // Remove all polygons in this BSP tree that are inside the other BSP tree
     // `tree`.
-    func clipTo(tree: MeshTree, alsoRemovecoplanarFront: Bool) {
+    func clipTo(_ tree: MeshTree, alsoRemovecoplanarFront: Bool) {
         rootnode.clipTo(tree, alsoRemovecoplanarFront: alsoRemovecoplanarFront)
     }
     
@@ -289,7 +289,7 @@ class MeshTree {
         return polygonTree.getPolygons()
     }
     
-    func addPolygons(polygons : [Polygon]) {
+    func addPolygons(_ polygons : [Polygon]) {
         
         var polygontreenodes : [PolygonTreeNode] = []
         
@@ -337,7 +337,7 @@ class Node {
     
     // clip polygontreenodes to our plane
     // calls remove() for all clipped PolygonTreeNodes
-    func clipPolygons(ptNodes: [PolygonTreeNode], alsoRemovecoplanarFront: Bool) {
+    func clipPolygons(_ ptNodes: [PolygonTreeNode], alsoRemovecoplanarFront: Bool) {
         if let p = plane {
             var backnodes = [PolygonTreeNode]()
             var frontnodes = [PolygonTreeNode]()
@@ -368,7 +368,7 @@ class Node {
     
     // Remove all polygons in this BSP tree that are inside the other BSP tree
     // `tree`.
-    func clipTo(tree: MeshTree, alsoRemovecoplanarFront: Bool) {
+    func clipTo(_ tree: MeshTree, alsoRemovecoplanarFront: Bool) {
         if polyTreeNodes.count > 0 {
             tree.rootnode.clipPolygons(polyTreeNodes, alsoRemovecoplanarFront: alsoRemovecoplanarFront)
         }
@@ -382,7 +382,7 @@ class Node {
         }
     }
     
-    func addPolygonTreeNodes(polygontreenodes: [PolygonTreeNode]) {
+    func addPolygonTreeNodes(_ polygontreenodes: [PolygonTreeNode]) {
         if polygontreenodes.count > 0 {
             if plane == nil {
                 let bestplane = polygontreenodes[0].getPolygon()?.plane
@@ -415,7 +415,7 @@ class Node {
         }
     }
     
-    func getParentPlaneNormals(inout normals: [Vector], maxdepth: Int) {
+    func getParentPlaneNormals(_ normals: inout [Vector], maxdepth: Int) {
         if maxdepth > 0 {
             if let p = parent {
                 normals.append(p.plane!.normal)

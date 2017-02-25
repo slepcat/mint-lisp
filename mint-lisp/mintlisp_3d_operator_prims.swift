@@ -20,7 +20,7 @@ class SetColor : TransformOperator {
         return ["color", "mesh"]
     }
     
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         
         if args.count == 2 {
             if let c = args[0] as? MColor, let list = args[1] as? Pair {
@@ -57,7 +57,7 @@ class Union : TransformOperator {
         return ["ojb1", "obj2"]
     }
     
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         
         // Like union, but when we know that the two solids are not intersecting
         // Do not use if you are not completely sure that the solids do not intersect!
@@ -95,7 +95,7 @@ class Union : TransformOperator {
                 var polys : [Polygon] = []
                 
                 if !targetMesh.mayOverlap(targetMesh2) {
-                    polys = unionForNonIntersecting(targetMesh, target2: targetMesh2).mesh
+                    polys = unionForNonIntersecting(target1: targetMesh, target2: targetMesh2).mesh
                 } else {
                     let a = MeshTree(polygons: targetMesh.mesh)
                     let b = MeshTree(polygons: targetMesh2.mesh)
@@ -133,7 +133,7 @@ class Subtract : TransformOperator {
         return ["target", "subtract"]
     }
     
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         
         if args.count == 2 {
             
@@ -198,7 +198,7 @@ class Intersect : TransformOperator {
         return ["ojb1", "obj2"]
     }
     
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         
         if args.count == 2 {
             
@@ -266,7 +266,7 @@ class Rotate : TransformOperator {
         return ["mesh", "x-angle", "y-angle", "z-angle"]
     }
     
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         
         if args.count == 4 {
             if let list = args[0] as? Pair, let xangle = cast2double(args[1]), let yangle = cast2double(args[2]),  let zangle = cast2double(args[3]) {
@@ -322,7 +322,7 @@ class RotateAxis : TransformOperator {
         return ["mesh", "axis", "angle", "center"]
     }
     
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 4 {
             if let list = args[0] as? Pair, let ax = args[1] as? MVector, let angle = cast2double(args[2]), let cen = args[3] as? MVector  {
                 
@@ -381,7 +381,7 @@ class Translate : TransformOperator {
         return ["mesh", "center"]
     }
     
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         
         if args.count == 2 {
             if let list = args[0] as? Pair, let cen = args[1] as? MVector  {
@@ -440,7 +440,7 @@ class Scale : TransformOperator {
         return ["mesh", "scale"]
     }
     
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
 
         if args.count == 2 {
             if let list = args[0] as? Pair, let sc = args[1] as? MVector  {

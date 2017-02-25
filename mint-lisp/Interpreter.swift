@@ -10,7 +10,7 @@ import Foundation
 
 public class Interpreter : NSObject {
     
-    var threadPool : [NSThread] = []
+    var threadPool : [Thread] = []
     var executing : Bool = false
     
     var trees:[SExpr] = []
@@ -34,7 +34,7 @@ public class Interpreter : NSObject {
     
     ///// Interpreter /////
     
-    public func read(rawstr: String) -> SExpr {
+    public func read(_ rawstr: String) -> SExpr {
         
         let tokens = lispTokenizer([Character](rawstr.characters))
         
@@ -52,7 +52,7 @@ public class Interpreter : NSObject {
         return MNull()
     }
     
-    public func readln(rawstr: String) -> SExpr {
+    public func readln(_ rawstr: String) -> SExpr {
         
         let tokens = lispTokenizer([Character](rawstr.characters))
         let parser = parseLispExpr()
@@ -97,7 +97,7 @@ public class Interpreter : NSObject {
         return []
     }
     
-    private func read_recursive(tokens: [LispToken], parser: [LispToken] -> [(SExpr, [LispToken])], acc:[SExpr]) -> [SExpr] {
+    private func read_recursive(_ tokens: [LispToken], parser: ([LispToken]) -> [(SExpr, [LispToken])], acc:[SExpr]) -> [SExpr] {
         
         var acc2 = acc
         
@@ -119,7 +119,7 @@ public class Interpreter : NSObject {
     ///// Pre-Processor /////
     // import external lib & expand macro
     
-    public func preprocess(uid: UInt) -> SExpr {
+    public func preprocess(_ uid: UInt) -> SExpr {
         
         if let i = lookup_treeindex_of(uid) {
             // import or macro expand
@@ -131,7 +131,7 @@ public class Interpreter : NSObject {
         }
     }
     
-    public func preprocess(expr : SExpr) -> SExpr {
+    public func preprocess(_ expr : SExpr) -> SExpr {
         
         // init import path record
         
@@ -162,7 +162,7 @@ public class Interpreter : NSObject {
     }
     
     
-    public func preprocess_import(expr : SExpr, prefix: String, depth: UInt) -> SExpr {
+    public func preprocess_import(_ expr : SExpr, prefix: String, depth: UInt) -> SExpr {
         // import or macro expand
         
         if let pair = expr as? Pair {
@@ -193,9 +193,9 @@ public class Interpreter : NSObject {
     
     //// library import ////
     
-    func import_lib(expr: SExpr, preprefix: String, depth: UInt){
+    func import_lib(_ expr: SExpr, preprefix: String, depth: UInt){
         
-        func add_prefix(prefix: String, target: [String], expr: SExpr) {
+        func add_prefix(_ prefix: String, target: [String], expr: SExpr) {
             
             if let sym = expr as? MSymbol {
                 for key in target {
@@ -267,7 +267,7 @@ public class Interpreter : NSObject {
                     // add prefix to avoid name space collision.
                     for (varkey, expr) in global.hash_table {
                         if prev_env[varkey] == nil {
-                            global.hash_table.removeValueForKey(varkey)
+                            global.hash_table.removeValue(forKey: varkey)
                             global.hash_table[prefix + "." + varkey] = expr
                             add_prefix(prefix, target: addedvars, expr: expr)
                         }
@@ -279,7 +279,7 @@ public class Interpreter : NSObject {
     
     ////  macro expansion ////
     
-    func is_macro(expr: SExpr) -> Bool {
+    func is_macro(_ expr: SExpr) -> Bool {
         if let sym = expr as? MSymbol {
             if let _ = sym.eval(global) as? Macro {
                 return true
@@ -289,7 +289,7 @@ public class Interpreter : NSObject {
         return false
     }
     
-    func rec_macro_expansion(expr: Pair) -> SExpr {
+    func rec_macro_expansion(_ expr: Pair) -> SExpr {
         if let macro = expr.car.eval(global) as? Macro {
             if let expanded = macro.expand(expr.cdr) as? Pair {
                 return rec_macro_expansion(expanded)
@@ -320,7 +320,7 @@ public class Interpreter : NSObject {
         }
     }*/
     
-    public func lookup(uid: UInt) -> (conscell: SExpr, target: SExpr) {
+    public func lookup(_ uid: UInt) -> (conscell: SExpr, target: SExpr) {
         for exp in trees {
             let res = exp.lookup_exp(uid)
             if res.target.uid != MNull.errNull.uid {
@@ -333,8 +333,8 @@ public class Interpreter : NSObject {
     
     ///// Look up location of uid /////
     
-    public func lookup_treeindex_of(uid: UInt) -> Int? {
-        for i in 0.stride(to: trees.count, by: 1) {
+    public func lookup_treeindex_of(_ uid: UInt) -> Int? {
+        for i in stride(from: 0, to: trees.count, by: 1) {
             let res = trees[i].lookup_exp(uid)
             
             if !res.target.isNull() {
@@ -361,7 +361,7 @@ public class Interpreter : NSObject {
         
         let task = Evaluator(exps: treearray, env: global, retTo: self)
         
-        let thread = NSThread(target: task, selector: #selector(Evaluator.main), object: nil)
+        let thread = Thread(target: task, selector: #selector(Evaluator.main), object: nil)
         thread.stackSize = 8388608 // set 8 MB stack size
         
         threadPool.append(thread)
@@ -376,7 +376,7 @@ public class Interpreter : NSObject {
     
     // update run when 'trees' are edited.
     
-    public func eval(uid: UInt) -> (SExpr, UInt) {
+    public func eval(_ uid: UInt) -> (SExpr, UInt) {
         
         cancell()
         
@@ -387,14 +387,14 @@ public class Interpreter : NSObject {
                 if let _ = pair.car as? MDefine {
                     let task = Evaluator(exp: preprocess(trees[i].mirror_for_thread()), env: global, retTo: self)
                     
-                    let thread = NSThread(target: task, selector: #selector(Evaluator.main), object: nil)
+                    let thread = Thread(target: task, selector: #selector(Evaluator.main), object: nil)
                     thread.stackSize = 8388608 // set 8 MB stack size
                     
                     threadPool.append(thread)
                 } else {
                     let task = Evaluator(exp: preprocess(trees[i].mirror_for_thread()), env: global.clone(), retTo: self)
                     
-                    let thread = NSThread(target: task, selector: #selector(Evaluator.main), object: nil)
+                    let thread = Thread(target: task, selector: #selector(Evaluator.main), object: nil)
                     thread.stackSize = 8388608 // set 8 MB stack size
                     
                     threadPool.append(thread)
@@ -422,7 +422,7 @@ public class Interpreter : NSObject {
     }
     
     
-    public func eval_mainthread(uid: UInt) -> SExpr {
+    public func eval_mainthread(_ uid: UInt) -> SExpr {
         let target = lookup(uid).target
         let task = Evaluator(exps: [target], env: global, retTo: self)
         
@@ -445,7 +445,7 @@ public class Interpreter : NSObject {
     
     func cancell() {
         for th in threadPool {
-            if th.executing {
+            if th.isExecuting {
                 th.cancel()
             }
         }

@@ -9,73 +9,73 @@
 import Foundation
 
 
-func foldl<T>(_func: (T, T) -> T, acc: T, operands: [T]) -> T{
+func foldl<T>(_ _func: (T, T) -> T, acc: T, operands: [T]) -> T{
     if operands.count == 0 {
         return acc
     } else {
         var acc = acc
         var operands = operands
         
-        let head = operands.removeAtIndex(0)
+        let head = operands.remove(at: 0)
         acc = _func(acc, head)
         
         return foldl(_func, acc: acc, operands: operands)
     }
 }
 
-func map<T, U>(_func: (T) -> U, operands: [T]) -> [U] {
+func map<T, U>(_ _func: (T) -> U, operands: [T]) -> [U] {
     return tail_map(_func, acc: [], operands: operands)
 }
 
-private func tail_map<T, U>(_func: (T) -> U, acc: [U], operands: [T]) -> [U] {
+private func tail_map<T, U>(_ _func: (T) -> U, acc: [U], operands: [T]) -> [U] {
     if operands.count == 0 {
         return acc
     } else {
         var acc = acc
         var operands = operands
         
-        let head = operands.removeAtIndex(0)
+        let head = operands.remove(at: 0)
         acc.append(_func(head))
         return tail_map(_func,acc: acc, operands: operands)
     }
 }
 
-func flatMap<T, U>(operands: [T],f: (T) -> [U]) -> [U] {
+func flatMap<T, U>(_ operands: [T],f: (T) -> [U]) -> [U] {
     let nestedList = tail_map(f, acc: [], operands: operands)
     return flatten(nestedList)
 }
 
-private func flatten<U>(nested:[[U]]) -> [U] {
+private func flatten<U>(_ nested:[[U]]) -> [U] {
     return tail_flatten(nested, acc: [])
 }
 
-private func tail_flatten<U>(nested:[[U]], acc:[U]) -> [U] {
+private func tail_flatten<U>(_ nested:[[U]], acc:[U]) -> [U] {
     if nested.count == 0 {
         return acc
     } else {
         var nested = nested
         
-        let head = nested.removeAtIndex(0)
+        let head = nested.remove(at: 0)
         let newacc = head + acc
         return tail_flatten(nested, acc: newacc)
     }
 }
 
-func _and(a :Bool, b: Bool) -> Bool {
+func _and(_ a :Bool, b: Bool) -> Bool {
     return (a && b)
 }
 
-func _or(a :Bool, b: Bool) -> Bool {
+func _or(_ a :Bool, b: Bool) -> Bool {
     return (a || b)
 }
 
 ///// Utilities /////
 
-public func delayed_list_of_args(_opds :SExpr) -> [SExpr] {
+public func delayed_list_of_args(_ _opds :SExpr) -> [SExpr] {
     return delayed_list_of_values(_opds)
 }
 
-public func delayed_list_of_values(_opds :SExpr) -> [SExpr] {
+public func delayed_list_of_values(_ _opds :SExpr) -> [SExpr] {
     if let atom = _opds as? Atom {
         return [atom]
     } else {
@@ -83,7 +83,7 @@ public func delayed_list_of_values(_opds :SExpr) -> [SExpr] {
     }
 }
 
-private func tail_delayed_list_of_values(_opds :SExpr, acc: [SExpr]) -> [SExpr] {
+private func tail_delayed_list_of_values(_ _opds :SExpr, acc: [SExpr]) -> [SExpr] {
     if let pair = _opds as? Pair {
         return tail_delayed_list_of_values(pair.cdr, acc: acc + [pair.car])
     } else {
@@ -91,11 +91,11 @@ private func tail_delayed_list_of_values(_opds :SExpr, acc: [SExpr]) -> [SExpr] 
     }
 }
 
-public func list_from_array(array: [SExpr]) -> SExpr {
+public func list_from_array(_ array: [SExpr]) -> SExpr {
     return tail_list_from_array(array, acc: MNull())
 }
 
-private func tail_list_from_array(array: [SExpr], acc: SExpr) -> SExpr {
+private func tail_list_from_array(_ array: [SExpr], acc: SExpr) -> SExpr {
     if array.count == 0 {
         return acc
     } else {
@@ -108,11 +108,11 @@ private func tail_list_from_array(array: [SExpr], acc: SExpr) -> SExpr {
     }
 }
 
-public func tail(_seq: [SExpr]) -> [SExpr] {
+public func tail(_ _seq: [SExpr]) -> [SExpr] {
     var seq = _seq
     
     if seq.count > 0 {
-        seq.removeAtIndex(0)
+        seq.remove(at: 0)
         return seq
     } else {
         return []
@@ -121,7 +121,7 @@ public func tail(_seq: [SExpr]) -> [SExpr] {
 
 ///// numeric //////
 
-func cast2double(exp: SExpr) -> Double? {
+func cast2double(_ exp: SExpr) -> Double? {
     switch exp {
     case let num as MInt:
         return Double(num.value)
@@ -133,7 +133,7 @@ func cast2double(exp: SExpr) -> Double? {
     }
 }
 
-func d2farray(array: [Double]) -> [Float] {
+func d2farray(_ array: [Double]) -> [Float] {
     var acc : [Float] = []
     
     for e in array {

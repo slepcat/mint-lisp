@@ -10,14 +10,14 @@ import Foundation
 
 
 class MintPort: NSObject {
-    func write(data: SExpr, uid: UInt) {}
-    func create_port(uid: UInt) {}
-    func remove_port(uid: UInt) {}
+    func write(_ data: SExpr, uid: UInt) {}
+    func create_port(_ uid: UInt) {}
+    func remove_port(_ uid: UInt) {}
     func update() {}
 }
 
 class MintReadPort:NSObject {
-    func read(path: String, uid: UInt) -> SExpr {return SExpr()}
+    func read(_ path: String, uid: UInt) -> SExpr {return SExpr()}
 }
 
 class MintStdPort {
@@ -46,11 +46,11 @@ class MintStdPort {
         currentreadport = newPort
     }
     
-    func setErrPort(newErrPort : MintPort ) {
+    func setErrPort(_ newErrPort : MintPort ) {
         stderrport = newErrPort
     }
     
-    func errprint(err:String, uid: UInt) {
+    func errprint(_ err:String, uid: UInt) {
         if let port = stderrport {
             objc_sync_enter(port)
             port.write(MStr(_value: err), uid: uid)
@@ -96,14 +96,14 @@ class Display: Primitive {
         return Display(uid: uid)
     }
     
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         
-        if let port = MintStdPort.get.currentport {
+        if let port = MintStdPort.get.port {
             objc_sync_enter(port)
             port.write(list_from_array(args), uid: uid)
             objc_sync_exit(port)
             
-            port.performSelectorOnMainThread(#selector(MintPort.update), withObject: nil, waitUntilDone: false)
+            port.performSelector(onMainThread: #selector(MintPort.update), with: nil, waitUntilDone: false)
         }
         
         return MNull()
@@ -117,7 +117,7 @@ class Display: Primitive {
         return ["poly."]
     }
     
-    override func str(indent: String, level: Int) -> String {
+    override func str(_ indent: String, level: Int) -> String {
         return "display"
     }
     
@@ -132,7 +132,7 @@ class Cube: Primitive {
         get {return "3D Primitives"}
     }
     
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         
         if args.count == 4 {
             
@@ -192,7 +192,7 @@ class Cube: Primitive {
                 let poly = Pair()
                 var pointer = poly
                 
-                for i in 0.stride(to: vertices.count - 3, by: 3) {
+                for i in stride(from: 0, to: vertices.count - 3, by: 3) {
                     var pl = Polygon(vertices: [vertices[i], vertices[i + 1], vertices[i + 2]])
                     pl.generateNormal()
                     pointer.car = MPolygon(_value: pl)
@@ -235,7 +235,7 @@ class Sphere:Primitive{
         return ["radius", "center", "resolution"]
     }
     
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         
         if args.count == 3 {
             //type cast args
@@ -263,7 +263,7 @@ class Sphere:Primitive{
                 
                 var polygons : [Polygon] = []
                 
-                for slice1 in 0.stride(through: resolution, by: 1) {
+                for slice1 in stride(from:0 , through: resolution, by: 1) {
                     let angle = M_PI * 2.0 * Double(slice1) / Double(resolution)
                     let cylinderpoint = xvector.times(cos(angle)) + yvector.times(sin(angle))
                     if slice1 > 0 {
@@ -271,7 +271,7 @@ class Sphere:Primitive{
                         var prevcospitch : Double = 0
                         var prevsinpitch : Double = 0
                         
-                        for slice2 in 0.stride(through: qresolution, by: 1) {
+                        for slice2 in stride(from: 0, through: qresolution, by: 1) {
                             
                             let pitch = 0.5 * M_PI * Double(slice2) / Double(qresolution)
                             let cospitch = cos(pitch)
@@ -299,7 +299,7 @@ class Sphere:Primitive{
                                 }
                                 
                                 vertices.append(Vertex(pos: center + (prevcylinderpoint.times(cospitch) + zvector.times(sinpitch))))
-                                polygons.append(Polygon(vertices: vertices.reverse()))
+                                polygons.append(Polygon(vertices: vertices.reversed()))
                             }
                             prevcospitch = cospitch
                             prevsinpitch = sinpitch
@@ -340,7 +340,7 @@ class Cylinder:Primitive{
         return ["radius", "height", "center", "resolution"]
     }
     
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         
         if args.count == 4 {
             
@@ -380,7 +380,7 @@ class Cylinder:Primitive{
                 var end = Vertex(pos: e)
                 var polygons : [Polygon] = []
                 
-                func point(stack : Double, slice : Double, radius : Double) -> Vertex {
+                func point(_ stack : Double, slice : Double, radius : Double) -> Vertex {
                     let
                     angle = slice * M_PI * 2
                     let out = axisX.times(cos(angle)) + axisY.times(sin(angle))

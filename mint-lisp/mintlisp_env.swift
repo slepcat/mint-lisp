@@ -25,7 +25,7 @@ class Env {
     */
     
     
-    func lookup(key : String) -> SExpr {
+    func lookup(_ key : String) -> SExpr {
         if let value = hash_table[key] {
             return value
         } else {
@@ -39,7 +39,7 @@ class Env {
     }
     
     // todo: variable length of arguments
-    func extended_env(symbols: [SExpr], values: [SExpr]) -> Env? {
+    func extended_env(_ symbols: [SExpr], values: [SExpr]) -> Env? {
         let _env = Env()
         _env.ext_env = self
         
@@ -72,7 +72,7 @@ class Env {
         return cloned_env
     }
     
-    func define_variable(key: String, val: SExpr) -> Bool {
+    func define_variable(_ key: String, val: SExpr) -> Bool {
         if hash_table[key] == nil {
             hash_table[key] = val
             return true
@@ -81,7 +81,7 @@ class Env {
         }
     }
     
-    func set_variable(key: String, val: SExpr) -> Bool {
+    func set_variable(_ key: String, val: SExpr) -> Bool {
         if hash_table[key] == nil {
             return false
         } else {
@@ -90,7 +90,7 @@ class Env {
         }
     }
     
-    func define_variable_force(key: String, val: SExpr) -> Bool {
+    func define_variable_force(_ key: String, val: SExpr) -> Bool {
         hash_table[key] = val
         return true
     }
@@ -158,6 +158,18 @@ func global_environment() -> [String : SExpr] {
     primitives["cdadr"] = Cdadr()
     primitives["cadar"] = Cadar()
     primitives["null"] = MNull()
+    
+    ///// array managemetn /////
+    
+    primitives["array"] = NewArray()
+    primitives["at-index"] = ArrayAtIndex()
+    primitives["append"] = AppendArray()
+    primitives["joint"] = JointArray()
+    primitives["remove-at-index"] = RemoveAtIndex()
+    primitives["remove-last"] = RemoveLast()
+    primitives["remove-all"] = RemoveAll()
+    primitives["count"] = CountArray()
+    
     //primitives["list"] = isEqual()
     //primitives["apply"] = isEqual()
     //primitives["map"] = isEqual()
@@ -187,6 +199,12 @@ func global_environment() -> [String : SExpr] {
     primitives["plane"] = Pln()
     primitives["plane.normal"] = Pln_normal()
     
+    primitives["ln"] = Ln()
+    primitives["ln.pos"] = Ln_Pos()
+    primitives["ln.dir"] = Ln_Dir()
+    
+    primitives["ln-seg"] = LnSeg()
+    
     primitives["poly"] = Poly()
     primitives["poly.vex-at-index"] = Poly_VexAtIndex()
     primitives["poly.vex-count"] = Poly_VexCount()
@@ -207,6 +225,10 @@ func global_environment() -> [String : SExpr] {
     primitives["rotate-axis"] = RotateAxis()
     primitives["move"] = Translate()
     primitives["scale"] = Scale()
+    
+    ///// 2d data objects //////
+    
+    primitives["shape"] = Shp()
     
     ///// IO /////
     

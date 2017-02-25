@@ -14,17 +14,17 @@ class Primitive:Form {
         get {return "lisp"}
     }
     
-    func apply(argsl: [SExpr]) -> SExpr {
-        var args = argsl
-        if args.count == 0 {
+    func apply(_ args: [SExpr]) -> SExpr {
+        var _args = args
+        if _args.count == 0 {
             return MNull()
         } else {
-            let head = args.removeAtIndex(0)
-            return foldl(proc, acc: head, operands: args)
+            let head = _args.remove(at: 0)
+            return foldl(proc, acc: head, operands: _args)
         }
     }
     
-    func proc(a: SExpr, b: SExpr) -> SExpr {
+    func proc(_ a: SExpr, b: SExpr) -> SExpr {
         return MNull()
     }
     
@@ -39,7 +39,7 @@ class Plus:Primitive {
         get {return "math"}
     }
     
-    override func proc(a: SExpr, b: SExpr) -> SExpr {
+    override func proc(_ a: SExpr, b: SExpr) -> SExpr {
         switch a {
         case let num as MInt:
             switch b {
@@ -92,7 +92,7 @@ class Minus:Primitive {
         get {return "math"}
     }
     
-    override func proc(a: SExpr, b: SExpr) -> SExpr {
+    override func proc(_ a: SExpr, b: SExpr) -> SExpr {
         switch a {
         case let num as MInt:
             switch b {
@@ -126,7 +126,7 @@ class Multiply:Primitive {
         get {return "math"}
     }
     
-    override func proc(a: SExpr, b: SExpr) -> SExpr {
+    override func proc(_ a: SExpr, b: SExpr) -> SExpr {
         switch a {
         case let num as MInt:
             switch b {
@@ -160,7 +160,7 @@ class Divide:Primitive {
         get {return "math"}
     }
     
-    override func proc(a: SExpr, b: SExpr) -> SExpr {
+    override func proc(_ a: SExpr, b: SExpr) -> SExpr {
         switch a {
         case let num as MInt:
             switch b {
@@ -194,12 +194,12 @@ class isEqual:Primitive {
         get {return "math"}
     }
     
-    override func apply(argsl: [SExpr]) -> SExpr {
+    override func apply(_ argsl: [SExpr]) -> SExpr {
         var args = argsl
         if args.count == 0 {
             return MNull()
         } else {
-            let head = args.removeAtIndex(0)
+            let head = args.remove(at: 0)
             let result = foldl(proc, acc: head, operands: args)
             if let res = result as? MBool {
                 return res
@@ -212,7 +212,7 @@ class isEqual:Primitive {
         }
     }
     
-    override func proc(a: SExpr, b: SExpr) -> SExpr {
+    override func proc(_ a: SExpr, b: SExpr) -> SExpr {
         switch a {
         case let num as MInt:
             switch b {
@@ -246,12 +246,12 @@ class NotEqual:Primitive {
         get {return "math"}
     }
     
-    override func apply(argsl: [SExpr]) -> SExpr {
+    override func apply(_ argsl: [SExpr]) -> SExpr {
         var args = argsl
         if args.count == 0 {
             return MNull()
         } else {
-            let head = args.removeAtIndex(0)
+            let head = args.remove(at: 0)
             let result = foldl(proc, acc: head, operands: args)
             if let res = result as? MBool {
                 return res
@@ -264,7 +264,7 @@ class NotEqual:Primitive {
         }
     }
     
-    override func proc(a: SExpr, b: SExpr) -> SExpr {
+    override func proc(_ a: SExpr, b: SExpr) -> SExpr {
         switch a {
         case let num as MInt:
             switch b {
@@ -298,12 +298,12 @@ class GreaterThan:Primitive {
         get {return "math"}
     }
     
-    override func apply(argsl: [SExpr]) -> SExpr {
+    override func apply(_ argsl: [SExpr]) -> SExpr {
         var args = argsl
         if args.count == 0 {
             return MNull()
         } else {
-            let head = args.removeAtIndex(0)
+            let head = args.remove(at: 0)
             let result = foldl(proc, acc: head, operands: args)
             if let res = result as? MBool {
                 return res
@@ -316,7 +316,7 @@ class GreaterThan:Primitive {
         }
     }
     
-    override func proc(a: SExpr, b: SExpr) -> SExpr {
+    override func proc(_ a: SExpr, b: SExpr) -> SExpr {
         switch a {
         case let num as MInt:
             switch b {
@@ -352,13 +352,13 @@ class EqualOrGreaterThan:Primitive {
         get {return "math"}
     }
     
-    override func apply(argsl: [SExpr]) -> SExpr {
+    override func apply(_ argsl: [SExpr]) -> SExpr {
         var args = argsl
         
         if args.count == 0 {
             return MNull()
         } else {
-            let head = args.removeAtIndex(0)
+            let head = args.remove(at: 0)
             let result = foldl(proc, acc: head, operands: args)
             if let res = result as? MBool {
                 return res
@@ -371,7 +371,7 @@ class EqualOrGreaterThan:Primitive {
         }
     }
     
-    override func proc(a: SExpr, b: SExpr) -> SExpr {
+    override func proc(_ a: SExpr, b: SExpr) -> SExpr {
         switch a {
         case let num as MInt:
             switch b {
@@ -407,13 +407,13 @@ class SmallerThan:Primitive {
         get {return "math"}
     }
     
-    override func apply(argsl: [SExpr]) -> SExpr {
+    override func apply(_ argsl: [SExpr]) -> SExpr {
         var args = argsl
         
         if args.count == 0 {
             return MNull()
         } else {
-            let head = args.removeAtIndex(0)
+            let head = args.remove(at: 0)
             let result = foldl(proc, acc: head, operands: args)
             if let res = result as? MBool {
                 return res
@@ -426,7 +426,7 @@ class SmallerThan:Primitive {
         }
     }
     
-    override func proc(a: SExpr, b: SExpr) -> SExpr {
+    override func proc(_ a: SExpr, b: SExpr) -> SExpr {
         switch a {
         case let num as MInt:
             switch b {
@@ -462,13 +462,13 @@ class EqualOrSmallerThan:Primitive {
         get {return "math"}
     }
     
-    override func apply(argsl: [SExpr]) -> SExpr {
+    override func apply(_ argsl: [SExpr]) -> SExpr {
         var args = argsl
         
         if args.count == 0 {
             return MNull()
         } else {
-            let head = args.removeAtIndex(0)
+            let head = args.remove(at: 0)
             let result = foldl(proc, acc: head, operands: args)
             if let res = result as? MBool {
                 return res
@@ -481,7 +481,7 @@ class EqualOrSmallerThan:Primitive {
         }
     }
     
-    override func proc(a: SExpr, b: SExpr) -> SExpr {
+    override func proc(_ a: SExpr, b: SExpr) -> SExpr {
         switch a {
         case let num as MInt:
             switch b {
@@ -517,7 +517,7 @@ class Max:Primitive {
         get {return "math"}
     }
     
-    override func proc(a: SExpr, b: SExpr) -> SExpr {
+    override func proc(_ a: SExpr, b: SExpr) -> SExpr {
         switch a {
         case let num as MInt:
             switch b {
@@ -550,7 +550,7 @@ class Min:Primitive {
         get {return "math"}
     }
     
-    override func proc(a: SExpr, b: SExpr) -> SExpr {
+    override func proc(_ a: SExpr, b: SExpr) -> SExpr {
         switch a {
         case let num as MInt:
             switch b {
@@ -583,13 +583,13 @@ class And:Primitive {
         get {return "math"}
     }
     
-    override func apply(argsl: [SExpr]) -> SExpr {
+    override func apply(_ argsl: [SExpr]) -> SExpr {
         var args = argsl
         
         if args.count == 0 {
             return MNull()
         } else {
-            let head = args.removeAtIndex(0)
+            let head = args.remove(at: 0)
             let result = foldl(proc, acc: head, operands: args)
             if let res = result as? MBool {
                 return res
@@ -602,7 +602,7 @@ class And:Primitive {
         }
     }
     
-    override func proc(a: SExpr, b: SExpr) -> SExpr {
+    override func proc(_ a: SExpr, b: SExpr) -> SExpr {
         switch a {
         case let num as MBool:
             switch b {
@@ -624,13 +624,13 @@ class Or:Primitive {
         get {return "math"}
     }
     
-    override func apply(argsl: [SExpr]) -> SExpr {
+    override func apply(_ argsl: [SExpr]) -> SExpr {
         var args = argsl
         
         if args.count == 0 {
             return MNull()
         } else {
-            let head = args.removeAtIndex(0)
+            let head = args.remove(at: 0)
             let result = foldl(proc, acc: head, operands: args)
             if let res = result as? MBool {
                 return res
@@ -643,7 +643,7 @@ class Or:Primitive {
         }
     }
     
-    override func proc(a: SExpr, b: SExpr) -> SExpr {
+    override func proc(_ a: SExpr, b: SExpr) -> SExpr {
         switch a {
         case let num as MBool:
             switch b {
@@ -665,7 +665,7 @@ class Not:Primitive {
         get {return "math"}
     }
     
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let res = args.last as? MBool {
                 if res.value {
@@ -690,7 +690,7 @@ class Mod :Primitive {
         get {return "math"}
     }
     
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         
         if args.count == 2 {
             let a = args[0]
@@ -700,7 +700,7 @@ class Mod :Primitive {
             case let num as MInt:
                 switch b {
                 case let num2 as MDouble:
-                    return MDouble(_value: Double(num.value) % num2.value)
+                    return MDouble(_value: Double(num.value).truncatingRemainder(dividingBy: num2.value))
                 case let num2 as MInt:
                     return MInt(_value: num.value % num2.value)
                 default:
@@ -710,9 +710,9 @@ class Mod :Primitive {
                 
                 switch b {
                 case let num2 as MDouble:
-                    return MDouble(_value: num.value % num2.value)
+                    return MDouble(_value: num.value.truncatingRemainder(dividingBy: num2.value))
                 case let num2 as MInt:
-                    return MDouble(_value: num.value % Double(num2.value))
+                    return MDouble(_value: num.value.truncatingRemainder(dividingBy: Double(num2.value)))
                 default:
                     break
                 }
@@ -732,7 +732,7 @@ class Power:Primitive {
         get {return "math"}
     }
     
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 2 {
             if let value = cast2double(args[0]), let indice = cast2double(args[1]) {
                 return MDouble(_value: pow(value, indice))
@@ -749,7 +749,7 @@ class Floor:Primitive {
         get {return "math"}
     }
     
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let value = cast2double(args[0]) {
                 return MInt(_value: Int(floor(value)))
@@ -767,7 +767,7 @@ class Round:Primitive {
         get {return "math"}
     }
     
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let value = cast2double(args[0]) {
                 return MInt(_value: Int(round(value)))
@@ -784,7 +784,7 @@ class Ceil:Primitive {
         get {return "math"}
     }
     
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let value = cast2double(args[0]) {
                 return MInt(_value: Int(ceil(value)))
@@ -801,7 +801,7 @@ class Sin:Primitive {
         get {return "math"}
     }
     
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let value = cast2double(args[0]) {
                 return MDouble(_value: sin(value))
@@ -818,7 +818,7 @@ class Cos:Primitive {
         get {return "math"}
     }
     
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let value = cast2double(args[0]) {
                 return MDouble(_value: cos(value))
@@ -835,7 +835,7 @@ class Tan:Primitive {
         get {return "math"}
     }
     
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let value = cast2double(args[0]) {
                 return MDouble(_value: tan(value))
@@ -852,7 +852,7 @@ class ArcSin:Primitive {
         get {return "math"}
     }
     
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let value = cast2double(args[0]) {
                 return MDouble(_value: asin(value))
@@ -869,7 +869,7 @@ class ArcCos:Primitive {
         get {return "math"}
     }
     
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let value = cast2double(args[0]) {
                 return MDouble(_value: acos(value))
@@ -886,7 +886,7 @@ class ArcTan:Primitive {
         get {return "math"}
     }
     
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let value = cast2double(args[0]) {
                 return MDouble(_value: atan(value))
@@ -903,7 +903,7 @@ class ArcTan2:Primitive {
         get {return "math"}
     }
     
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 2 {
             if let value1 = cast2double(args[0]), let value2 = cast2double(args[1])  {
                 return MDouble(_value: atan2(value1, value2))
@@ -920,7 +920,7 @@ class Sinh:Primitive {
         get {return "math"}
     }
     
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let value = cast2double(args[0]) {
                 return MDouble(_value: sinh(value))
@@ -937,7 +937,7 @@ class Cosh:Primitive {
         get {return "math"}
     }
     
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let value = cast2double(args[0]) {
                 return MDouble(_value: cosh(value))
@@ -954,7 +954,7 @@ class Tanh:Primitive {
         get {return "math"}
     }
     
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let value = cast2double(args[0]) {
                 return MDouble(_value: tanh(value))
@@ -971,7 +971,7 @@ class Log:Primitive {
         get {return "math"}
     }
     
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let value = cast2double(args[0]) {
                 return MDouble(_value: log(value))
@@ -988,7 +988,7 @@ class Log10:Primitive {
         get {return "math"}
     }
     
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let value = cast2double(args[0]) {
                 return MDouble(_value: log10(value))
@@ -1005,7 +1005,7 @@ class Sqrt:Primitive {
         get {return "math"}
     }
     
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let value = cast2double(args[0]) {
                 return MDouble(_value: sqrt(value))
@@ -1022,7 +1022,7 @@ class Abs:Primitive {
         get {return "math"}
     }
     
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             switch args.last {
             case let num as MDouble:
@@ -1044,7 +1044,7 @@ class Exp:Primitive {
         get {return "math"}
     }
     
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let value = cast2double(args[0]) {
                 return MDouble(_value: exp(value))
@@ -1061,9 +1061,9 @@ class Random:Primitive {
         get {return "math"}
     }
     
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 0 {
-            return MInt(_value: random())
+            return MInt(_value: Int(arc4random()))
         }
         print("\"random\" take no values")
         return MNull()
@@ -1076,7 +1076,7 @@ class Time:Primitive {
         get {return "math"}
     }
     
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 0 {
             return MDouble(_value: NSDate().timeIntervalSinceReferenceDate)
         }
@@ -1086,7 +1086,7 @@ class Time:Primitive {
 }
 
 class CastDouble : Primitive {
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         
         if args.count == 1 {
             switch args[0] {
@@ -1111,7 +1111,7 @@ class CastDouble : Primitive {
 ///// conscell procedures /////
 
 class Cons : Primitive {
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 2 {
             
             return Pair(car: args[0], cdr: args[1])
@@ -1127,7 +1127,7 @@ class Cons : Primitive {
 }
 
 class Join : Primitive {
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 2 {
             
             if let pair = args[0] as? Pair {
@@ -1143,7 +1143,7 @@ class Join : Primitive {
         return MNull()
     }
     
-    private func lastcdr(pair: Pair) -> Pair {
+    private func lastcdr(_ pair: Pair) -> Pair {
         if pair.cdr.isNull() {
             return pair
         } else if let pair2 = pair.cdr as? Pair {
@@ -1158,8 +1158,10 @@ class Join : Primitive {
     }
 }
 
+// Conscell Operators
+
 class Car : Primitive {
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let pair = args.first as? Pair {
                 return pair.car
@@ -1178,7 +1180,7 @@ class Car : Primitive {
 }
 
 class Cdr : Primitive {
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let pair = args.first as? Pair {
                 return pair.cdr
@@ -1197,7 +1199,7 @@ class Cdr : Primitive {
 }
 
 class Caar : Primitive {
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let pair = args.first as? Pair {
                 return pair.caar
@@ -1216,7 +1218,7 @@ class Caar : Primitive {
 }
 
 class Cadr : Primitive {
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let pair = args.first as? Pair {
                 return pair.cadr
@@ -1235,7 +1237,7 @@ class Cadr : Primitive {
 }
 
 class Cddr : Primitive {
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let pair = args.first as? Pair {
                 return pair.cddr
@@ -1254,7 +1256,7 @@ class Cddr : Primitive {
 }
 
 class Cdar : Primitive {
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let pair = args.first as? Pair {
                 return pair.cdar
@@ -1273,7 +1275,7 @@ class Cdar : Primitive {
 }
 
 class Caaar : Primitive {
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let pair = args.first as? Pair {
                 return pair.caaar
@@ -1292,7 +1294,7 @@ class Caaar : Primitive {
 }
 
 class Caadr : Primitive {
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let pair = args.first as? Pair {
                 return pair.caadr
@@ -1311,7 +1313,7 @@ class Caadr : Primitive {
 }
 
 class Caddr : Primitive {
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let pair = args.first as? Pair {
                 return pair.caddr
@@ -1330,7 +1332,7 @@ class Caddr : Primitive {
 }
 
 class Cdddr : Primitive {
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let pair = args.first as? Pair {
                 return pair.cdddr
@@ -1349,7 +1351,7 @@ class Cdddr : Primitive {
 }
 
 class Cdaar : Primitive {
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let pair = args.first as? Pair {
                 return pair.cdaar
@@ -1368,7 +1370,7 @@ class Cdaar : Primitive {
 }
 
 class Cadar : Primitive {
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let pair = args.first as? Pair {
                 return pair.cadar
@@ -1387,7 +1389,7 @@ class Cadar : Primitive {
 }
 
 class Cdadr : Primitive {
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let pair = args.first as? Pair {
                 return pair.cdadr
@@ -1406,7 +1408,7 @@ class Cdadr : Primitive {
 }
 
 class Cddar : Primitive {
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             if let pair = args.first as? Pair {
                 return pair.cddar
@@ -1424,10 +1426,144 @@ class Cddar : Primitive {
     }
 }
 
+///// Array utilities //////
+// Array is vector type of scheme.
+// Mint Lisp use name of 'vector' for 3d data type, so call list of data as 'array'.
+
+class NewArray : Primitive {
+    override func apply(_ args: [SExpr]) -> SExpr {
+        return MArray(_value: args)
+    }
+}
+
+class CountArray : Primitive {
+    override func apply(_ args: [SExpr]) -> SExpr {
+        if args.count == 1 {
+            if let arr = args[0] as? MArray {
+                return arr.count()
+            }
+        }
+        
+        print("count take only 1 argument, array type.", terminator: "\n")
+        return MNull()
+    }
+    
+    override func params_str() -> [String] {
+        return ["array"]
+    }
+}
+
+class AppendArray : Primitive {
+    override func apply(_ args: [SExpr]) -> SExpr {
+        if args.count == 2 {
+            if let arr = args[0] as? MArray {
+                arr.append(args[1])
+                return arr
+            }
+        }
+        
+        print("append take 1 array and i index int.", terminator: "\n")
+        return MNull()
+    }
+    
+    override func params_str() -> [String] {
+        return ["array", "newElement"]
+    }
+}
+
+class JointArray : Primitive {
+    override func apply(_ args: [SExpr]) -> SExpr {
+        if args.count == 2 {
+            if let arr = args[0] as? MArray, let arr2 = args[1] as? MArray {
+                arr.joint(arr2)
+                return arr
+            }
+        }
+        
+        print("joint take 1 array and i index int.", terminator: "\n")
+        return MNull()
+    }
+    
+    override func params_str() -> [String] {
+        return ["array", "array2"]
+    }
+}
+
+class ArrayAtIndex : Primitive {
+    override func apply(_ args: [SExpr]) -> SExpr {
+        if args.count == 2 {
+            if let arr = args[0] as? MArray, let i = args[1] as? MInt {
+                return arr.atIndex(i.value)
+            }
+        }
+        
+        print("at-index take 1 array and 1 index int.", terminator: "\n")
+        return MNull()
+    }
+    
+    override func params_str() -> [String] {
+        return ["array", "index"]
+    }
+}
+
+class RemoveAtIndex : Primitive {
+    override func apply(_ args: [SExpr]) -> SExpr {
+        if args.count == 2 {
+            if let arr = args[0] as? MArray, let i = args[1] as? MInt {
+                arr.remove(at: i.value)
+                return arr
+            }
+        }
+        
+        print("remove-at-index take 1 array and i index int.", terminator: "\n")
+        return MNull()
+    }
+    
+    override func params_str() -> [String] {
+        return ["array", "index"]
+    }
+}
+
+class RemoveAll : Primitive {
+    override func apply(_ args: [SExpr]) -> SExpr {
+        if args.count == 1 {
+            if let arr = args[0] as? MArray {
+                arr.removeAll()
+                return arr
+            }
+        }
+        
+        print("remove-all take 1 array only.", terminator: "\n")
+        return MNull()
+    }
+    
+    override func params_str() -> [String] {
+        return ["array"]
+    }
+}
+
+class RemoveLast : Primitive {
+    override func apply(_ args: [SExpr]) -> SExpr {
+        if args.count == 1 {
+            if let arr = args[0] as? MArray {
+                arr.removeLast()
+                return arr
+            }
+        }
+        
+        print("remove-last take 1 array only.", terminator: "\n")
+        return MNull()
+    }
+    
+    override func params_str() -> [String] {
+        return ["array"]
+    }
+}
+
 ///// IO /////
 
 class Print : Primitive {
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         if args.count == 1 {
             print(args[0], terminator: "\n")
         } else {
@@ -1443,7 +1579,7 @@ class Print : Primitive {
 
 class Quit : Primitive {
     // dummy, for real quit process, see main.swift
-    override func apply(args: [SExpr]) -> SExpr {
+    override func apply(_ args: [SExpr]) -> SExpr {
         print("byby", terminator: "\n")
         return MNull()
     }
